@@ -12,10 +12,6 @@ module Nandi
   CompiledMigration = Struct.new(:file_name, :body)
 
   class << self
-    def root
-      __dir__
-    end
-
     def compile(files:)
       yield files.map(&method(:compiled_migration))
     end
