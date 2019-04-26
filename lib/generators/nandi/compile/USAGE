@@ -1,0 +1,6 @@
+Description:
+    Takes all files from the db/nandi directory and turns
+    them into ActiveRecordmigration files.
+
+Example:
+    rails generate nandi:compile

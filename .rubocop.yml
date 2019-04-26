@@ -1,0 +1,54 @@
+# For all options see https://github.com/bbatsov/rubocop/tree/master/config
+
+inherit_gem:
+  gc_ruboconfig: rubocop.yml
+require:
+  - rubocop-rspec
+
+AllCops:
+  DisplayCopNames: true
+  Exclude:
+    - .*/**/*
+    - bin/**/*
+    - lib/**/templates/**/*
+    - spec/nandi/fixtures/**/*
+    - node_modules/**/*
+
+Metrics/MethodLength:
+  Max: 10
+
+Style/EqWithParentheses:
+  Include:
+    - 'spec/**/*'
+
+Style/DeprecateRspecNeverMatcher:
+  Include:
+    - 'spec/**/*'
+
+RSpec/NotToNot:
+  EnforcedStyle: to_not
+
+# TODO: Make this number smaller
+RSpec/NestedGroups:
+  Max: 8
+
+RSpec/MultipleExpectations:
+  Max: 3
+
+RSpec/ContextWording:
+  Enabled: false
+
+RSpec/AnyInstance:
+  Enabled: false
+
+Naming/UncommunicativeMethodParamName:
+  AllowedNames:
+    # These are the default allowed names, set by Rubocop
+    - io
+    - id
+    # These are some custom names that we want to allow, since they aren't
+    # uncommunicative - they're actually rather meaningful!
+    - to
+    - x
+    - y
+    - of

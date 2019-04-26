@@ -1,0 +1,15 @@
+class <%= name %> < ActiveRecord::Migration[5.2]
+  <% if should_disable_ddl_transaction? %>disable_ddl_transaction!<% end %>
+  def up
+  <% up_instructions.each do |i| %>
+    <%= cell("#{partials_base}/#{i.procedure}", i) %>
+  <% end %>
+  end
+  <% if down_instructions&.any? %>
+  def down
+  <% down_instructions.each do |i| %>
+    <%= cell("#{partials_base}/#{i.procedure}", i) %>
+  <% end %>
+  end
+  <% end %>
+end
