@@ -6,4 +6,4 @@ Example:
     rails generate nandi:migration add_stuff_to_things
 
     This will create:
-        db/nandi/20190424123727_add_stuff_to_things.rb
+        db/safe_migrations/20190424123727_add_stuff_to_things.rb
