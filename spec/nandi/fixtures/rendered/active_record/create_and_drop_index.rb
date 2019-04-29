@@ -6,7 +6,11 @@ class MyAwesomeMigration < ActiveRecord::Migration[5.2]
   def up
   
     add_index :payments, [:foo, :bar],
-      {:name=>:idx_payments_on_foo_bar, :algorithm=>:concurrently, :using=>:btree}
+      {
+  name: :idx_payments_on_foo_bar,
+  algorithm: :concurrently,
+  using: :btree,
+}
 
   
   end
@@ -14,7 +18,10 @@ class MyAwesomeMigration < ActiveRecord::Migration[5.2]
   def down
   
     remove_index :payments,
-      {:column=>[:foo, :bar], :algorithm=>:concurrently}
+      {
+  column: [:foo, :bar],
+  algorithm: :concurrently,
+}
 
   
   end

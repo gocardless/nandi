@@ -11,9 +11,7 @@ module Nandi
     end
 
     def call
-      _, opts = instruction.arguments
-
-      opts.key?(:name) || opts.key?(:column)
+      instruction.extra_args.key?(:name) || instruction.extra_args.key?(:column)
     end
 
     attr_reader :instruction

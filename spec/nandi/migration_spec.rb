@@ -54,24 +54,8 @@ RSpec.describe Nandi::Migration do
           end
         end
 
-        let(:expected_args) do
-          [
-            :payments,
-            %i[foo],
-            {
-              name: :idx_payments_on_foo,
-              using: :btree,
-              algorithm: :concurrently,
-            },
-          ]
-        end
-
         it "returns an instruction" do
           expect(instructions.first.procedure).to eq(:create_index)
-        end
-
-        it "exposes the correct arguments" do
-          expect(instructions.first.arguments).to eq(expected_args)
         end
       end
 
@@ -84,24 +68,8 @@ RSpec.describe Nandi::Migration do
           end
         end
 
-        let(:expected_args) do
-          [
-            :payments,
-            %i[foo bar],
-            {
-              name: :idx_payments_on_foo_bar,
-              using: :btree,
-              algorithm: :concurrently,
-            },
-          ]
-        end
-
         it "returns an instruction" do
           expect(instructions.first.procedure).to eq(:create_index)
-        end
-
-        it "exposes the correct arguments" do
-          expect(instructions.first.arguments).to eq(expected_args)
         end
       end
     end
@@ -117,25 +85,8 @@ RSpec.describe Nandi::Migration do
         end
       end
 
-      let(:expected_args) do
-        [
-          :payments,
-          %i[foo],
-          {
-            name: :idx_payments_on_foo,
-            using: :btree,
-            algorithm: :concurrently,
-            extra: :arg,
-          },
-        ]
-      end
-
       it "returns an instruction" do
         expect(instructions.first.procedure).to eq(:create_index)
-      end
-
-      it "exposes the correct arguments" do
-        expect(instructions.first.arguments).to eq(expected_args)
       end
     end
   end
@@ -157,13 +108,6 @@ RSpec.describe Nandi::Migration do
       it "returns an instruction" do
         expect(instructions.first.procedure).to eq(:drop_index)
       end
-
-      it "exposes the correct arguments" do
-        expect(instructions.first.arguments).to eq([
-          :payments,
-          { column: [:foo], algorithm: :concurrently },
-        ])
-      end
     end
 
     context "dropping an index by options hash" do
@@ -181,13 +125,6 @@ RSpec.describe Nandi::Migration do
         it "returns an instruction" do
           expect(instructions.first.procedure).to eq(:drop_index)
         end
-
-        it "exposes the correct arguments" do
-          expect(instructions.first.arguments).to eq([
-            :payments,
-            { algorithm: :concurrently, column: :foo },
-          ])
-        end
       end
 
       context "with name property" do
@@ -203,13 +140,6 @@ RSpec.describe Nandi::Migration do
 
         it "returns an instruction" do
           expect(instructions.first.procedure).to eq(:drop_index)
-        end
-
-        it "exposes the correct arguments" do
-          expect(instructions.first.arguments).to eq([
-            :payments,
-            { algorithm: :concurrently, name: :index_payments_on_foo },
-          ])
         end
       end
     end

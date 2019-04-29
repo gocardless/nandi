@@ -12,14 +12,11 @@ module Nandi
         :drop_index
       end
 
-      def arguments
+      def extra_args
         if field.is_a?(Hash)
-          [table, field.merge(algorithm: :concurrently)]
+          field.merge(algorithm: :concurrently)
         else
-          [
-            table,
-            { column: Array(field), algorithm: :concurrently },
-          ]
+          { column: Array(field), algorithm: :concurrently }
         end
       end
 

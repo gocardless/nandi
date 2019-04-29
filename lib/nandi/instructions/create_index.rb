@@ -13,33 +13,27 @@ module Nandi
         :create_index
       end
 
-      def arguments
-        [
-          table,
-          fields,
-          {
-            # Overridable defaults
-            name: name,
+      def extra_args
+        {
+          # Overridable defaults
+          name: name,
 
-            # Overrides and extra options
-            **extra_args,
+          # Overrides and extra options
+          **@extra_args,
 
-            # Mandatory values
-            algorithm: :concurrently,
-            using: :btree,
-          },
-        ]
+          # Mandatory values
+          algorithm: :concurrently,
+          using: :btree,
+        }
       end
 
-      attr_reader :table
+      attr_reader :table, :fields
 
       private
 
       def name
         :"idx_#{table.to_s}_on_#{fields.map(&:to_s).join("_")}"
       end
-
-      attr_reader :fields, :extra_args
     end
   end
 end

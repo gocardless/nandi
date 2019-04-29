@@ -43,7 +43,7 @@ RSpec.describe Nandi::Validator do
           instance_double(Nandi::Instructions::DropIndex,
                           table: :payments,
                           procedure: :drop_index,
-                          arguments: [:payments, { name: :index_payments_on_foo }]),
+                          extra_args: { name: :index_payments_on_foo }),
         ]
       end
 
@@ -56,7 +56,7 @@ RSpec.describe Nandi::Validator do
           instance_double(Nandi::Instructions::DropIndex,
                           table: :payments,
                           procedure: :drop_index,
-                          arguments: [:payments, { column: %i[foo] }]),
+                          extra_args: { column: %i[foo] }),
         ]
       end
 
@@ -69,7 +69,7 @@ RSpec.describe Nandi::Validator do
           instance_double(Nandi::Instructions::DropIndex,
                           table: :payments,
                           procedure: :drop_index,
-                          arguments: [:payments, { very: :irrelevant }]),
+                          extra_args: { very: :irrelevant }),
         ]
       end
 
@@ -83,11 +83,11 @@ RSpec.describe Nandi::Validator do
         instance_double(Nandi::Instructions::DropIndex,
                         table: :payments,
                         procedure: :drop_index,
-                        arguments: [:payments, { name: :index_payments_on_foo }]),
+                        extra_args: { name: :index_payments_on_foo }),
         instance_double(Nandi::Instructions::DropIndex,
                         table: :mandates,
                         procedure: :drop_index,
-                        arguments: [:mandates, { name: :index_payments_on_foo }]),
+                        extra_args: { name: :index_payments_on_foo }),
       ]
     end
 
@@ -100,11 +100,11 @@ RSpec.describe Nandi::Validator do
         instance_double(Nandi::Instructions::DropIndex,
                         table: :payments,
                         procedure: :drop_index,
-                        arguments: [:payments, { name: :index_payments_on_foo }]),
+                        extra_args: { name: :index_payments_on_foo }),
         instance_double(Nandi::Instructions::DropIndex,
                         table: "payments",
                         procedure: :drop_index,
-                        arguments: ["payments", { name: :index_payments_on_foo }]),
+                        extra_args: { name: :index_payments_on_foo }),
       ]
     end
 

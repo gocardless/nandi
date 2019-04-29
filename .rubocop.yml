@@ -17,14 +17,6 @@ AllCops:
 Metrics/MethodLength:
   Max: 10
 
-Style/EqWithParentheses:
-  Include:
-    - 'spec/**/*'
-
-Style/DeprecateRspecNeverMatcher:
-  Include:
-    - 'spec/**/*'
-
 RSpec/NotToNot:
   EnforcedStyle: to_not
 
