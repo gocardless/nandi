@@ -9,7 +9,7 @@ Gem::Specification.new do |spec|
   spec.authors       = ["James Turley"]
   spec.email         = ["jamesturley@gocardless.com"]
 
-  spec.summary       = "not now ffs"
+  spec.summary       = "Fear-free migrations for PostgreSQL"
   # spec.description   = %q{TODO: Write a longer description or delete this line.}
   # spec.homepage      = "TODO: Put your gem's website or public repo URL here."
 
