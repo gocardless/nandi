@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require "nandi/config"
-require "nandi/migration"
 require "nandi/renderers"
 require "active_support/core_ext/string/inflections"
 

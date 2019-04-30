@@ -11,7 +11,7 @@ module Nandi
 
       template(
         "migration.rb",
-        "db/nandi/#{timestamp}_#{file_name.snakecase}.rb",
+        "db/safe_migrations/#{timestamp}_#{file_name.snakecase}.rb",
       )
     end
   end

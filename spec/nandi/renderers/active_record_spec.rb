@@ -41,6 +41,33 @@ RSpec.describe Nandi::Renderers::ActiveRecord do
       end
 
       it { is_expected.to eq(fixture) }
+
+      context "with custom timeouts" do
+        let(:fixture) do
+          File.read(File.join(fixture_root, "create_and_drop_index_timeouts.rb"))
+        end
+
+        let(:safe_migration) do
+          Class.new(Nandi::Migration) do
+            set_statement_timeout(5000)
+            set_lock_timeout(5000)
+
+            def self.name
+              "MyAwesomeMigration"
+            end
+
+            def up
+              create_index :payments, %i[foo bar]
+            end
+
+            def down
+              drop_index :payments, %i[foo bar]
+            end
+          end
+        end
+
+        it { is_expected.to eq(fixture) }
+      end
     end
   end
 end
