@@ -23,9 +23,11 @@ module Nandi
         end
       end
 
+      attr_reader :table
+
       private
 
-      attr_reader :table, :field
+      attr_reader :field
     end
   end
 end

@@ -31,13 +31,15 @@ module Nandi
         ]
       end
 
+      attr_reader :table
+
       private
 
       def name
         :"idx_#{table.to_s}_on_#{fields.map(&:to_s).join("_")}"
       end
 
-      attr_reader :fields, :table, :extra_args
+      attr_reader :fields, :extra_args
     end
   end
 end

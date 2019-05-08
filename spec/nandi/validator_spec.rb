@@ -12,6 +12,7 @@ RSpec.describe Nandi::Validator do
       let(:instructions) do
         [
           instance_double(Nandi::Instructions::CreateIndex,
+                          table: :payments,
                           procedure: :create_index),
         ]
       end
@@ -23,8 +24,10 @@ RSpec.describe Nandi::Validator do
       let(:instructions) do
         [
           instance_double(Nandi::Instructions::CreateIndex,
+                          table: :payments,
                           procedure: :create_index),
           instance_double(Nandi::Instructions::CreateIndex,
+                          table: :payments,
                           procedure: :create_index),
         ]
       end
@@ -33,11 +36,12 @@ RSpec.describe Nandi::Validator do
     end
   end
 
-  describe "#drop_index" do
+  context "dropping an index" do
     context "dropping an index by index name" do
       let(:instructions) do
         [
-          instance_double(Nandi::Instructions::CreateIndex,
+          instance_double(Nandi::Instructions::DropIndex,
+                          table: :payments,
                           procedure: :drop_index,
                           arguments: [:payments, { name: :index_payments_on_foo }]),
         ]
@@ -49,7 +53,8 @@ RSpec.describe Nandi::Validator do
     context "dropping an index by column name" do
       let(:instructions) do
         [
-          instance_double(Nandi::Instructions::CreateIndex,
+          instance_double(Nandi::Instructions::DropIndex,
+                          table: :payments,
                           procedure: :drop_index,
                           arguments: [:payments, { column: %i[foo] }]),
         ]
@@ -61,7 +66,8 @@ RSpec.describe Nandi::Validator do
     context "dropping an index without valid props" do
       let(:instructions) do
         [
-          instance_double(Nandi::Instructions::CreateIndex,
+          instance_double(Nandi::Instructions::DropIndex,
+                          table: :payments,
                           procedure: :drop_index,
                           arguments: [:payments, { very: :irrelevant }]),
         ]
@@ -69,5 +75,39 @@ RSpec.describe Nandi::Validator do
 
       it { is_expected.to eq(false) }
     end
+  end
+
+  context "with more than one object modified" do
+    let(:instructions) do
+      [
+        instance_double(Nandi::Instructions::DropIndex,
+                        table: :payments,
+                        procedure: :drop_index,
+                        arguments: [:payments, { name: :index_payments_on_foo }]),
+        instance_double(Nandi::Instructions::DropIndex,
+                        table: :mandates,
+                        procedure: :drop_index,
+                        arguments: [:mandates, { name: :index_payments_on_foo }]),
+      ]
+    end
+
+    it { is_expected.to eq(false) }
+  end
+
+  context "with one object modified as string and symbol" do
+    let(:instructions) do
+      [
+        instance_double(Nandi::Instructions::DropIndex,
+                        table: :payments,
+                        procedure: :drop_index,
+                        arguments: [:payments, { name: :index_payments_on_foo }]),
+        instance_double(Nandi::Instructions::DropIndex,
+                        table: "payments",
+                        procedure: :drop_index,
+                        arguments: ["payments", { name: :index_payments_on_foo }]),
+      ]
+    end
+
+    it { is_expected.to eq(true) }
   end
 end
