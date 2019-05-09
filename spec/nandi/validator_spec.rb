@@ -113,4 +113,68 @@ RSpec.describe Nandi::Validator do
 
     it { is_expected.to eq(true) }
   end
+
+  context "adding a column" do
+    context "a valid instruction" do
+      let(:instructions) do
+        [
+          Nandi::Instructions::AddColumn.new(
+            table: :payments,
+            name: :stuff,
+            type: :text,
+            null: true,
+          ),
+        ]
+      end
+
+      it { is_expected.to eq(true) }
+    end
+
+    context "with null: false" do
+      let(:instructions) do
+        [
+          Nandi::Instructions::AddColumn.new(
+            table: :payments,
+            name: :stuff,
+            type: :text,
+            null: false,
+          ),
+        ]
+      end
+
+      it { is_expected.to eq(false) }
+    end
+
+    context "with a default value" do
+      let(:instructions) do
+        [
+          Nandi::Instructions::AddColumn.new(
+            table: :payments,
+            name: :stuff,
+            type: :text,
+            null: true,
+            default: "swilly!",
+          ),
+        ]
+      end
+
+      it { is_expected.to eq(false) }
+    end
+
+    context "with a unique constraint" do
+      let(:instructions) do
+        [
+          Nandi::Instructions::AddColumn.new(
+            table: :payments,
+            name: :stuff,
+            type: :text,
+            null: true,
+            unique: true,
+          ),
+        ]
+      end
+
+      it { is_expected.to eq(false) }
+    end
+  end
 end

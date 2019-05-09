@@ -33,6 +33,8 @@ module Nandi
         case instruction.procedure
         when :drop_index
           DropIndexValidator.call(instruction)
+        when :add_column
+          AddColumnValidator.call(instruction)
         else
           true
         end
