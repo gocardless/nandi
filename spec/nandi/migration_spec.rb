@@ -208,4 +208,76 @@ RSpec.describe Nandi::Migration do
       expect(instructions.first.table).to eq(:payments)
     end
   end
+  describe "#add_column" do
+    subject(:instructions) { subject_class.new(validator).up_instructions }
+
+    context "with no extra options" do
+      let(:subject_class) do
+        Class.new(described_class) do
+          def up
+            add_column :payments, :my_column, :text
+          end
+
+          def down; end
+        end
+      end
+
+      it "has the correct procedure" do
+        expect(instructions.first.procedure).to eq(:add_column)
+      end
+
+      it "has the correct table" do
+        expect(instructions.first.table).to eq(:payments)
+      end
+
+      it "has the correct column name" do
+        expect(instructions.first.name).to eq(:my_column)
+      end
+
+      it "has the correct column type" do
+        expect(instructions.first.type).to eq(:text)
+      end
+
+      it "sets the default constraints" do
+        expect(instructions.first.extra_args).to eq(
+          null: true,
+        )
+      end
+    end
+
+    context "with extra options" do
+      let(:subject_class) do
+        Class.new(described_class) do
+          def up
+            add_column :payments, :my_column, :text, collate: :de_DE
+          end
+
+          def down; end
+        end
+      end
+
+      it "has the correct procedure" do
+        expect(instructions.first.procedure).to eq(:add_column)
+      end
+
+      it "has the correct table" do
+        expect(instructions.first.table).to eq(:payments)
+      end
+
+      it "has the correct column name" do
+        expect(instructions.first.name).to eq(:my_column)
+      end
+
+      it "has the correct column type" do
+        expect(instructions.first.type).to eq(:text)
+      end
+
+      it "sets the default constraints" do
+        expect(instructions.first.extra_args).to eq(
+          null: true,
+          collate: :de_DE,
+        )
+      end
+    end
+  end
 end
