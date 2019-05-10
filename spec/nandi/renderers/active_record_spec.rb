@@ -4,7 +4,6 @@ require "spec_helper"
 require "nandi/renderers/active_record"
 require "nandi/migration"
 require "nandi/validator"
-require "pry"
 
 RSpec.describe Nandi::Renderers::ActiveRecord do
   describe "::generate" do
@@ -68,6 +67,34 @@ RSpec.describe Nandi::Renderers::ActiveRecord do
 
         it { is_expected.to eq(fixture) }
       end
+    end
+
+    describe "creating and dropping a table" do
+      let(:fixture) do
+        File.read(File.join(fixture_root, "create_and_drop_table.rb"))
+      end
+
+      let(:safe_migration) do
+        Class.new(Nandi::Migration) do
+          def self.name
+            "MyAwesomeMigration"
+          end
+
+          def up
+            create_table :payments do |t|
+              t.column :payer, :string
+              t.column :ammount, :float
+              t.column :payed, :bool, default: false
+            end
+          end
+
+          def down
+            drop_table :payments
+          end
+        end
+      end
+
+      it { is_expected.to eq(fixture) }
     end
   end
 end

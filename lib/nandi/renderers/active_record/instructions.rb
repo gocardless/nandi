@@ -33,6 +33,22 @@ module Nandi
           formatted_property :fields
           formatted_property :extra_args
         end
+
+        class CreateTableCell < Base
+          def table
+            model.arguments.first
+          end
+
+          def columns
+            model.arguments.last
+          end
+        end
+
+        class DropTableCell < Base
+          def table
+            model.arguments.first
+          end
+        end
       end
     end
   end

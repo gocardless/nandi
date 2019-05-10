@@ -66,6 +66,17 @@ module Nandi
       current_instructions << Instructions::DropIndex.new(table: table, field: field)
     end
 
+    def create_table(table, &block)
+      current_instructions << Instructions::CreateTable.new(
+        table: table,
+        columns_block: block,
+      )
+    end
+
+    def drop_table(table)
+      current_instructions << Instructions::DropTable.new(table: table)
+    end
+
     def compile_instructions(direction)
       @direction = direction
 

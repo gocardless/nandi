@@ -144,4 +144,65 @@ RSpec.describe Nandi::Migration do
       end
     end
   end
+
+  describe "#create_table" do
+    subject(:instructions) { subject_class.new(validator).up_instructions }
+
+    let(:subject_class) do
+      Class.new(described_class) do
+        def up
+          create_table :payments do |t|
+            t.column :name, :string, default: "no one"
+            t.column :amount, :float
+            t.column :paid, :bool, default: false
+          end
+        end
+      end
+    end
+
+    let(:expected_args) do
+      [
+        :payments,
+        [
+          [:name, :string, {default: "no one"}],
+          [:amount, :float, {}],
+          [:paid, :bool, {default: false}],
+        ]
+      ]
+    end
+
+    it "returns an instruction" do
+      expect(instructions.first.procedure).to eq(:create_table)
+    end
+
+    it "exposes the correct arguments" do
+      expect(instructions.first.arguments).to eq(expected_args)
+    end
+  end
+
+  describe "#drop_table" do
+    subject(:instructions) { subject_class.new(validator).up_instructions }
+
+    let(:subject_class) do
+      Class.new(described_class) do
+        def up
+          drop_table :payments
+        end
+      end
+    end
+
+    let(:expected_args) do
+      [
+        :payments,
+      ]
+    end
+
+    it "returns an instruction" do
+      expect(instructions.first.procedure).to eq(:drop_table)
+    end
+
+    it "exposes the correct arguments" do
+      expect(instructions.first.arguments).to eq(expected_args)
+    end
+  end
 end
