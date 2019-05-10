@@ -1,4 +1,7 @@
 class <%= name %> < ActiveRecord::Migration[5.2]
+  set_lock_timeout(<%= lock_timeout %>)
+  set_statement_timeout(<%= statement_timeout %>)
+
   <% if should_disable_ddl_transaction? %>disable_ddl_transaction!<% end %>
   def up
   <% up_instructions.each do |i| %>

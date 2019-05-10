@@ -66,10 +66,6 @@ RSpec.describe Nandi::Migration do
           ]
         end
 
-        it "is valid" do
-          expect(subject_class.new(validator)).to be_valid
-        end
-
         it "returns an instruction" do
           expect(instructions.first.procedure).to eq(:create_index)
         end
@@ -98,10 +94,6 @@ RSpec.describe Nandi::Migration do
               algorithm: :concurrently,
             },
           ]
-        end
-
-        it "is valid" do
-          expect(subject_class.new(validator)).to be_valid
         end
 
         it "returns an instruction" do
@@ -138,10 +130,6 @@ RSpec.describe Nandi::Migration do
         ]
       end
 
-      it "is valid" do
-        expect(subject_class.new(validator)).to be_valid
-      end
-
       it "returns an instruction" do
         expect(instructions.first.procedure).to eq(:create_index)
       end
@@ -149,21 +137,6 @@ RSpec.describe Nandi::Migration do
       it "exposes the correct arguments" do
         expect(instructions.first.arguments).to eq(expected_args)
       end
-    end
-
-    context "with more than one new index" do
-      subject(:migration) { subject_class.new(validator) }
-
-      let(:subject_class) do
-        Class.new(described_class) do
-          def up
-            create_index :payments, :foo
-            create_index :payments, :bar
-          end
-        end
-      end
-
-      it { is_expected.to_not be_valid }
     end
   end
 
@@ -179,10 +152,6 @@ RSpec.describe Nandi::Migration do
             drop_index :payments, :foo
           end
         end
-      end
-
-      it "is valid" do
-        expect(subject_class.new(validator)).to be_valid
       end
 
       it "returns an instruction" do
@@ -209,10 +178,6 @@ RSpec.describe Nandi::Migration do
           end
         end
 
-        it "is valid" do
-          expect(subject_class.new(validator)).to be_valid
-        end
-
         it "returns an instruction" do
           expect(instructions.first.procedure).to eq(:drop_index)
         end
@@ -236,10 +201,6 @@ RSpec.describe Nandi::Migration do
           end
         end
 
-        it "is valid" do
-          expect(subject_class.new(validator)).to be_valid
-        end
-
         it "returns an instruction" do
           expect(instructions.first.procedure).to eq(:drop_index)
         end
@@ -249,22 +210,6 @@ RSpec.describe Nandi::Migration do
             :payments,
             { algorithm: :concurrently, name: :index_payments_on_foo },
           ])
-        end
-      end
-
-      context "with invalid properties" do
-        let(:subject_class) do
-          Class.new(described_class) do
-            def up; end
-
-            def down
-              drop_index :payments, wut: 42
-            end
-          end
-        end
-
-        it "is not valid" do
-          expect(subject_class.new(validator)).to_not be_valid
         end
       end
     end

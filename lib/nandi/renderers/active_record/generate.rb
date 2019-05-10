@@ -35,6 +35,8 @@ module Nandi
         property :up_instructions
         property :down_instructions
         property :name
+        property :lock_timeout
+        property :statement_timeout
       end
     end
   end

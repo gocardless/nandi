@@ -3,4 +3,6 @@
 require "nandi/instructions/create_index"
 require "nandi/instructions/drop_index"
 
-module Instructions; end
+module Nandi
+  module Instructions; end
+end

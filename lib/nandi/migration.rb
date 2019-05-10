@@ -5,6 +5,28 @@ require "nandi/validator"
 
 module Nandi
   class Migration
+    class << self
+      def lock_timeout
+        @lock_timeout ||= Nandi.config.lock_timeout
+      end
+
+      def statement_timeout
+        @statement_timeout ||= Nandi.config.statement_timeout
+      end
+
+      # For sake both of correspondence with Postgres syntax and familiarity
+      # with ActiveRecord's identically named macros, we disable this cop.
+      # rubocop:disable Naming/AccessorMethodName
+      def set_lock_timeout(timeout)
+        @lock_timeout = timeout
+      end
+
+      def set_statement_timeout(timeout)
+        @statement_timeout = timeout
+      end
+      # rubocop:enable Naming/AccessorMethodName
+    end
+
     def initialize(validator)
       @validator = validator
       @instructions = Hash.new { |h, k| h[k] = [] }
@@ -16,6 +38,14 @@ module Nandi
 
     def down_instructions
       compile_instructions(:down)
+    end
+
+    def lock_timeout
+      self.class.lock_timeout
+    end
+
+    def statement_timeout
+      self.class.statement_timeout
     end
 
     def up

@@ -2,6 +2,7 @@
 
 require "rails/generators"
 require "nandi"
+require "nandi/migration"
 
 module Nandi
   class CompileGenerator < Rails::Generators::Base
