@@ -38,7 +38,7 @@ module Nandi
         format_hash(value)
       when Array
         "[#{value.map(&method(:format_value)).join(', ')}]"
-      when String, Symbol, Integer, Float, NilClass
+      when String, Symbol, Integer, Float, NilClass, TrueClass, FalseClass
         value.inspect
       else
         raise UnsupportedValueError,

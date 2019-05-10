@@ -160,14 +160,11 @@ RSpec.describe Nandi::Migration do
       end
     end
 
-    let(:expected_args) do
+    let(:expected_columns) do
       [
-        :payments,
-        [
-          [:name, :string, {default: "no one"}],
-          [:amount, :float, {}],
-          [:paid, :bool, {default: false}],
-        ]
+        [:name, :string, {default: "no one"}],
+        [:amount, :float, {}],
+        [:paid, :bool, {default: false}],
       ]
     end
 
@@ -175,8 +172,20 @@ RSpec.describe Nandi::Migration do
       expect(instructions.first.procedure).to eq(:create_table)
     end
 
-    it "exposes the correct arguments" do
-      expect(instructions.first.arguments).to eq(expected_args)
+    it "exposes the correct table name" do
+      expect(instructions.first.table).to eq(:payments)
+    end
+
+    it "exposes the correct columns number" do
+      expect(instructions.first.columns.length).to eq(3)
+    end
+
+    it "exposes the correct columns values" do
+      instructions.first.columns.each_with_index do |c, i|
+        expect(c.name).to eq(expected_columns[i][0])
+        expect(c.type).to eq(expected_columns[i][1])
+        expect(c.args).to eq(expected_columns[i][2])
+      end
     end
   end
 
@@ -191,18 +200,12 @@ RSpec.describe Nandi::Migration do
       end
     end
 
-    let(:expected_args) do
-      [
-        :payments,
-      ]
-    end
-
     it "returns an instruction" do
       expect(instructions.first.procedure).to eq(:drop_table)
     end
 
-    it "exposes the correct arguments" do
-      expect(instructions.first.arguments).to eq(expected_args)
+    it "exposes the correct attributes" do
+      expect(instructions.first.table).to eq(:payments)
     end
   end
 end

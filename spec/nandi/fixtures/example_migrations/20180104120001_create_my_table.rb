@@ -2,7 +2,7 @@
 
 class MyMigration < Nandi::Migration
   def up
-    create_table :payments, do |t|
+    create_table :payments do |t|
       t.column :payer, :string
       t.column :ammount, :float
       t.column :payed, :bool, default: false

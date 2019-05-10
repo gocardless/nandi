@@ -1,5 +1,5 @@
-create_table :<%= table %> do |t|
+create_table <%= table %> do |t|
 <% columns.each do |column| %>
-      t.column :<%= column[0] %>, :<%= column[1] %><%= ", #{column[2].inspect}" if column[2] %>
+      t.column <%= column.name %>, <%= column.type %><%= ", #{column.args}" if column.args %>
 <% end %>
 end

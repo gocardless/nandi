@@ -1,8 +1,12 @@
 # frozen_string_literal: true
 
+require "ostruct"
+
 module Nandi
   module Instructions
     class CreateTable
+      attr_reader :table, :columns
+
       def initialize(table:, columns_block:)
         @table = table
         columns_reader = ColumnsReader.new
@@ -14,17 +18,6 @@ module Nandi
         :create_table
       end
 
-      def arguments
-        [
-          table,
-          columns,
-        ]
-      end
-
-      private
-
-      attr_reader :table, :columns
-
       class ColumnsReader
         attr_reader :columns
 
@@ -33,7 +26,7 @@ module Nandi
         end
 
         def column(name, type, **args)
-          @columns << Array([name, type, args])
+          @columns << OpenStruct.new(name: name, type: type, args: args)
         end
       end
     end

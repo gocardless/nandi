@@ -6,9 +6,11 @@ class MyAwesomeMigration < ActiveRecord::Migration[5.2]
   def up
   
     create_table :payments do |t|
-      t.column :payer, :string, {}
-      t.column :ammount, :float, {}
-      t.column :payed, :bool, {:default=>false}
+      t.column :payer, :string
+      t.column :ammount, :float
+      t.column :payed, :bool, {
+  default: false
+}
 end
 
   
