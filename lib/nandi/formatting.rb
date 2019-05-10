@@ -63,7 +63,7 @@ module Nandi
         "#{key} #{format_value(v)}"
       end
 
-      "{\n  #{pairs.join(",\n  ")},\n}"
+      "{\n  #{pairs.join(",\n  ")}\n}"
     end
 
     def symbol_key(key)

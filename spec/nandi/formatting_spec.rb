@@ -73,7 +73,7 @@ RSpec.describe Nandi::Formatting do
         end
 
         it "formats the hash correctly" do
-          expect(result).to eq("[{\n  foo: 5,\n}]")
+          expect(result).to eq("[{\n  foo: 5\n}]")
         end
       end
     end
@@ -98,7 +98,10 @@ RSpec.describe Nandi::Formatting do
 
     let(:subject_class) do
       Struct.new(:model) do
+        # described_class is not in scope here.
+        # rubocop:disable RSpec/DescribedClass
         include Nandi::Formatting
+        # rubocop:enable RSpec/DescribedClass
 
         formatted_property :my_hash
       end
@@ -108,6 +111,6 @@ RSpec.describe Nandi::Formatting do
       Struct.new(:my_hash).new(foo: { bar: 5 })
     end
 
-    it { is_expected.to eq("{\n  foo: {\n  bar: 5,\n},\n}") }
+    it { is_expected.to eq("{\n  foo: {\n  bar: 5\n}\n}") }
   end
 end
