@@ -168,9 +168,9 @@ RSpec.describe Nandi::Migration do
 
     let(:expected_columns) do
       [
-        [:name, :string, {default: "no one"}],
+        [:name, :string, { default: "no one" }],
         [:amount, :float, {}],
-        [:paid, :bool, {default: false}],
+        [:paid, :bool, { default: false }],
       ]
     end
 
@@ -214,6 +214,7 @@ RSpec.describe Nandi::Migration do
       expect(instructions.first.table).to eq(:payments)
     end
   end
+
   describe "#add_column" do
     subject(:instructions) { subject_class.new(validator).up_instructions }
 
