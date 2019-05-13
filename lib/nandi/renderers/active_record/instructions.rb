@@ -66,6 +66,12 @@ module Nandi
           formatted_property :name
           formatted_property :extra_args
         end
+
+        class AlterColumnCell < Base
+          formatted_property :table
+          formatted_property :name
+          formatted_property :alterations
+        end
       end
     end
   end
