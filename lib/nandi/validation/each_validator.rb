@@ -18,6 +18,8 @@ module Nandi
           result.merge(DropIndexValidator.call(instruction))
         when :add_column
           result.merge(AddColumnValidator.call(instruction))
+        when :alter_column
+          result.merge(AlterColumnValidator.call(instruction))
         end
         result
       end

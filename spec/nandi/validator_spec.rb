@@ -177,4 +177,76 @@ RSpec.describe Nandi::Validator do
       it { is_expected.to_not be_valid }
     end
   end
+
+  context "altering a column" do
+    context "making a column nullable" do
+      let(:instructions) do
+        [
+          Nandi::Instructions::AlterColumn.new(
+            table: :payments,
+            name: :stuff,
+            null: true,
+          ),
+        ]
+      end
+
+      it { is_expected.to be_valid }
+    end
+
+    context "changing the default value" do
+      let(:instructions) do
+        [
+          Nandi::Instructions::AlterColumn.new(
+            table: :payments,
+            name: :stuff,
+            default: "Zalgo comes",
+          ),
+        ]
+      end
+
+      it { is_expected.to be_valid }
+    end
+
+    context "making a column not nullable" do
+      let(:instructions) do
+        [
+          Nandi::Instructions::AlterColumn.new(
+            table: :payments,
+            name: :stuff,
+            null: false,
+          ),
+        ]
+      end
+
+      it { is_expected.to_not be_valid }
+    end
+
+    context "making a column unique" do
+      let(:instructions) do
+        [
+          Nandi::Instructions::AlterColumn.new(
+            table: :payments,
+            name: :stuff,
+            unique: true,
+          ),
+        ]
+      end
+
+      it { is_expected.to_not be_valid }
+    end
+
+    context "changing the type" do
+      let(:instructions) do
+        [
+          Nandi::Instructions::AlterColumn.new(
+            table: :payments,
+            name: :stuff,
+            type: :integer,
+          ),
+        ]
+      end
+
+      it { is_expected.to_not be_valid }
+    end
+  end
 end
