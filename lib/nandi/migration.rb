@@ -90,6 +90,14 @@ module Nandi
       )
     end
 
+    def drop_column(table, name, **extra_args)
+      current_instructions << Instructions::DropColumn.new(
+        **extra_args,
+        table: table,
+        name: name,
+      )
+    end
+
     def compile_instructions(direction)
       @direction = direction
 

@@ -12,7 +12,7 @@ module Nandi
       end
 
       def call
-        _, opts = instruction.arguments
+        opts = instruction.extra_args
 
         opts.key?(:name) || opts.key?(:column)
       end

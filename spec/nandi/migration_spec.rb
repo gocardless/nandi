@@ -280,4 +280,62 @@ RSpec.describe Nandi::Migration do
       end
     end
   end
+
+  describe "#drop_column" do
+    subject(:instructions) { subject_class.new(validator).up_instructions }
+
+    context "without extra args" do
+      let(:subject_class) do
+        Class.new(described_class) do
+          def up
+            drop_column :payments, :my_column
+          end
+
+          def down; end
+        end
+      end
+
+      it "has the correct procedure" do
+        expect(instructions.first.procedure).to eq(:drop_column)
+      end
+
+      it "has the correct table" do
+        expect(instructions.first.table).to eq(:payments)
+      end
+
+      it "has the correct column name" do
+        expect(instructions.first.name).to eq(:my_column)
+      end
+    end
+
+    context "withextra args" do
+      let(:subject_class) do
+        Class.new(described_class) do
+          def up
+            drop_column :payments, :my_column, cascade: true
+          end
+
+          def down; end
+        end
+      end
+
+      it "has the correct procedure" do
+        expect(instructions.first.procedure).to eq(:drop_column)
+      end
+
+      it "has the correct table" do
+        expect(instructions.first.table).to eq(:payments)
+      end
+
+      it "has the correct column name" do
+        expect(instructions.first.name).to eq(:my_column)
+      end
+
+      it "has the correct extra_args" do
+        expect(instructions.first.extra_args).to eq(
+          cascade: true,
+        )
+      end
+    end
+  end
 end
