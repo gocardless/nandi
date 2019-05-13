@@ -314,7 +314,7 @@ RSpec.describe Nandi::Migration do
       end
     end
 
-    context "withextra args" do
+    context "with extra args" do
       let(:subject_class) do
         Class.new(described_class) do
           def up
@@ -340,6 +340,40 @@ RSpec.describe Nandi::Migration do
       it "has the correct extra_args" do
         expect(instructions.first.extra_args).to eq(
           cascade: true,
+        )
+      end
+    end
+  end
+
+  describe "#alter_column" do
+    subject(:instructions) { subject_class.new(validator).up_instructions }
+
+    context "with extra args" do
+      let(:subject_class) do
+        Class.new(described_class) do
+          def up
+            alter_column :payments, :my_column, default: "Zalgo comes"
+          end
+
+          def down; end
+        end
+      end
+
+      it "has the correct procedure" do
+        expect(instructions.first.procedure).to eq(:alter_column)
+      end
+
+      it "has the correct table" do
+        expect(instructions.first.table).to eq(:payments)
+      end
+
+      it "has the correct column name" do
+        expect(instructions.first.name).to eq(:my_column)
+      end
+
+      it "has the correct alterations" do
+        expect(instructions.first.alterations).to eq(
+          default: "Zalgo comes",
         )
       end
     end

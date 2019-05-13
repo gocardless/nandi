@@ -98,6 +98,14 @@ module Nandi
       )
     end
 
+    def alter_column(table, name, **alterations)
+      current_instructions << Instructions::AlterColumn.new(
+        **alterations,
+        table: table,
+        name: name,
+      )
+    end
+
     def compile_instructions(direction)
       @direction = direction
 
