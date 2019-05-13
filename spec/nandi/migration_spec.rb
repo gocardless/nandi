@@ -54,24 +54,8 @@ RSpec.describe Nandi::Migration do
           end
         end
 
-        let(:expected_args) do
-          [
-            :payments,
-            %i[foo],
-            {
-              name: :idx_payments_on_foo,
-              using: :btree,
-              algorithm: :concurrently,
-            },
-          ]
-        end
-
         it "returns an instruction" do
           expect(instructions.first.procedure).to eq(:create_index)
-        end
-
-        it "exposes the correct arguments" do
-          expect(instructions.first.arguments).to eq(expected_args)
         end
       end
 
@@ -84,24 +68,8 @@ RSpec.describe Nandi::Migration do
           end
         end
 
-        let(:expected_args) do
-          [
-            :payments,
-            %i[foo bar],
-            {
-              name: :idx_payments_on_foo_bar,
-              using: :btree,
-              algorithm: :concurrently,
-            },
-          ]
-        end
-
         it "returns an instruction" do
           expect(instructions.first.procedure).to eq(:create_index)
-        end
-
-        it "exposes the correct arguments" do
-          expect(instructions.first.arguments).to eq(expected_args)
         end
       end
     end
@@ -117,25 +85,8 @@ RSpec.describe Nandi::Migration do
         end
       end
 
-      let(:expected_args) do
-        [
-          :payments,
-          %i[foo],
-          {
-            name: :idx_payments_on_foo,
-            using: :btree,
-            algorithm: :concurrently,
-            extra: :arg,
-          },
-        ]
-      end
-
       it "returns an instruction" do
         expect(instructions.first.procedure).to eq(:create_index)
-      end
-
-      it "exposes the correct arguments" do
-        expect(instructions.first.arguments).to eq(expected_args)
       end
     end
   end
@@ -157,13 +108,6 @@ RSpec.describe Nandi::Migration do
       it "returns an instruction" do
         expect(instructions.first.procedure).to eq(:drop_index)
       end
-
-      it "exposes the correct arguments" do
-        expect(instructions.first.arguments).to eq([
-          :payments,
-          { column: [:foo], algorithm: :concurrently },
-        ])
-      end
     end
 
     context "dropping an index by options hash" do
@@ -181,13 +125,6 @@ RSpec.describe Nandi::Migration do
         it "returns an instruction" do
           expect(instructions.first.procedure).to eq(:drop_index)
         end
-
-        it "exposes the correct arguments" do
-          expect(instructions.first.arguments).to eq([
-            :payments,
-            { algorithm: :concurrently, column: :foo },
-          ])
-        end
       end
 
       context "with name property" do
@@ -204,14 +141,71 @@ RSpec.describe Nandi::Migration do
         it "returns an instruction" do
           expect(instructions.first.procedure).to eq(:drop_index)
         end
+      end
+    end
+  end
 
-        it "exposes the correct arguments" do
-          expect(instructions.first.arguments).to eq([
-            :payments,
-            { algorithm: :concurrently, name: :index_payments_on_foo },
-          ])
+  describe "#create_table" do
+    subject(:instructions) { subject_class.new(validator).up_instructions }
+
+    let(:subject_class) do
+      Class.new(described_class) do
+        def up
+          create_table :payments do |t|
+            t.column :name, :string, default: "no one"
+            t.column :amount, :float
+            t.column :paid, :bool, default: false
+          end
         end
       end
+    end
+
+    let(:expected_columns) do
+      [
+        [:name, :string, {default: "no one"}],
+        [:amount, :float, {}],
+        [:paid, :bool, {default: false}],
+      ]
+    end
+
+    it "returns an instruction" do
+      expect(instructions.first.procedure).to eq(:create_table)
+    end
+
+    it "exposes the correct table name" do
+      expect(instructions.first.table).to eq(:payments)
+    end
+
+    it "exposes the correct columns number" do
+      expect(instructions.first.columns.length).to eq(3)
+    end
+
+    it "exposes the correct columns values" do
+      instructions.first.columns.each_with_index do |c, i|
+        expect(c.name).to eq(expected_columns[i][0])
+        expect(c.type).to eq(expected_columns[i][1])
+        expect(c.args).to eq(expected_columns[i][2])
+      end
+    end
+  end
+
+  describe "#drop_table" do
+    subject(:instructions) { subject_class.new(validator).up_instructions }
+
+    let(:subject_class) do
+      Class.new(described_class) do
+        def up
+          drop_table :payments
+        end
+      end
+    end
+
+    it "returns an instruction" do
+      expect(instructions.first.procedure).to eq(:drop_table)
+    end
+
+    it "exposes the correct attributes" do
+      expect(instructions.first.table).to eq(:payments)
     end
   end
 end

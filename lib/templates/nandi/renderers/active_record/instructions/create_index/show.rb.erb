@@ -1,2 +1,5 @@
-add_index :<%= table %>, <%= columns %>,
-      <%= kwargs %>
+add_index(
+  <%= table %>,
+  <%= fields %>,
+  <%= extra_args %>
+)

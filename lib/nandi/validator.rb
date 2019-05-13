@@ -4,6 +4,28 @@ require "nandi/each_validator"
 
 module Nandi
   class Validator
+    class InstructionValidator
+      def self.call(instruction)
+        new(instruction).call
+      end
+
+      def initialize(instruction)
+        @instruction = instruction
+      end
+
+      def call
+        raise NotImplementedError
+      end
+
+      attr_reader :instruction
+    end
+
+    class DropIndexValidator < InstructionValidator
+      def call
+        instruction.extra_args.key?(:name) || instruction.extra_args.key?(:column)
+      end
+    end
+
     def self.call(instructions)
       new(instructions).call
     end

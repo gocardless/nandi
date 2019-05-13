@@ -2,12 +2,16 @@
 
 require "cells"
 require "tilt"
+require "nandi/formatting"
+require "ostruct"
 
 module Nandi
   module Renderers
     module ActiveRecord
       module Instructions
         class Base < ::Cell::ViewModel
+          include Nandi::Formatting
+
           def template_options_for(_options)
             {
               suffix: "rb.erb",
@@ -21,29 +25,33 @@ module Nandi
         end
 
         class DropIndexCell < Base
-          property :arguments
-
-          def table
-            arguments.first
-          end
-
-          def kwargs
-            arguments.last.inspect
-          end
+          formatted_property :table
+          formatted_property :extra_args
         end
 
         class CreateIndexCell < Base
-          def table
-            model.arguments.first
-          end
+          formatted_property :table
+          formatted_property :fields
+          formatted_property :extra_args
+        end
+
+        class CreateTableCell < Base
+          formatted_property :table
 
           def columns
-            model.arguments[1].inspect
+            model.columns.map do |c|
+              OpenStruct.new(
+                name: format_value(c.name),
+                type: format_value(c.type),
+              ).tap do |col|
+                col.args = format_value(c.args) unless c.args.empty?
+              end
+            end
           end
+        end
 
-          def kwargs
-            model.arguments.last.inspect
-          end
+        class DropTableCell < Base
+          formatted_property :table
         end
       end
     end
