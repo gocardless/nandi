@@ -54,6 +54,10 @@ module Nandi
 
     def down; end
 
+    ###############
+    # DDL methods #
+    ###############
+
     def create_index(table, fields, **kwargs)
       current_instructions << Instructions::CreateIndex.new(
         **kwargs,
@@ -75,6 +79,23 @@ module Nandi
 
     def drop_table(table)
       current_instructions << Instructions::DropTable.new(table: table)
+    end
+
+    def add_column(table, name, type, **kwargs)
+      current_instructions << Instructions::AddColumn.new(
+        table: table,
+        name: name,
+        type: type,
+        **kwargs,
+      )
+    end
+
+    def drop_column(table, name, **extra_args)
+      current_instructions << Instructions::DropColumn.new(
+        **extra_args,
+        table: table,
+        name: name,
+      )
     end
 
     def compile_instructions(direction)

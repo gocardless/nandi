@@ -11,9 +11,10 @@ RSpec.describe Nandi::Validator do
     context "with one new index" do
       let(:instructions) do
         [
-          instance_double(Nandi::Instructions::CreateIndex,
-                          table: :payments,
-                          procedure: :create_index),
+          Nandi::Instructions::CreateIndex.new(
+            table: :payments,
+            fields: [:foo],
+          ),
         ]
       end
 
@@ -23,12 +24,14 @@ RSpec.describe Nandi::Validator do
     context "with more than one new index" do
       let(:instructions) do
         [
-          instance_double(Nandi::Instructions::CreateIndex,
-                          table: :payments,
-                          procedure: :create_index),
-          instance_double(Nandi::Instructions::CreateIndex,
-                          table: :payments,
-                          procedure: :create_index),
+          Nandi::Instructions::CreateIndex.new(
+            table: :payments,
+            fields: [:foo],
+          ),
+          Nandi::Instructions::CreateIndex.new(
+            table: :payments,
+            fields: [:foo],
+          ),
         ]
       end
 
@@ -40,10 +43,10 @@ RSpec.describe Nandi::Validator do
     context "dropping an index by index name" do
       let(:instructions) do
         [
-          instance_double(Nandi::Instructions::DropIndex,
-                          table: :payments,
-                          procedure: :drop_index,
-                          extra_args: { name: :index_payments_on_foo }),
+          Nandi::Instructions::DropIndex.new(
+            table: :payments,
+            field: { name: :index_payments_on_foo },
+          ),
         ]
       end
 
@@ -53,10 +56,10 @@ RSpec.describe Nandi::Validator do
     context "dropping an index by column name" do
       let(:instructions) do
         [
-          instance_double(Nandi::Instructions::DropIndex,
-                          table: :payments,
-                          procedure: :drop_index,
-                          extra_args: { column: %i[foo] }),
+          Nandi::Instructions::DropIndex.new(
+            table: :payments,
+            field: { column: %i[foo] },
+          ),
         ]
       end
 
@@ -66,10 +69,10 @@ RSpec.describe Nandi::Validator do
     context "dropping an index without valid props" do
       let(:instructions) do
         [
-          instance_double(Nandi::Instructions::DropIndex,
-                          table: :payments,
-                          procedure: :drop_index,
-                          extra_args: { very: :irrelevant }),
+          Nandi::Instructions::DropIndex.new(
+            table: :payments,
+            field: { very: :irrelevant },
+          ),
         ]
       end
 
@@ -80,14 +83,14 @@ RSpec.describe Nandi::Validator do
   context "with more than one object modified" do
     let(:instructions) do
       [
-        instance_double(Nandi::Instructions::DropIndex,
-                        table: :payments,
-                        procedure: :drop_index,
-                        extra_args: { name: :index_payments_on_foo }),
-        instance_double(Nandi::Instructions::DropIndex,
-                        table: :mandates,
-                        procedure: :drop_index,
-                        extra_args: { name: :index_payments_on_foo }),
+        Nandi::Instructions::DropIndex.new(
+          table: :payments,
+          field: { name: :index_payments_on_foo },
+        ),
+        Nandi::Instructions::DropIndex.new(
+          table: :mandates,
+          field: { name: :index_payments_on_foo },
+        ),
       ]
     end
 
@@ -97,17 +100,81 @@ RSpec.describe Nandi::Validator do
   context "with one object modified as string and symbol" do
     let(:instructions) do
       [
-        instance_double(Nandi::Instructions::DropIndex,
-                        table: :payments,
-                        procedure: :drop_index,
-                        extra_args: { name: :index_payments_on_foo }),
-        instance_double(Nandi::Instructions::DropIndex,
-                        table: "payments",
-                        procedure: :drop_index,
-                        extra_args: { name: :index_payments_on_foo }),
+        Nandi::Instructions::DropIndex.new(
+          table: :payments,
+          field: { name: :index_payments_on_foo },
+        ),
+        Nandi::Instructions::DropIndex.new(
+          table: "payments",
+          field: { name: :index_payments_on_foo },
+        ),
       ]
     end
 
     it { is_expected.to eq(true) }
+  end
+
+  context "adding a column" do
+    context "a valid instruction" do
+      let(:instructions) do
+        [
+          Nandi::Instructions::AddColumn.new(
+            table: :payments,
+            name: :stuff,
+            type: :text,
+            null: true,
+          ),
+        ]
+      end
+
+      it { is_expected.to eq(true) }
+    end
+
+    context "with null: false" do
+      let(:instructions) do
+        [
+          Nandi::Instructions::AddColumn.new(
+            table: :payments,
+            name: :stuff,
+            type: :text,
+            null: false,
+          ),
+        ]
+      end
+
+      it { is_expected.to eq(false) }
+    end
+
+    context "with a default value" do
+      let(:instructions) do
+        [
+          Nandi::Instructions::AddColumn.new(
+            table: :payments,
+            name: :stuff,
+            type: :text,
+            null: true,
+            default: "swilly!",
+          ),
+        ]
+      end
+
+      it { is_expected.to eq(false) }
+    end
+
+    context "with a unique constraint" do
+      let(:instructions) do
+        [
+          Nandi::Instructions::AddColumn.new(
+            table: :payments,
+            name: :stuff,
+            type: :text,
+            null: true,
+            unique: true,
+          ),
+        ]
+      end
+
+      it { is_expected.to eq(false) }
+    end
   end
 end

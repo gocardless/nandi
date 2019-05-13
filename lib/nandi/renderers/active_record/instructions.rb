@@ -53,6 +53,19 @@ module Nandi
         class DropTableCell < Base
           formatted_property :table
         end
+
+        class AddColumnCell < Base
+          formatted_property :table
+          formatted_property :name
+          formatted_property :type
+          formatted_property :extra_args
+        end
+
+        class DropColumnCell < Base
+          formatted_property :table
+          formatted_property :name
+          formatted_property :extra_args
+        end
       end
     end
   end

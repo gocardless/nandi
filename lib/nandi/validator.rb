@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "nandi/each_validator"
+require "nandi/validation"
 
 module Nandi
   class Validator
@@ -52,7 +52,9 @@ module Nandi
     end
 
     def each_instruction_is_valid
-      instructions.all? { |instruction| EachValidator.call(instruction) }
+      instructions.all? do |instruction|
+        Validation::EachValidator.call(instruction)
+      end
     end
 
     attr_reader :instructions
