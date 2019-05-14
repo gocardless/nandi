@@ -2,7 +2,7 @@
 
 module Nandi
   module Validation
-    class EachValidator
+    class DropIndexValidator
       def self.call(instruction)
         new(instruction).call
       end
@@ -12,14 +12,13 @@ module Nandi
       end
 
       def call
-        result = Result.new
-        case instruction.procedure
-        when :drop_index
-          result.merge(DropIndexValidator.call(instruction))
-        when :add_column
-          result.merge(AddColumnValidator.call(instruction))
+        opts = instruction.extra_args
+
+        Result.new(@instruction).tap do |result|
+          unless opts.key?(:name) || opts.key?(:column)
+            result << "requires a `name` or `column` argument"
+          end
         end
-        result
       end
 
       attr_reader :instruction

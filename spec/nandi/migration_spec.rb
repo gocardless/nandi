@@ -27,7 +27,10 @@ RSpec.describe Nandi::Migration do
         end
       end
 
-      it { is_expected.to be_valid }
+      it "is valid" do
+        result = migration.validate
+        expect(result).to be_valid
+      end
     end
 
     context "with down but not up implemented" do
@@ -37,7 +40,10 @@ RSpec.describe Nandi::Migration do
         end
       end
 
-      it { is_expected.to_not be_valid }
+      it "is not valid" do
+        result = migration.validate
+        expect(result).to_not be_valid
+      end
     end
   end
 

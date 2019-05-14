@@ -36,12 +36,13 @@ module Nandi
 
       migration = class_name.camelize.constantize.new(validator)
 
-      raise InvalidMigrationError, "Migration not valid" unless migration.valid?
+      validation = migration.validate
+      unless validation.valid?
+        raise InvalidMigrationError, "Migration #{file_path} is not valid:\n" \
+          "#{validation.error_list}"
+      end
 
-      CompiledMigration.new(
-        file_name,
-        body(migration),
-      )
+      CompiledMigration.new(file_name, body(migration))
     end
 
     def body(migration)

@@ -12,7 +12,11 @@ module Nandi
       end
 
       def call
-        nullable? && no_default? && not_unique?
+        Result.new(@instruction).tap do |result|
+          result << "column isn't nullable" unless nullable?
+          result << "column has a default" if default?
+          result << "column is unique" if unique?
+        end
       end
 
       attr_reader :instruction
@@ -23,12 +27,12 @@ module Nandi
         instruction.extra_args[:null]
       end
 
-      def no_default?
-        !instruction.extra_args.key?(:default)
+      def default?
+        instruction.extra_args.key?(:default)
       end
 
-      def not_unique?
-        !instruction.extra_args.fetch(:unique, false)
+      def unique?
+        instruction.extra_args.fetch(:unique, false)
       end
     end
   end
