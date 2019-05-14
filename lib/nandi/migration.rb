@@ -106,10 +106,10 @@ module Nandi
       current_instructions
     end
 
-    def valid?
-      validator.call(up_instructions) && validator.call(down_instructions)
-    rescue NotImplementedError
-      false
+    def validate
+      validator.call(up_instructions).merge(validator.call(down_instructions))
+    rescue NotImplementedError => e
+      Validation::Result.new << e.message
     end
 
     def name

@@ -18,7 +18,7 @@ RSpec.describe Nandi::Validator do
         ]
       end
 
-      it { is_expected.to eq(true) }
+      it { is_expected.to be_valid }
     end
 
     context "with more than one new index" do
@@ -35,7 +35,7 @@ RSpec.describe Nandi::Validator do
         ]
       end
 
-      it { is_expected.to eq(false) }
+      it { is_expected.to_not be_valid }
     end
   end
 
@@ -50,7 +50,7 @@ RSpec.describe Nandi::Validator do
         ]
       end
 
-      it { is_expected.to eq(true) }
+      it { is_expected.to be_valid }
     end
 
     context "dropping an index by column name" do
@@ -63,7 +63,7 @@ RSpec.describe Nandi::Validator do
         ]
       end
 
-      it { is_expected.to eq(true) }
+      it { is_expected.to be_valid }
     end
 
     context "dropping an index without valid props" do
@@ -76,7 +76,7 @@ RSpec.describe Nandi::Validator do
         ]
       end
 
-      it { is_expected.to eq(false) }
+      it { is_expected.to_not be_valid }
     end
   end
 
@@ -94,7 +94,7 @@ RSpec.describe Nandi::Validator do
       ]
     end
 
-    it { is_expected.to eq(false) }
+    it { is_expected.to_not be_valid }
   end
 
   context "with one object modified as string and symbol" do
@@ -111,7 +111,7 @@ RSpec.describe Nandi::Validator do
       ]
     end
 
-    it { is_expected.to eq(true) }
+    it { is_expected.to be_valid }
   end
 
   context "adding a column" do
@@ -127,7 +127,7 @@ RSpec.describe Nandi::Validator do
         ]
       end
 
-      it { is_expected.to eq(true) }
+      it { is_expected.to be_valid }
     end
 
     context "with null: false" do
@@ -142,7 +142,7 @@ RSpec.describe Nandi::Validator do
         ]
       end
 
-      it { is_expected.to eq(false) }
+      it { is_expected.to_not be_valid }
     end
 
     context "with a default value" do
@@ -158,7 +158,7 @@ RSpec.describe Nandi::Validator do
         ]
       end
 
-      it { is_expected.to eq(false) }
+      it { is_expected.to_not be_valid }
     end
 
     context "with a unique constraint" do
@@ -174,7 +174,7 @@ RSpec.describe Nandi::Validator do
         ]
       end
 
-      it { is_expected.to eq(false) }
+      it { is_expected.to_not be_valid }
     end
   end
 end
