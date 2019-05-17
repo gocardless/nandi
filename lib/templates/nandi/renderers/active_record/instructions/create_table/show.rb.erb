@@ -2,4 +2,7 @@ create_table <%= table %> do |t|
 <% columns.each do |column| %>
       t.column <%= column.name %>, <%= column.type %><%= ", #{column.args}" if column.args %>
 <% end %>
+<% if timestamps? %>
+      t.timestamps<%= " #{timestamps_args}" if timestamps_args? %>
+<% end %>
 end

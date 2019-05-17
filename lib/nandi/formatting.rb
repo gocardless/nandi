@@ -32,12 +32,12 @@ module Nandi
     # Kernel::eval
     # @param value [Hash, Array, String, Symbol, Integer, Float, NilClass]
     #   value to format
-    def format_value(value)
+    def format_value(value, opts = {})
       case value
       when Hash
-        format_hash(value)
+        format_hash(value, opts)
       when Array
-        "[#{value.map(&method(:format_value)).join(', ')}]"
+        "[#{value.map { |v| format_value(v, opts) }.join(', ')}]"
       when String, Symbol, Integer, Float, NilClass, TrueClass, FalseClass
         value.inspect
       else
@@ -53,8 +53,16 @@ module Nandi
 
     private
 
-    def format_hash(value)
-      pairs = value.map do |k, v|
+    def format_hash(value, opts)
+      if opts[:as_argument]
+        hash_pairs(value).join(", ")
+      else
+        "{\n  #{hash_pairs(value).join(",\n  ")}\n}"
+      end
+    end
+
+    def hash_pairs(value)
+      value.map do |k, v|
         key = if k.is_a?(Symbol)
                 symbol_key(k)
               else
@@ -62,8 +70,6 @@ module Nandi
               end
         "#{key} #{format_value(v)}"
       end
-
-      "{\n  #{pairs.join(",\n  ")}\n}"
     end
 
     def symbol_key(key)

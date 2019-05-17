@@ -37,6 +37,19 @@ module Nandi
 
         class CreateTableCell < Base
           formatted_property :table
+          formatted_property :timestamps_args
+
+          def timestamps?
+            !model.timestamps_args.nil?
+          end
+
+          def timestamps_args?
+            !model.timestamps_args&.empty?
+          end
+
+          def timestamps_args
+            format_value(model.timestamps_args, as_argument: true)
+          end
 
           def columns
             model.columns.map do |c|
@@ -44,7 +57,7 @@ module Nandi
                 name: format_value(c.name),
                 type: format_value(c.type),
               ).tap do |col|
-                col.args = format_value(c.args) unless c.args.empty?
+                col.args = format_value(c.args, as_argument: true) unless c.args.empty?
               end
             end
           end

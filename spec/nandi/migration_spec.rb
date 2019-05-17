@@ -161,6 +161,7 @@ RSpec.describe Nandi::Migration do
             t.column :name, :string, default: "no one"
             t.column :amount, :float
             t.column :paid, :bool, default: false
+            t.timestamps null: false
           end
         end
       end
@@ -192,6 +193,10 @@ RSpec.describe Nandi::Migration do
         expect(c.type).to eq(expected_columns[i][1])
         expect(c.args).to eq(expected_columns[i][2])
       end
+    end
+
+    it "exposes the args for timestamps" do
+      expect(instructions.first.timestamps_args).to eq(null: false)
     end
   end
 

@@ -95,6 +95,64 @@ RSpec.describe Nandi::Renderers::ActiveRecord do
       end
 
       it { is_expected.to eq(fixture) }
+
+      context "with timestamps with args" do
+        let(:fixture) do
+          File.read(File.join(fixture_root, "create_and_drop_table_with_timestamps.rb"))
+        end
+
+        let(:safe_migration) do
+          Class.new(Nandi::Migration) do
+            def self.name
+              "MyAwesomeMigration"
+            end
+
+            def up
+              create_table :payments do |t|
+                t.column :payer, :string
+                t.column :ammount, :float
+                t.column :payed, :bool, default: false
+                t.timestamps null: false
+              end
+            end
+
+            def down
+              drop_table :payments
+            end
+          end
+        end
+
+        it { is_expected.to eq(fixture) }
+      end
+
+      context "with timestamps without args" do
+        let(:fixture) do
+          File.read(File.join(fixture_root, "create_and_drop_table_with_timestamps_and_not_args.rb"))
+        end
+
+        let(:safe_migration) do
+          Class.new(Nandi::Migration) do
+            def self.name
+              "MyAwesomeMigration"
+            end
+
+            def up
+              create_table :payments do |t|
+                t.column :payer, :string
+                t.column :ammount, :float
+                t.column :payed, :bool, default: false
+                t.timestamps
+              end
+            end
+
+            def down
+              drop_table :payments
+            end
+          end
+        end
+
+        it { is_expected.to eq(fixture) }
+      end
     end
 
     describe "adding and dropping an column" do

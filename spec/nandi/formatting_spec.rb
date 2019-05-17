@@ -5,13 +5,17 @@ require "nandi/formatting"
 
 RSpec.describe Nandi::Formatting do
   describe "#format_value" do
-    subject(:result) { subject_class.new.format_value(value) }
+    subject(:result) do
+      subject_class.new.format_value(value, as_argument: with_as_argument)
+    end
 
+    let(:with_as_argument) { nil }
     let(:subject_class) do
       Class.new(Object) do
         include Nandi::Formatting
       end
     end
+
 
     shared_examples "outputs valid ruby" do |input|
       let(:value) { input }
@@ -55,12 +59,29 @@ RSpec.describe Nandi::Formatting do
         it_behaves_like "outputs valid ruby", foo: { bar: 5 }
         it_behaves_like "outputs valid ruby", łódź: 5
         it_behaves_like "outputs valid ruby", "lots of words": 5
+
+        context "when as_argument: is provided" do
+          let(:with_as_argument) { true }
+
+          it_behaves_like "outputs valid ruby", [:bar, foo: 5]
+          it_behaves_like "outputs valid ruby", [:bar, foo: { bar: 5 }]
+          it_behaves_like "outputs valid ruby", [:bar, łódź: 5]
+          it_behaves_like "outputs valid ruby", [:bar, "lots of words": 5]
+        end
       end
 
       context "with non-symbol keys" do
         it_behaves_like "outputs valid ruby", "łódź" => 5
         it_behaves_like "outputs valid ruby", "foo" => 5
         it_behaves_like "outputs valid ruby", "foo" => { "bar" => 5 }
+
+        context "when as_argument: is provided" do
+          let(:with_as_argument) { true }
+
+          it_behaves_like "outputs valid ruby", [:bar, "łódź" => 5]
+          it_behaves_like "outputs valid ruby", [:bar, "foo" => 5]
+          it_behaves_like "outputs valid ruby", [:bar, "foo" => { "bar" => 5 }]
+        end
       end
 
       context "inside an array" do
@@ -74,6 +95,28 @@ RSpec.describe Nandi::Formatting do
 
         it "formats the hash correctly" do
           expect(result).to eq("[{\n  foo: 5\n}]")
+        end
+
+        context "when as_argument: is provided" do
+          let(:with_as_argument) { true }
+
+          it "formats the hash correctly" do
+            expect(result).to eq("[foo: 5]")
+          end
+        end
+      end
+
+      context "neasted hashes with as_argument" do
+        let(:with_as_argument) { true }
+        let(:value) do
+          {
+            foo: 5,
+            bar: { works: true },
+          }
+        end
+
+        it "formats the hashes correctly" do
+          expect(result).to eq("foo: 5, bar: {\n  works: true\n}")
         end
       end
     end

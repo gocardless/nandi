@@ -9,6 +9,7 @@ class MyAwesomeMigration < ActiveRecord::Migration[5.2]
       t.column :payer, :string
       t.column :ammount, :float
       t.column :payed, :bool, default: false
+      t.timestamps null: false
 end
 
   
