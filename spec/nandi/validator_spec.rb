@@ -158,7 +158,7 @@ RSpec.describe Nandi::Validator do
         ]
       end
 
-      it { is_expected.to_not be_valid }
+      it { is_expected.to be_valid }
     end
 
     context "with a unique constraint" do

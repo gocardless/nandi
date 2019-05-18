@@ -14,7 +14,6 @@ module Nandi
       def call
         Result.new(@instruction).tap do |result|
           result << "column isn't nullable" unless nullable?
-          result << "column has a default" if default?
           result << "column is unique" if unique?
         end
       end
@@ -25,10 +24,6 @@ module Nandi
 
       def nullable?
         instruction.extra_args[:null]
-      end
-
-      def default?
-        instruction.extra_args.key?(:default)
       end
 
       def unique?
