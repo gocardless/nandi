@@ -384,4 +384,45 @@ RSpec.describe Nandi::Migration do
       end
     end
   end
+
+  describe "syntax extensions" do
+    subject(:instructions) { subject_class.new(validator).up_instructions }
+
+    before do
+      Nandi.configure do |c|
+        c.register_method :new_method, extension
+      end
+    end
+
+    after do
+      Nandi.config.custom_methods.delete(:new_method)
+    end
+
+    let(:extension) do
+      Struct.new(:foo, :bar) do
+        def procedure
+          :new_method
+        end
+      end
+    end
+
+    let(:subject_class) do
+      Class.new(described_class) do
+        def up
+          new_method :arg1, :arg2
+        end
+      end
+    end
+
+    it "creates an instance of the custom instruction" do
+      expect(instructions.first).to be_a(extension)
+    end
+
+    it "passes the arguments to the constructor of the custom instruction" do
+      instruction = instructions.first
+
+      expect(instruction.foo).to eq(:arg1)
+      expect(instruction.bar).to eq(:arg2)
+    end
+  end
 end

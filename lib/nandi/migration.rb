@@ -222,6 +222,18 @@ module Nandi
       self.class.name
     end
 
+    def respond_to_missing?(name)
+      Nandi.config.custom_methods.key?(name) || super
+    end
+
+    def method_missing(name, *args)
+      if Nandi.config.custom_methods.key?(name)
+        invoke_custom_method(name, *args)
+      else
+        super
+      end
+    end
+
     private
 
     attr_reader :validator
@@ -232,6 +244,11 @@ module Nandi
 
     def current_instructions=(value)
       @instructions[@direction] = value
+    end
+
+    def invoke_custom_method(name, *args)
+      klass = Nandi.config.custom_methods[name]
+      current_instructions << klass.new(*args)
     end
   end
 end
