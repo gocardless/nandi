@@ -317,6 +317,62 @@ RSpec.describe Nandi::Renderers::ActiveRecord do
 
         it { is_expected.to eq(fixture) }
       end
+
+      context "with a block argument" do
+        let(:fixture) do
+          File.read(File.join(fixture_root, "custom_instruction_with_block.rb"))
+        end
+
+        let(:extension) do
+          Class.new do
+            def procedure
+              :new_method
+            end
+
+            def initialize
+              @block_result = yield
+            end
+
+            attr_reader :block_result
+
+            def template
+              Class.new(Cell::ViewModel) do
+                property :block_result
+
+                def show
+                  "new_method #{block_result}"
+                end
+              end
+            end
+          end
+        end
+
+        let(:safe_migration) do
+          Class.new(Nandi::Migration) do
+            def self.name
+              "MyAwesomeMigration"
+            end
+
+            def up
+              new_method { "block rockin' beats" }
+            end
+
+            def down; end
+          end
+        end
+
+        before do
+          Nandi.configure do |c|
+            c.register_method :new_method, extension
+          end
+        end
+
+        after do
+          Nandi.config.custom_methods.delete(:new_method)
+        end
+
+        it { is_expected.to eq(fixture) }
+      end
     end
   end
 end

@@ -232,9 +232,9 @@ module Nandi
       end.uniq
     end
 
-    def method_missing(name, *args)
+    def method_missing(name, *args, &block)
       if Nandi.config.custom_methods.key?(name)
-        invoke_custom_method(name, *args)
+        invoke_custom_method(name, *args, &block)
       else
         super
       end
@@ -252,9 +252,9 @@ module Nandi
       @instructions[@direction] = value
     end
 
-    def invoke_custom_method(name, *args)
+    def invoke_custom_method(name, *args, &block)
       klass = Nandi.config.custom_methods[name]
-      current_instructions << klass.new(*args)
+      current_instructions << klass.new(*args, &block)
     end
   end
 end
