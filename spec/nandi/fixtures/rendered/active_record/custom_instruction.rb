@@ -6,14 +6,7 @@ class MyAwesomeMigration < ActiveRecord::Migration[5.2]
   
   def up
   
-    change_column(
-  :payments,
-  :foo,
-  {
-  null: true
-}
-)
-
+    new_method
   
   end
   

@@ -226,6 +226,12 @@ module Nandi
       Nandi.config.custom_methods.key?(name) || super
     end
 
+    def mixins
+      (up_instructions + down_instructions).inject([]) do |mixins, i|
+        i.respond_to?(:mixins) ? [*mixins, *i.mixins] : mixins
+      end.uniq
+    end
+
     def method_missing(name, *args)
       if Nandi.config.custom_methods.key?(name)
         invoke_custom_method(name, *args)

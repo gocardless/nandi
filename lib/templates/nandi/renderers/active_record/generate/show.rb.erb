@@ -1,17 +1,18 @@
 class <%= name %> < ActiveRecord::Migration[5.2]
+  <%= mixins.map { |m| "include #{m.name}"}.join("\n") %>
   set_lock_timeout(<%= lock_timeout %>)
   set_statement_timeout(<%= statement_timeout %>)
 
   <% if should_disable_ddl_transaction? %>disable_ddl_transaction!<% end %>
   def up
   <% up_instructions.each do |i| %>
-    <%= cell("#{partials_base}/#{i.procedure}", i) %>
+    <%= render_partial(i) %>
   <% end %>
   end
   <% if down_instructions&.any? %>
   def down
   <% down_instructions.each do |i| %>
-    <%= cell("#{partials_base}/#{i.procedure}", i) %>
+    <%= render_partial(i) %>
   <% end %>
   end
   <% end %>

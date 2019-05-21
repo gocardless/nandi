@@ -127,7 +127,12 @@ RSpec.describe Nandi::Renderers::ActiveRecord do
 
       context "with timestamps without args" do
         let(:fixture) do
-          File.read(File.join(fixture_root, "create_and_drop_table_with_timestamps_and_not_args.rb"))
+          File.read(
+            File.join(
+              fixture_root,
+              "create_and_drop_table_with_timestamps_and_not_args.rb",
+            ),
+          )
         end
 
         let(:safe_migration) do
@@ -199,6 +204,119 @@ RSpec.describe Nandi::Renderers::ActiveRecord do
       end
 
       it { is_expected.to eq(fixture) }
+    end
+
+    describe "custom instructions" do
+      let(:fixture) do
+        File.read(File.join(fixture_root, "custom_instruction.rb"))
+      end
+
+      let(:extension) do
+        Struct.new(:foo, :bar) do
+          def procedure
+            :new_method
+          end
+
+          def template
+            Class.new(Cell::ViewModel) do
+              def show
+                "new_method"
+              end
+            end
+          end
+        end
+      end
+
+      let(:safe_migration) do
+        Class.new(Nandi::Migration) do
+          def self.name
+            "MyAwesomeMigration"
+          end
+
+          def up
+            new_method :arg1, :arg2
+          end
+
+          def down; end
+        end
+      end
+
+      before do
+        Nandi.configure do |c|
+          c.register_method :new_method, extension
+        end
+      end
+
+      after do
+        Nandi.config.custom_methods.delete(:new_method)
+      end
+
+      it { is_expected.to eq(fixture) }
+
+      context "with a mixin" do
+        let(:fixture) do
+          File.read(File.join(fixture_root, "custom_instruction_with_mixins.rb"))
+        end
+
+        let(:extension) do
+          Struct.new(:foo, :bar) do
+            def procedure
+              :new_method
+            end
+
+            # rubocop:disable Metrics/MethodLength
+            def mixins
+              [
+                Class.new do
+                  def self.name
+                    "My::Important::Mixin"
+                  end
+                end,
+                Class.new do
+                  def self.name
+                    "My::Other::Mixin"
+                  end
+                end,
+              ]
+            end
+            # rubocop:enable Metrics/MethodLength
+
+            def template
+              Class.new(Cell::ViewModel) do
+                def show
+                  "new_method"
+                end
+              end
+            end
+          end
+        end
+
+        let(:safe_migration) do
+          Class.new(Nandi::Migration) do
+            def self.name
+              "MyAwesomeMigration"
+            end
+
+            def up
+              new_method :arg1, :arg2
+            end
+
+            def down; end
+          end
+        end
+
+        before do
+          Nandi.configure do |c|
+            c.register_method :new_method, extension
+          end
+        end
+
+        after do
+          Nandi.config.custom_methods.delete(:new_method)
+        end
+
+        it { is_expected.to eq(fixture) }
+      end
     end
   end
 end

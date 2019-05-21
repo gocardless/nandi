@@ -32,9 +32,18 @@ module Nandi
             select { |i| i.procedure =~ /index/ }.any?
         end
 
+        def render_partial(instruction)
+          if instruction.respond_to?(:template)
+            cell(instruction.template, instruction)
+          else
+            cell("#{partials_base}/#{instruction.procedure}", instruction)
+          end
+        end
+
         property :up_instructions
         property :down_instructions
         property :name
+        property :mixins
         property :lock_timeout
         property :statement_timeout
       end
