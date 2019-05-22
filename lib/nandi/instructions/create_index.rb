@@ -27,6 +27,10 @@ module Nandi
         }
       end
 
+      def lock
+        Nandi::Migration::LockWeights::SHARE
+      end
+
       attr_reader :table, :fields
 
       private

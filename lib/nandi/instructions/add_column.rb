@@ -19,6 +19,10 @@ module Nandi
       def extra_args
         { null: true, **@extra_args }
       end
+
+      def lock
+        Nandi::Migration::LockWeights::ACCESS_EXCLUSIVE
+      end
     end
   end
 end

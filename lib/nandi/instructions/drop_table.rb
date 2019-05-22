@@ -12,6 +12,10 @@ module Nandi
       def procedure
         :drop_table
       end
+
+      def lock
+        Nandi::Migration::LockWeights::ACCESS_EXCLUSIVE
+      end
     end
   end
 end

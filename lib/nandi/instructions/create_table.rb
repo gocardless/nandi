@@ -19,6 +19,10 @@ module Nandi
         :create_table
       end
 
+      def lock
+        Nandi::Migration::LockWeights::ACCESS_EXCLUSIVE
+      end
+
       class ColumnsReader
         attr_reader :columns, :timestamps_args
 

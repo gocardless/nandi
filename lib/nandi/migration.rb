@@ -25,6 +25,17 @@ module Nandi
   #       end
   #     end
   class Migration
+    module LockWeights
+      ACCESS_EXCLUSIVE = 1
+      SHARE = 0
+    end
+
+    class InstructionSet < SimpleDelegator
+      def strictest_lock
+        map { |i| i.respond_to?(:lock) ? i.lock : LockWeights::ACCESS_EXCLUSIVE }.max
+      end
+    end
+
     class << self
       # The current lock timeout.
       def lock_timeout
@@ -62,7 +73,7 @@ module Nandi
     # @param validator [Nandi::Validator]
     def initialize(validator)
       @validator = validator
-      @instructions = Hash.new { |h, k| h[k] = [] }
+      @instructions = Hash.new { |h, k| h[k] = InstructionSet.new([]) }
     end
 
     # @api private
@@ -81,6 +92,11 @@ module Nandi
 
     def statement_timeout
       self.class.statement_timeout
+    end
+
+    # @api private
+    def strictest_lock
+      @instructions.values.map(&:strictest_lock).max
     end
 
     # @abstract
@@ -213,7 +229,7 @@ module Nandi
 
     # @api private
     def validate
-      validator.call(up_instructions).merge(validator.call(down_instructions))
+      validator.call(self)
     rescue NotImplementedError => e
       Validation::Result.new << e.message
     end
@@ -246,10 +262,6 @@ module Nandi
 
     def current_instructions
       @instructions[@direction]
-    end
-
-    def current_instructions=(value)
-      @instructions[@direction] = value
     end
 
     def invoke_custom_method(name, *args, &block)

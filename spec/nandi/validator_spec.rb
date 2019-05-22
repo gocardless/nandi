@@ -5,7 +5,20 @@ require "nandi/validator"
 require "nandi/instructions"
 
 RSpec.describe Nandi::Validator do
-  subject(:validator) { described_class.call(instructions) }
+  subject(:validator) { described_class.call(migration) }
+
+  let(:strictest_lock) { Nandi::Migration::LockWeights::SHARE }
+  let(:statement_timeout) { 1_000 }
+  let(:lock_timeout) { 750 }
+
+  let(:migration) do
+    instance_double(Nandi::Migration,
+                    up_instructions: instructions,
+                    down_instructions: [],
+                    statement_timeout: statement_timeout,
+                    lock_timeout: lock_timeout,
+                    strictest_lock: strictest_lock)
+  end
 
   context "creating an index" do
     context "with one new index" do
@@ -248,5 +261,43 @@ RSpec.describe Nandi::Validator do
 
       it { is_expected.to_not be_valid }
     end
+  end
+
+  context "with too great a statement timeout" do
+    let(:strictest_lock) { Nandi::Migration::LockWeights::ACCESS_EXCLUSIVE }
+    let(:statement_timeout) { 2_000 }
+
+    let(:instructions) do
+      [
+        Nandi::Instructions::AddColumn.new(
+          table: :payments,
+          name: :stuff,
+          type: :text,
+          null: true,
+          default: "swilly!",
+        ),
+      ]
+    end
+
+    it { is_expected.to_not be_valid }
+  end
+
+  context "with too great a lock timeout" do
+    let(:strictest_lock) { Nandi::Migration::LockWeights::ACCESS_EXCLUSIVE }
+    let(:lock_timeout) { 2_000 }
+
+    let(:instructions) do
+      [
+        Nandi::Instructions::AddColumn.new(
+          table: :payments,
+          name: :stuff,
+          type: :text,
+          null: true,
+          default: "swilly!",
+        ),
+      ]
+    end
+
+    it { is_expected.to_not be_valid }
   end
 end
