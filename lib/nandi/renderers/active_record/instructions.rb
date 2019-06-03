@@ -94,6 +94,13 @@ module Nandi
           property :column
           property :name
         end
+
+        class ValidateForeignKeyCell < Base
+          # Because all this stuff goes into a SQL string, we don't need to format
+          # the values.
+          property :table
+          property :name
+        end
       end
     end
   end
