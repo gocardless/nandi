@@ -385,6 +385,102 @@ RSpec.describe Nandi::Migration do
     end
   end
 
+  describe "#add_foreign_key" do
+    subject(:instructions) { subject_class.new(validator).up_instructions }
+
+    context "with just table names" do
+      let(:subject_class) do
+        Class.new(described_class) do
+          def up
+            add_foreign_key :payments, :mandates
+          end
+
+          def down; end
+        end
+      end
+
+      it "has the correct procedure" do
+        expect(instructions.first.procedure).to eq(:add_foreign_key)
+      end
+
+      it "has the correct table" do
+        expect(instructions.first.table).to eq(:payments)
+      end
+
+      it "has the correct target" do
+        expect(instructions.first.target).to eq(:mandates)
+      end
+
+      it "has the correct column name" do
+        expect(instructions.first.column).to eq(:mandate_id)
+      end
+
+      it "has the correct constraint name" do
+        expect(instructions.first.name).to eq(:payments_mandates_fk)
+      end
+    end
+
+    context "with constraint name" do
+      let(:subject_class) do
+        Class.new(described_class) do
+          def up
+            add_foreign_key :payments, :mandates, name: :zalgo_comes
+          end
+
+          def down; end
+        end
+      end
+
+      it "has the correct procedure" do
+        expect(instructions.first.procedure).to eq(:add_foreign_key)
+      end
+
+      it "has the correct table" do
+        expect(instructions.first.table).to eq(:payments)
+      end
+
+      it "has the correct target" do
+        expect(instructions.first.target).to eq(:mandates)
+      end
+
+      it "has the correct column name" do
+        expect(instructions.first.column).to eq(:mandate_id)
+      end
+
+      it "has the correct constraint name" do
+        expect(instructions.first.name).to eq(:zalgo_comes)
+      end
+    end
+
+    context "with column name" do
+      let(:subject_class) do
+        Class.new(described_class) do
+          def up
+            add_foreign_key :payments, :mandates, column: :zalgo_comes
+          end
+
+          def down; end
+        end
+      end
+
+      it "has the correct procedure" do
+        expect(instructions.first.procedure).to eq(:add_foreign_key)
+      end
+
+      it "has the correct table" do
+        expect(instructions.first.table).to eq(:payments)
+      end
+
+      it "has the correct target" do
+        expect(instructions.first.target).to eq(:mandates)
+      end
+
+      it "has the correct column name" do
+        expect(instructions.first.column).to eq(:zalgo_comes)
+      end
+    end
+  end
+
   describe "syntax extensions" do
     subject(:instructions) { subject_class.new(validator).up_instructions }
 

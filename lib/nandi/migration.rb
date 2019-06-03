@@ -218,6 +218,14 @@ module Nandi
       )
     end
 
+    def add_foreign_key(table, target, **args)
+      current_instructions << Instructions::AddForeignKey.new(
+        table: table,
+        target: target,
+        **args,
+      )
+    end
+
     # @api private
     def compile_instructions(direction)
       @direction = direction
