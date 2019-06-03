@@ -87,14 +87,12 @@ module Nandi
         end
 
         class AddForeignKeyCell < Base
+          # Because all this stuff goes into a SQL string, we don't need to format
+          # the values.
           property :table
           property :target
           property :column
           property :name
-
-          def name
-            "#{table}_#{target}_fk"
-          end
         end
       end
     end

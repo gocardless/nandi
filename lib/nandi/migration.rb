@@ -218,11 +218,23 @@ module Nandi
       )
     end
 
-    def add_foreign_key(table, target, **args)
+    # Add a foreign key constraint. The generated SQL will include the NOT VALID
+    # parameter, which will prevent immediate validation of the constraint, which
+    # locks the target table for writes potentially for a long time. Use the separate
+    # #validate_constraint method, in a separate migration; this only takes a row-level
+    # lock as it scans through.
+    # @param table [Symbol, String] The name of the table with the reference column
+    # @param target [Symbol, String] The name of the referenced table
+    # @param column [Symbol, String] The name of the reference column. If omitted, will
+    #   default to the singular of target + "_id"
+    # @param name [Symbol, String] The name of the constraint to create. Defaults to
+    #   table_target_fk
+    def add_foreign_key(table, target, column: nil, name: nil)
       current_instructions << Instructions::AddForeignKey.new(
         table: table,
         target: target,
-        **args,
+        column: column,
+        name: name,
       )
     end
 
