@@ -1,0 +1,7 @@
+execute <<-SQL
+  ALTER TABLE <%= table %>
+  ADD_CONSTRAINT <%= name %>
+  FOREIGN KEY (<%= column %>)
+  REFERENCES <%= target %> (id)
+  NOT VALID
+SQL

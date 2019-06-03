@@ -85,6 +85,17 @@ module Nandi
           formatted_property :name
           formatted_property :alterations
         end
+
+        class AddForeignKeyCell < Base
+          property :table
+          property :target
+          property :column
+          property :name
+
+          def name
+            "#{table}_#{target}_fk"
+          end
+        end
       end
     end
   end
