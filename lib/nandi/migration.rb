@@ -32,6 +32,8 @@ module Nandi
 
     class InstructionSet < SimpleDelegator
       def strictest_lock
+        return LockWeights::SHARE if empty?
+
         map { |i| i.respond_to?(:lock) ? i.lock : LockWeights::ACCESS_EXCLUSIVE }.max
       end
     end
