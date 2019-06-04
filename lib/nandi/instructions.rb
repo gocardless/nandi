@@ -8,6 +8,7 @@ require "nandi/instructions/add_column"
 require "nandi/instructions/drop_column"
 require "nandi/instructions/alter_column"
 require "nandi/instructions/add_foreign_key"
+require "nandi/instructions/drop_foreign_key"
 require "nandi/instructions/validate_foreign_key"
 
 module Nandi
