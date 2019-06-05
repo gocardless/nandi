@@ -16,7 +16,6 @@ RSpec.describe Nandi::Formatting do
       end
     end
 
-
     shared_examples "outputs valid ruby" do |input|
       let(:value) { input }
 

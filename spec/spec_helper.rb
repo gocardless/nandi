@@ -3,6 +3,8 @@
 require "bundler/setup"
 require "nandi"
 
+# Always handy to have in tests
+require "pry"
 
 RSpec.configure do |config|
   # Enable flags like --only-failures and --next-failure
