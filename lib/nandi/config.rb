@@ -14,7 +14,6 @@ module Nandi
                   :statement_timeout,
                   :access_exclusive_statement_timeout_limit,
                   :access_exclusive_lock_timeout_limit
-    attr_reader :post_processor
     attr_reader :post_processor, :custom_methods
 
     def initialize(renderer: Renderers::ActiveRecord)

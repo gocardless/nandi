@@ -1,0 +1,21 @@
+version: 2
+
+references:
+  steps: &steps
+    - checkout
+    - run: gem install bundler
+    - run: bundle install
+    - run: bundle exec rspec spec
+    - run: bundle exec rubocop
+
+jobs:
+  test:
+    docker:
+      - image: 'ruby:2.6'
+    steps: *steps
+
+workflows:
+  version: 2
+  tests:
+    jobs:
+      - test
