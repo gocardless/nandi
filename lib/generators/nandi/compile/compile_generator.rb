@@ -11,7 +11,7 @@ module Nandi
     def compile_migration_files
       Nandi.compile(files: Dir.glob(safe_migrations_glob)) do |results|
         results.each do |result|
-          create_file "db/migrate/#{result.file_name}", result.body, force: true
+          create_file "#{output_path}/#{result.file_name}", result.body, force: true
         end
       end
     end
@@ -19,7 +19,15 @@ module Nandi
     private
 
     def safe_migrations_glob
-      Rails.root.join("db", "safe_migrations", "*.rb").to_s
+      if Nandi.config.migration_directory.nil?
+        Rails.root.join("db", "safe_migrations", "*.rb").to_s
+      else
+        File.expand_path("*.rb", Nandi.config.migration_directory)
+      end
+    end
+
+    def output_path
+      Nandi.config.output_directory || "db/migrate"
     end
   end
 end

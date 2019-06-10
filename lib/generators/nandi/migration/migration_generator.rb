@@ -11,8 +11,14 @@ module Nandi
 
       template(
         "migration.rb",
-        "db/safe_migrations/#{timestamp}_#{file_name.snakecase}.rb",
+        "#{base_path}/#{timestamp}_#{file_name.snakecase}.rb",
       )
+    end
+
+    private
+
+    def base_path
+      Nandi.config.migration_directory || "db/safe_migrations"
     end
   end
 end
