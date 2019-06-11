@@ -1,0 +1,23 @@
+Description:
+    Generates two new database migrations which will safely add a foreign key
+    constraint and validate it separately.
+
+Example:
+    rails generate nandi:foreign_key foos bars
+
+    This will create:
+        db/safe_migrations/20190424123727_add_foreign_key_on_bars_to_foos.rb
+        db/safe_migrations/20190424123728_validate_foreign_key_on_bars_to_foos.rb
+
+    Assumes that there is a column on table foos called bar_id that points to bars.
+    Will create an FK constraint called foos_bars_fk
+
+Example:
+    rails generate nandi:foreign_key foos bars --column special_bar_id --name my_fk
+
+    This will create:
+        db/safe_migrations/20190424123727_add_foreign_key_on_bars_to_foos.rb
+        db/safe_migrations/20190424123728_validate_foreign_key_on_bars_to_foos.rb
+
+    Assumes that there is a column on table foos called special_bar_id that points to
+    bars. Will create an FK constraint called my_fk
