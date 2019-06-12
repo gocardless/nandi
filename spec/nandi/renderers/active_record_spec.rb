@@ -34,7 +34,7 @@ RSpec.describe Nandi::Renderers::ActiveRecord do
           end
 
           def down
-            drop_index :payments, %i[foo bar]
+            remove_index :payments, %i[foo bar]
           end
         end
       end
@@ -60,7 +60,7 @@ RSpec.describe Nandi::Renderers::ActiveRecord do
             end
 
             def down
-              drop_index :payments, %i[foo bar]
+              remove_index :payments, %i[foo bar]
             end
           end
         end

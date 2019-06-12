@@ -57,7 +57,7 @@ RSpec.describe Nandi::Validator do
     context "dropping an index by index name" do
       let(:instructions) do
         [
-          Nandi::Instructions::DropIndex.new(
+          Nandi::Instructions::RemoveIndex.new(
             table: :payments,
             field: { name: :index_payments_on_foo },
           ),
@@ -70,7 +70,7 @@ RSpec.describe Nandi::Validator do
     context "dropping an index by column name" do
       let(:instructions) do
         [
-          Nandi::Instructions::DropIndex.new(
+          Nandi::Instructions::RemoveIndex.new(
             table: :payments,
             field: { column: %i[foo] },
           ),
@@ -83,7 +83,7 @@ RSpec.describe Nandi::Validator do
     context "dropping an index without valid props" do
       let(:instructions) do
         [
-          Nandi::Instructions::DropIndex.new(
+          Nandi::Instructions::RemoveIndex.new(
             table: :payments,
             field: { very: :irrelevant },
           ),
@@ -97,11 +97,11 @@ RSpec.describe Nandi::Validator do
   context "with more than one object modified" do
     let(:instructions) do
       [
-        Nandi::Instructions::DropIndex.new(
+        Nandi::Instructions::RemoveIndex.new(
           table: :payments,
           field: { name: :index_payments_on_foo },
         ),
-        Nandi::Instructions::DropIndex.new(
+        Nandi::Instructions::RemoveIndex.new(
           table: :mandates,
           field: { name: :index_payments_on_foo },
         ),
@@ -114,11 +114,11 @@ RSpec.describe Nandi::Validator do
   context "with one object modified as string and symbol" do
     let(:instructions) do
       [
-        Nandi::Instructions::DropIndex.new(
+        Nandi::Instructions::RemoveIndex.new(
           table: :payments,
           field: { name: :index_payments_on_foo },
         ),
-        Nandi::Instructions::DropIndex.new(
+        Nandi::Instructions::RemoveIndex.new(
           table: "payments",
           field: { name: :index_payments_on_foo },
         ),

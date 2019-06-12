@@ -141,15 +141,15 @@ module Nandi
     #
     # Because we cannot run in a transaction and therefore risk partially
     # applied migrations that (in a Rails environment) require manual
-    # intervention, Nandi Validates that, if there is a drop_index statement
+    # intervention, Nandi Validates that, if there is a remove_index statement
     # in the migration, it must be the only statement.
     # @param table [Symbol, String] The name of the table to add the index to
     # @param target [Symbol, String, Array, Hash] This can be either the field (or
     #   array of fields) in the index to be dropped, or a hash of options, which
     #   must include either a `column` key (which is the same: a field or list
     #   of fields) or a `name` key, which is the name of the index to be dropped.
-    def drop_index(table, target)
-      current_instructions << Instructions::DropIndex.new(table: table, field: target)
+    def remove_index(table, target)
+      current_instructions << Instructions::RemoveIndex.new(table: table, field: target)
     end
 
     # Creates a new table. Yields a ColumnsReader object as a block, to allow adding

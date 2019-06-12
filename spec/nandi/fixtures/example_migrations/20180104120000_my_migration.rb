@@ -6,6 +6,6 @@ class MyMigration < Nandi::Migration
   end
 
   def down
-    drop_index :payments, :foo
+    remove_index :payments, :foo
   end
 end

@@ -2,7 +2,7 @@
 
 module Nandi
   module Validation
-    class DropIndexValidator
+    class RemoveIndexValidator
       def self.call(instruction)
         new(instruction).call
       end

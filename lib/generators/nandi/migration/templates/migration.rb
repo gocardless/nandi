@@ -8,7 +8,7 @@ class <%= class_name %> < Nandi::Migration
 
   def down
     # Reverse migration instructions go here, eg:
-    # drop_index :payments, :index_payments_on_foo_bar
+    # remove_index :payments, :index_payments_on_foo_bar
   end
 end
 

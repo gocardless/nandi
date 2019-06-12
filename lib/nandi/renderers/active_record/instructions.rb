@@ -24,7 +24,7 @@ module Nandi
           ]
         end
 
-        class DropIndexCell < Base
+        class RemoveIndexCell < Base
           formatted_property :table
           formatted_property :extra_args
         end

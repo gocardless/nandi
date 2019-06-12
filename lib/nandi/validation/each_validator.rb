@@ -14,8 +14,8 @@ module Nandi
       def call
         result = Result.new
         case instruction.procedure
-        when :drop_index
-          result.merge(DropIndexValidator.call(instruction))
+        when :remove_index
+          result.merge(RemoveIndexValidator.call(instruction))
         when :add_column
           result.merge(AddColumnValidator.call(instruction))
         when :alter_column

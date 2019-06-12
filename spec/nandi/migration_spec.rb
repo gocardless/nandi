@@ -97,7 +97,7 @@ RSpec.describe Nandi::Migration do
     end
   end
 
-  describe "#drop_index" do
+  describe "#remove_index" do
     subject(:instructions) { subject_class.new(validator).down_instructions }
 
     context "dropping an index by column name" do
@@ -106,13 +106,13 @@ RSpec.describe Nandi::Migration do
           def up; end
 
           def down
-            drop_index :payments, :foo
+            remove_index :payments, :foo
           end
         end
       end
 
       it "returns an instruction" do
-        expect(instructions.first.procedure).to eq(:drop_index)
+        expect(instructions.first.procedure).to eq(:remove_index)
       end
     end
 
@@ -123,13 +123,13 @@ RSpec.describe Nandi::Migration do
             def up; end
 
             def down
-              drop_index :payments, column: :foo
+              remove_index :payments, column: :foo
             end
           end
         end
 
         it "returns an instruction" do
-          expect(instructions.first.procedure).to eq(:drop_index)
+          expect(instructions.first.procedure).to eq(:remove_index)
         end
       end
 
@@ -139,13 +139,13 @@ RSpec.describe Nandi::Migration do
             def up; end
 
             def down
-              drop_index :payments, name: :index_payments_on_foo
+              remove_index :payments, name: :index_payments_on_foo
             end
           end
         end
 
         it "returns an instruction" do
-          expect(instructions.first.procedure).to eq(:drop_index)
+          expect(instructions.first.procedure).to eq(:remove_index)
         end
       end
     end

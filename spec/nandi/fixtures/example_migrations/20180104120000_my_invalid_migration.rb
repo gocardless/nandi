@@ -7,7 +7,7 @@ class MyInvalidMigration < Nandi::Migration
   end
 
   def down
-    drop_index :payments, :foo
-    drop_index :payments, :bar
+    remove_index :payments, :foo
+    remove_index :payments, :bar
   end
 end
