@@ -2,7 +2,7 @@
 
 module Nandi
   module Instructions
-    class CreateIndex
+    class AddIndex
       def initialize(fields:, table:, **kwargs)
         @fields = Array(fields)
         @table = table
@@ -10,7 +10,7 @@ module Nandi
       end
 
       def procedure
-        :create_index
+        :add_index
       end
 
       def extra_args

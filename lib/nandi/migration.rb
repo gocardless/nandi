@@ -118,15 +118,15 @@ module Nandi
     # Because index creation is particularly failure-prone, and because
     # we cannot run in a transaction and therefore risk partially applied
     # migrations that (in a Rails environment) require manual intervention,
-    # Nandi Validates that, if there is a create_index statement in the
+    # Nandi Validates that, if there is a add_index statement in the
     # migration, it must be the only statement.
     # @param table [Symbol, String] The name of the table to add the index to
     # @param fields [Symbol, String, Array] The field or fields to use in the
     #   index
     # @param kwargs [Hash] Arbitrary options to pass to the backend adapter.
     #   Attempts to remove `CONCURRENTLY` or change the index type will be ignored.
-    def create_index(table, fields, **kwargs)
-      current_instructions << Instructions::CreateIndex.new(
+    def add_index(table, fields, **kwargs)
+      current_instructions << Instructions::AddIndex.new(
         **kwargs,
         table: table,
         fields: fields,

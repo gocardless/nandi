@@ -2,8 +2,8 @@
 
 class MyInvalidMigration < Nandi::Migration
   def up
-    create_index :payments, :foo
-    create_index :payments, :bar
+    add_index :payments, :foo
+    add_index :payments, :bar
   end
 
   def down

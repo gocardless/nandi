@@ -47,7 +47,7 @@ RSpec.describe Nandi::Migration do
     end
   end
 
-  describe "#create_index" do
+  describe "#add_index" do
     context "with one new index" do
       subject(:instructions) { subject_class.new(validator).up_instructions }
 
@@ -55,13 +55,13 @@ RSpec.describe Nandi::Migration do
         let(:subject_class) do
           Class.new(described_class) do
             def up
-              create_index :payments, :foo
+              add_index :payments, :foo
             end
           end
         end
 
         it "returns an instruction" do
-          expect(instructions.first.procedure).to eq(:create_index)
+          expect(instructions.first.procedure).to eq(:add_index)
         end
       end
 
@@ -69,13 +69,13 @@ RSpec.describe Nandi::Migration do
         let(:subject_class) do
           Class.new(described_class) do
             def up
-              create_index :payments, %i[foo bar]
+              add_index :payments, %i[foo bar]
             end
           end
         end
 
         it "returns an instruction" do
-          expect(instructions.first.procedure).to eq(:create_index)
+          expect(instructions.first.procedure).to eq(:add_index)
         end
       end
     end
@@ -86,13 +86,13 @@ RSpec.describe Nandi::Migration do
       let(:subject_class) do
         Class.new(described_class) do
           def up
-            create_index :payments, :foo, extra: :arg
+            add_index :payments, :foo, extra: :arg
           end
         end
       end
 
       it "returns an instruction" do
-        expect(instructions.first.procedure).to eq(:create_index)
+        expect(instructions.first.procedure).to eq(:add_index)
       end
     end
   end

@@ -3,7 +3,7 @@
 class <%= class_name %> < Nandi::Migration
   def up
     # Migration instructions go here, eg:
-    # create_index :payments, [:foo, :bar]
+    # add_index :payments, [:foo, :bar]
   end
 
   def down

@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "spec_helper"
+require "nandi/migration"
 require "nandi/validator"
 require "nandi/instructions"
 
@@ -24,7 +25,7 @@ RSpec.describe Nandi::Validator do
     context "with one new index" do
       let(:instructions) do
         [
-          Nandi::Instructions::CreateIndex.new(
+          Nandi::Instructions::AddIndex.new(
             table: :payments,
             fields: [:foo],
           ),
@@ -37,11 +38,11 @@ RSpec.describe Nandi::Validator do
     context "with more than one new index" do
       let(:instructions) do
         [
-          Nandi::Instructions::CreateIndex.new(
+          Nandi::Instructions::AddIndex.new(
             table: :payments,
             fields: [:foo],
           ),
-          Nandi::Instructions::CreateIndex.new(
+          Nandi::Instructions::AddIndex.new(
             table: :payments,
             fields: [:foo],
           ),

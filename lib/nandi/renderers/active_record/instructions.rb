@@ -29,7 +29,7 @@ module Nandi
           formatted_property :extra_args
         end
 
-        class CreateIndexCell < Base
+        class AddIndexCell < Base
           formatted_property :table
           formatted_property :fields
           formatted_property :extra_args
