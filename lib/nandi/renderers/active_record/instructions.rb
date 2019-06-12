@@ -74,7 +74,7 @@ module Nandi
           formatted_property :extra_args
         end
 
-        class DropColumnCell < Base
+        class RemoveColumnCell < Base
           formatted_property :table
           formatted_property :name
           formatted_property :extra_args

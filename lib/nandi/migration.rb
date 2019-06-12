@@ -194,8 +194,8 @@ module Nandi
     #   from.
     # @param name [Symbol, String] The name of the column
     # @param extra_args [Hash] Arbitrary options to be passed to the backend.
-    def drop_column(table, name, **extra_args)
-      current_instructions << Instructions::DropColumn.new(
+    def remove_column(table, name, **extra_args)
+      current_instructions << Instructions::RemoveColumn.new(
         **extra_args,
         table: table,
         name: name,

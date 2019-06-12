@@ -176,7 +176,7 @@ RSpec.describe Nandi::Renderers::ActiveRecord do
           end
 
           def down
-            drop_column :payments, :foo, cascade: true
+            remove_column :payments, :foo, cascade: true
           end
         end
       end

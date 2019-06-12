@@ -293,14 +293,14 @@ RSpec.describe Nandi::Migration do
     end
   end
 
-  describe "#drop_column" do
+  describe "#remove_column" do
     subject(:instructions) { subject_class.new(validator).up_instructions }
 
     context "without extra args" do
       let(:subject_class) do
         Class.new(described_class) do
           def up
-            drop_column :payments, :my_column
+            remove_column :payments, :my_column
           end
 
           def down; end
@@ -308,7 +308,7 @@ RSpec.describe Nandi::Migration do
       end
 
       it "has the correct procedure" do
-        expect(instructions.first.procedure).to eq(:drop_column)
+        expect(instructions.first.procedure).to eq(:remove_column)
       end
 
       it "has the correct table" do
@@ -324,7 +324,7 @@ RSpec.describe Nandi::Migration do
       let(:subject_class) do
         Class.new(described_class) do
           def up
-            drop_column :payments, :my_column, cascade: true
+            remove_column :payments, :my_column, cascade: true
           end
 
           def down; end
@@ -332,7 +332,7 @@ RSpec.describe Nandi::Migration do
       end
 
       it "has the correct procedure" do
-        expect(instructions.first.procedure).to eq(:drop_column)
+        expect(instructions.first.procedure).to eq(:remove_column)
       end
 
       it "has the correct table" do
