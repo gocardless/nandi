@@ -196,7 +196,7 @@ RSpec.describe Nandi::Validator do
     context "making a column nullable" do
       let(:instructions) do
         [
-          Nandi::Instructions::AlterColumn.new(
+          Nandi::Instructions::ChangeColumn.new(
             table: :payments,
             name: :stuff,
             null: true,
@@ -210,7 +210,7 @@ RSpec.describe Nandi::Validator do
     context "changing the default value" do
       let(:instructions) do
         [
-          Nandi::Instructions::AlterColumn.new(
+          Nandi::Instructions::ChangeColumn.new(
             table: :payments,
             name: :stuff,
             default: "Zalgo comes",
@@ -224,7 +224,7 @@ RSpec.describe Nandi::Validator do
     context "making a column not nullable" do
       let(:instructions) do
         [
-          Nandi::Instructions::AlterColumn.new(
+          Nandi::Instructions::ChangeColumn.new(
             table: :payments,
             name: :stuff,
             null: false,
@@ -238,7 +238,7 @@ RSpec.describe Nandi::Validator do
     context "making a column unique" do
       let(:instructions) do
         [
-          Nandi::Instructions::AlterColumn.new(
+          Nandi::Instructions::ChangeColumn.new(
             table: :payments,
             name: :stuff,
             unique: true,
@@ -252,7 +252,7 @@ RSpec.describe Nandi::Validator do
     context "changing the type" do
       let(:instructions) do
         [
-          Nandi::Instructions::AlterColumn.new(
+          Nandi::Instructions::ChangeColumn.new(
             table: :payments,
             name: :stuff,
             type: :integer,

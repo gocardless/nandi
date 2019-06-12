@@ -18,8 +18,8 @@ module Nandi
           result.merge(RemoveIndexValidator.call(instruction))
         when :add_column
           result.merge(AddColumnValidator.call(instruction))
-        when :alter_column
-          result.merge(AlterColumnValidator.call(instruction))
+        when :change_column
+          result.merge(ChangeColumnValidator.call(instruction))
         end
         result
       end

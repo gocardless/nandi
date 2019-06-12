@@ -184,9 +184,9 @@ RSpec.describe Nandi::Renderers::ActiveRecord do
       it { is_expected.to eq(fixture) }
     end
 
-    describe "#alter_column" do
+    describe "#change_column" do
       let(:fixture) do
-        File.read(File.join(fixture_root, "alter_column.rb"))
+        File.read(File.join(fixture_root, "change_column.rb"))
       end
 
       let(:safe_migration) do
@@ -196,7 +196,7 @@ RSpec.describe Nandi::Renderers::ActiveRecord do
           end
 
           def up
-            alter_column :payments, :foo, null: true
+            change_column :payments, :foo, null: true
           end
 
           def down; end

@@ -211,9 +211,9 @@ module Nandi
     # @param name [Symbol, String] The name of the column
     # @param alterations [Hash] Hash of values to represent changes to the column.
     # @example
-    #   alter_column :widgets, :foo, collation: :de_DE
-    def alter_column(table, name, **alterations)
-      current_instructions << Instructions::AlterColumn.new(
+    #   change_column :widgets, :foo, collation: :de_DE
+    def change_column(table, name, **alterations)
+      current_instructions << Instructions::ChangeColumn.new(
         **alterations,
         table: table,
         name: name,
