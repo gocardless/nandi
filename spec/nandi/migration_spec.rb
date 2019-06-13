@@ -249,12 +249,6 @@ RSpec.describe Nandi::Migration do
       it "has the correct column type" do
         expect(instructions.first.type).to eq(:text)
       end
-
-      it "sets the default constraints" do
-        expect(instructions.first.extra_args).to eq(
-          null: true,
-        )
-      end
     end
 
     context "with extra options" do
@@ -286,7 +280,6 @@ RSpec.describe Nandi::Migration do
 
       it "sets the default constraints" do
         expect(instructions.first.extra_args).to eq(
-          null: true,
           collate: :de_DE,
         )
       end

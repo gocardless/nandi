@@ -3,7 +3,7 @@
 module Nandi
   module Instructions
     class AddColumn
-      attr_reader :table, :name, :type
+      attr_reader :table, :name, :type, :extra_args
 
       def initialize(table:, name:, type:, **kwargs)
         @table = table
@@ -14,10 +14,6 @@ module Nandi
 
       def procedure
         :add_column
-      end
-
-      def extra_args
-        { null: true, **@extra_args }
       end
 
       def lock

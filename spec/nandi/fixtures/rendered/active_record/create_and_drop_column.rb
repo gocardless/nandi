@@ -11,7 +11,6 @@ class MyAwesomeMigration < ActiveRecord::Migration[5.2]
   :foo,
   :text,
   {
-  null: true,
   collate: :de_DE
 }
 )
