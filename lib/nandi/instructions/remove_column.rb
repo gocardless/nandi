@@ -2,7 +2,7 @@
 
 module Nandi
   module Instructions
-    class DropColumn
+    class RemoveColumn
       attr_reader :table, :name, :extra_args
 
       def initialize(table:, name:, **extra_args)
@@ -12,7 +12,7 @@ module Nandi
       end
 
       def procedure
-        :drop_column
+        :remove_column
       end
 
       def lock

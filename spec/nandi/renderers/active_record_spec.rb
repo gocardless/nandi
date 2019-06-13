@@ -30,11 +30,11 @@ RSpec.describe Nandi::Renderers::ActiveRecord do
           end
 
           def up
-            create_index :payments, %i[foo bar]
+            add_index :payments, %i[foo bar]
           end
 
           def down
-            drop_index :payments, %i[foo bar]
+            remove_index :payments, %i[foo bar]
           end
         end
       end
@@ -56,11 +56,11 @@ RSpec.describe Nandi::Renderers::ActiveRecord do
             end
 
             def up
-              create_index :payments, %i[foo bar]
+              add_index :payments, %i[foo bar]
             end
 
             def down
-              drop_index :payments, %i[foo bar]
+              remove_index :payments, %i[foo bar]
             end
           end
         end
@@ -176,7 +176,7 @@ RSpec.describe Nandi::Renderers::ActiveRecord do
           end
 
           def down
-            drop_column :payments, :foo, cascade: true
+            remove_column :payments, :foo, cascade: true
           end
         end
       end
@@ -184,9 +184,9 @@ RSpec.describe Nandi::Renderers::ActiveRecord do
       it { is_expected.to eq(fixture) }
     end
 
-    describe "#alter_column" do
+    describe "#change_column" do
       let(:fixture) do
-        File.read(File.join(fixture_root, "alter_column.rb"))
+        File.read(File.join(fixture_root, "change_column.rb"))
       end
 
       let(:safe_migration) do
@@ -196,7 +196,7 @@ RSpec.describe Nandi::Renderers::ActiveRecord do
           end
 
           def up
-            alter_column :payments, :foo, null: true
+            change_column :payments, :foo, null: true
           end
 
           def down; end

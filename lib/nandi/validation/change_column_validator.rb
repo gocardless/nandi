@@ -2,7 +2,7 @@
 
 module Nandi
   module Validation
-    class AlterColumnValidator
+    class ChangeColumnValidator
       def self.call(instruction)
         new(instruction).call
       end

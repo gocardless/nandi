@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "spec_helper"
+require "nandi/migration"
 require "nandi/validator"
 require "nandi/instructions"
 
@@ -24,7 +25,7 @@ RSpec.describe Nandi::Validator do
     context "with one new index" do
       let(:instructions) do
         [
-          Nandi::Instructions::CreateIndex.new(
+          Nandi::Instructions::AddIndex.new(
             table: :payments,
             fields: [:foo],
           ),
@@ -37,11 +38,11 @@ RSpec.describe Nandi::Validator do
     context "with more than one new index" do
       let(:instructions) do
         [
-          Nandi::Instructions::CreateIndex.new(
+          Nandi::Instructions::AddIndex.new(
             table: :payments,
             fields: [:foo],
           ),
-          Nandi::Instructions::CreateIndex.new(
+          Nandi::Instructions::AddIndex.new(
             table: :payments,
             fields: [:foo],
           ),
@@ -56,7 +57,7 @@ RSpec.describe Nandi::Validator do
     context "dropping an index by index name" do
       let(:instructions) do
         [
-          Nandi::Instructions::DropIndex.new(
+          Nandi::Instructions::RemoveIndex.new(
             table: :payments,
             field: { name: :index_payments_on_foo },
           ),
@@ -69,7 +70,7 @@ RSpec.describe Nandi::Validator do
     context "dropping an index by column name" do
       let(:instructions) do
         [
-          Nandi::Instructions::DropIndex.new(
+          Nandi::Instructions::RemoveIndex.new(
             table: :payments,
             field: { column: %i[foo] },
           ),
@@ -82,7 +83,7 @@ RSpec.describe Nandi::Validator do
     context "dropping an index without valid props" do
       let(:instructions) do
         [
-          Nandi::Instructions::DropIndex.new(
+          Nandi::Instructions::RemoveIndex.new(
             table: :payments,
             field: { very: :irrelevant },
           ),
@@ -96,11 +97,11 @@ RSpec.describe Nandi::Validator do
   context "with more than one object modified" do
     let(:instructions) do
       [
-        Nandi::Instructions::DropIndex.new(
+        Nandi::Instructions::RemoveIndex.new(
           table: :payments,
           field: { name: :index_payments_on_foo },
         ),
-        Nandi::Instructions::DropIndex.new(
+        Nandi::Instructions::RemoveIndex.new(
           table: :mandates,
           field: { name: :index_payments_on_foo },
         ),
@@ -113,11 +114,11 @@ RSpec.describe Nandi::Validator do
   context "with one object modified as string and symbol" do
     let(:instructions) do
       [
-        Nandi::Instructions::DropIndex.new(
+        Nandi::Instructions::RemoveIndex.new(
           table: :payments,
           field: { name: :index_payments_on_foo },
         ),
-        Nandi::Instructions::DropIndex.new(
+        Nandi::Instructions::RemoveIndex.new(
           table: "payments",
           field: { name: :index_payments_on_foo },
         ),
@@ -195,7 +196,7 @@ RSpec.describe Nandi::Validator do
     context "making a column nullable" do
       let(:instructions) do
         [
-          Nandi::Instructions::AlterColumn.new(
+          Nandi::Instructions::ChangeColumn.new(
             table: :payments,
             name: :stuff,
             null: true,
@@ -209,7 +210,7 @@ RSpec.describe Nandi::Validator do
     context "changing the default value" do
       let(:instructions) do
         [
-          Nandi::Instructions::AlterColumn.new(
+          Nandi::Instructions::ChangeColumn.new(
             table: :payments,
             name: :stuff,
             default: "Zalgo comes",
@@ -223,7 +224,7 @@ RSpec.describe Nandi::Validator do
     context "making a column not nullable" do
       let(:instructions) do
         [
-          Nandi::Instructions::AlterColumn.new(
+          Nandi::Instructions::ChangeColumn.new(
             table: :payments,
             name: :stuff,
             null: false,
@@ -237,7 +238,7 @@ RSpec.describe Nandi::Validator do
     context "making a column unique" do
       let(:instructions) do
         [
-          Nandi::Instructions::AlterColumn.new(
+          Nandi::Instructions::ChangeColumn.new(
             table: :payments,
             name: :stuff,
             unique: true,
@@ -251,7 +252,7 @@ RSpec.describe Nandi::Validator do
     context "changing the type" do
       let(:instructions) do
         [
-          Nandi::Instructions::AlterColumn.new(
+          Nandi::Instructions::ChangeColumn.new(
             table: :payments,
             name: :stuff,
             type: :integer,

@@ -2,7 +2,7 @@
 
 module Nandi
   module Instructions
-    class CreateIndex
+    class AddIndex
       def initialize(fields:, table:, **kwargs)
         @fields = Array(fields)
         @table = table

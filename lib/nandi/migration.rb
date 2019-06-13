@@ -118,15 +118,15 @@ module Nandi
     # Because index creation is particularly failure-prone, and because
     # we cannot run in a transaction and therefore risk partially applied
     # migrations that (in a Rails environment) require manual intervention,
-    # Nandi Validates that, if there is a create_index statement in the
+    # Nandi Validates that, if there is a add_index statement in the
     # migration, it must be the only statement.
     # @param table [Symbol, String] The name of the table to add the index to
     # @param fields [Symbol, String, Array] The field or fields to use in the
     #   index
     # @param kwargs [Hash] Arbitrary options to pass to the backend adapter.
     #   Attempts to remove `CONCURRENTLY` or change the index type will be ignored.
-    def create_index(table, fields, **kwargs)
-      current_instructions << Instructions::CreateIndex.new(
+    def add_index(table, fields, **kwargs)
+      current_instructions << Instructions::AddIndex.new(
         **kwargs,
         table: table,
         fields: fields,
@@ -141,15 +141,15 @@ module Nandi
     #
     # Because we cannot run in a transaction and therefore risk partially
     # applied migrations that (in a Rails environment) require manual
-    # intervention, Nandi Validates that, if there is a drop_index statement
+    # intervention, Nandi Validates that, if there is a remove_index statement
     # in the migration, it must be the only statement.
     # @param table [Symbol, String] The name of the table to add the index to
     # @param target [Symbol, String, Array, Hash] This can be either the field (or
     #   array of fields) in the index to be dropped, or a hash of options, which
     #   must include either a `column` key (which is the same: a field or list
     #   of fields) or a `name` key, which is the name of the index to be dropped.
-    def drop_index(table, target)
-      current_instructions << Instructions::DropIndex.new(table: table, field: target)
+    def remove_index(table, target)
+      current_instructions << Instructions::RemoveIndex.new(table: table, field: target)
     end
 
     # Creates a new table. Yields a ColumnsReader object as a block, to allow adding
@@ -194,8 +194,8 @@ module Nandi
     #   from.
     # @param name [Symbol, String] The name of the column
     # @param extra_args [Hash] Arbitrary options to be passed to the backend.
-    def drop_column(table, name, **extra_args)
-      current_instructions << Instructions::DropColumn.new(
+    def remove_column(table, name, **extra_args)
+      current_instructions << Instructions::RemoveColumn.new(
         **extra_args,
         table: table,
         name: name,
@@ -211,9 +211,9 @@ module Nandi
     # @param name [Symbol, String] The name of the column
     # @param alterations [Hash] Hash of values to represent changes to the column.
     # @example
-    #   alter_column :widgets, :foo, collation: :de_DE
-    def alter_column(table, name, **alterations)
-      current_instructions << Instructions::AlterColumn.new(
+    #   change_column :widgets, :foo, collation: :de_DE
+    def change_column(table, name, **alterations)
+      current_instructions << Instructions::ChangeColumn.new(
         **alterations,
         table: table,
         name: name,

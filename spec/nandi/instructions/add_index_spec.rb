@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 require "spec_helper"
-require "nandi/instructions/create_index"
+require "nandi/instructions/add_index"
 
-RSpec.describe Nandi::Instructions::CreateIndex do
+RSpec.describe Nandi::Instructions::AddIndex do
   let(:instance) do
     described_class.new(
       fields: fields,

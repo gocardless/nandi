@@ -2,7 +2,7 @@
 
 module Nandi
   module Instructions
-    class AlterColumn
+    class ChangeColumn
       attr_reader :table, :name, :alterations
 
       def initialize(table:, name:, **alterations)
@@ -12,7 +12,7 @@ module Nandi
       end
 
       def procedure
-        :alter_column
+        :change_column
       end
 
       def lock

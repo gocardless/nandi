@@ -24,12 +24,12 @@ module Nandi
           ]
         end
 
-        class DropIndexCell < Base
+        class RemoveIndexCell < Base
           formatted_property :table
           formatted_property :extra_args
         end
 
-        class CreateIndexCell < Base
+        class AddIndexCell < Base
           formatted_property :table
           formatted_property :fields
           formatted_property :extra_args
@@ -74,13 +74,13 @@ module Nandi
           formatted_property :extra_args
         end
 
-        class DropColumnCell < Base
+        class RemoveColumnCell < Base
           formatted_property :table
           formatted_property :name
           formatted_property :extra_args
         end
 
-        class AlterColumnCell < Base
+        class ChangeColumnCell < Base
           formatted_property :table
           formatted_property :name
           formatted_property :alterations

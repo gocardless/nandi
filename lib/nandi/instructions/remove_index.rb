@@ -2,14 +2,14 @@
 
 module Nandi
   module Instructions
-    class DropIndex
+    class RemoveIndex
       def initialize(table:, field:)
         @table = table
         @field = field
       end
 
       def procedure
-        :drop_index
+        :remove_index
       end
 
       def extra_args

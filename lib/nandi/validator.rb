@@ -67,7 +67,7 @@ module Nandi
 
     def new_indexes_are_separated_from_other_migrations
       [migration.up_instructions, migration.down_instructions].map do |instructions|
-        instructions.none? { |i| i.procedure == :create_index } ||
+        instructions.none? { |i| i.procedure == :add_index } ||
           instructions.count == 1
       end.all?
     end

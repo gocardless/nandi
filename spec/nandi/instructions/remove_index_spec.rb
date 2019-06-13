@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 require "spec_helper"
-require "nandi/instructions/drop_index"
+require "nandi/instructions/remove_index"
 
-RSpec.describe Nandi::Instructions::DropIndex do
+RSpec.describe Nandi::Instructions::RemoveIndex do
   let(:instance) { described_class.new(table: table, field: field) }
   let(:table) { :widgets }
   let(:field) { :foo }
