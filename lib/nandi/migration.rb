@@ -160,8 +160,9 @@ module Nandi
     #   end
     # @param table [String, Symbol] The name of the new table
     # @yieldparam columns_reader [Nandi::Instructions::CreateTable::ColumnsReader]
-    def create_table(table, &block)
+    def create_table(table, **kwargs, &block)
       current_instructions << Instructions::CreateTable.new(
+        **kwargs,
         table: table,
         columns_block: block,
       )

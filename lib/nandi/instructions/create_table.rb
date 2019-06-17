@@ -5,13 +5,14 @@ require "ostruct"
 module Nandi
   module Instructions
     class CreateTable
-      attr_reader :table, :columns, :timestamps_args
+      attr_reader :table, :columns, :timestamps_args, :extra_args
 
-      def initialize(table:, columns_block:)
+      def initialize(table:, columns_block:, **kwargs)
         @table = table
         columns_reader = ColumnsReader.new
         columns_block.call(columns_reader)
         @columns = columns_reader.columns
+        @extra_args = kwargs unless kwargs.empty?
         @timestamps_args = columns_reader.timestamps_args
       end
 

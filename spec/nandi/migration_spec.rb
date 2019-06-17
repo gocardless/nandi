@@ -198,6 +198,57 @@ RSpec.describe Nandi::Migration do
     it "exposes the args for timestamps" do
       expect(instructions.first.timestamps_args).to eq(null: false)
     end
+
+    it "has no extra_args" do
+      expect(instructions.first.extra_args).to eq(nil)
+    end
+
+    context "with extra args" do
+      let(:subject_class) do
+        Class.new(described_class) do
+          def up
+            create_table :payments, id: false do |t|
+              t.column :name, :string, default: "no one"
+              t.timestamps null: false
+            end
+          end
+        end
+      end
+
+      let(:expected_columns) do
+        [
+          [:name, :string, { default: "no one" }],
+        ]
+      end
+
+      it "returns an instruction" do
+        expect(instructions.first.procedure).to eq(:create_table)
+      end
+
+      it "exposes the correct table name" do
+        expect(instructions.first.table).to eq(:payments)
+      end
+
+      it "exposes the correct columns number" do
+        expect(instructions.first.columns.length).to eq(1)
+      end
+
+      it "exposes the correct columns values" do
+        instructions.first.columns.each_with_index do |c, i|
+          expect(c.name).to eq(expected_columns[i][0])
+          expect(c.type).to eq(expected_columns[i][1])
+          expect(c.args).to eq(expected_columns[i][2])
+        end
+      end
+
+      it "exposes the args for timestamps" do
+        expect(instructions.first.timestamps_args).to eq(null: false)
+      end
+
+      it "has extra_args" do
+        expect(instructions.first.extra_args).to eq(id: false)
+      end
+    end
   end
 
   describe "#drop_table" do
