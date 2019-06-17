@@ -1,4 +1,4 @@
-create_table <%= table %> do |t|
+create_table <%= table %><% if extra_args? %>, <%= extra_args %><% end %> do |t|
 <% columns.each do |column| %>
       t.column <%= column.name %>, <%= column.type %><%= ", #{column.args}" if column.args %>
 <% end %>
