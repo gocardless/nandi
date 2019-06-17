@@ -15,7 +15,10 @@ AllCops:
     - node_modules/**/*
 
 Metrics/MethodLength:
-  Max: 10
+  Max: 29
+
+Metrics/AbcSize:
+  Max: 20
 
 RSpec/NotToNot:
   EnforcedStyle: to_not
@@ -25,7 +28,10 @@ RSpec/NestedGroups:
   Max: 8
 
 RSpec/MultipleExpectations:
-  Max: 3
+  Max: 5
+
+RSpec/ExampleLength:
+  Max: 7
 
 RSpec/ContextWording:
   Enabled: false

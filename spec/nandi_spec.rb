@@ -54,7 +54,6 @@ RSpec.describe Nandi do
     context "with an invalid migration" do
       let(:files) { ["#{base_path}/20180104120000_my_invalid_migration.rb"] }
 
-      # rubocop:disable RSpec/ExampleLength
       it "throws an invalid migration error" do
         expect do
           described_class.compile(args) { |_| nil }
@@ -63,7 +62,6 @@ RSpec.describe Nandi do
           /creating more than one index per migration/,
         )
       end
-      # rubocop:enable RSpec/ExampleLength
     end
 
     context "with a post-processing step" do
