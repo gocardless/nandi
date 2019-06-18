@@ -5,21 +5,24 @@
 require "bundler"
 Bundler.setup(:default)
 
-require "slop"
+require "optparse"
 
 require_relative "../lib/nandi/safe_migration_enforcer"
 
-opts = Slop.parse do |o|
-  o.string "--safe-migration-dir", "directory containing Nandi migrations"
-  o.string "--ar-migration-dir", "directory containing ActiveRecord migrations"
-  o.on "-h", "--help" do
+opts = {}
+OptionParser.new do |o|
+  o.on("--safe-migration-dir DIR", "directory containing Nandi migrations") do |v|
+    opts[:safe_migration_dir] = v
+  end
+  o.on("--ar-migration-dir DIR", "directory containing ActiveRecord migrations") do |v|
+    opts[:ar_migration_dir] = v
+  end
+  o.on("-h", "--help") do
     puts o
     exit
   end
-end
+end.parse!
 
-present_opts = opts.to_hash.reject { |_, value| value.nil? }
-
-enforcer = Nandi::SafeMigrationEnforcer.new(present_opts)
+enforcer = Nandi::SafeMigrationEnforcer.new(opts)
 
 enforcer.run

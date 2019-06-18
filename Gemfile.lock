@@ -4,7 +4,6 @@ PATH
     nandi (0.2.0)
       activesupport
       cells
-      slop
       tilt
 
 GEM
@@ -156,7 +155,6 @@ GEM
     rubocop-rspec (1.32.0)
       rubocop (>= 0.60.0)
     ruby-progressbar (1.10.0)
-    slop (4.6.2)
     sprockets (3.7.2)
       concurrent-ruby (~> 1.0)
       rack (> 1, < 3)
