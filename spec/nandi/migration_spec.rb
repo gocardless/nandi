@@ -249,6 +249,57 @@ RSpec.describe Nandi::Migration do
         expect(instructions.first.extra_args).to eq(id: false)
       end
     end
+
+    context "type methods" do
+      %i[
+        bigint
+        binary
+        boolean
+        date
+        datetime
+        decimal
+        float
+        integer
+        json
+        string
+        text
+        time
+        timestamp
+        virtual
+        bigserial bit bit_varying box
+        cidr circle citext
+        daterange
+        hstore
+        inet int4range int8range interval
+        jsonb
+        line lseg ltree
+        macaddr money
+        numrange
+        oid
+        path point polygon primary_key
+        serial
+        tsrange tstzrange tsvector
+        uuid
+        xml
+      ].each do |type|
+        context type.to_s do
+          let(:subject_class) do
+            Class.new(described_class) do
+              define_method :up do
+                create_table :payments do |t|
+                  t.send type, :name, null: true
+                end
+              end
+            end
+          end
+
+          it "defines the type #{type}" do
+            expect(instructions.first.columns.first.type).
+              to eq(type)
+          end
+        end
+      end
+    end
   end
 
   describe "#drop_table" do
