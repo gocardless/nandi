@@ -6,13 +6,15 @@ class MyAwesomeMigration < ActiveRecord::Migration[5.2]
   
   def up
   
-    execute <<-SQL
-  ALTER TABLE payments
-  ADD_CONSTRAINT payments_mandates_fk
-  FOREIGN KEY (zalgo_comes)
-  REFERENCES mandates (id)
-  NOT VALID
-SQL
+    add_foreign_key(
+  :payments,
+  :mandates,
+  {
+  valid: false,
+  name: :payments_mandates_fk,
+  column: :zalgo_comes
+}
+)
 
   
   end
