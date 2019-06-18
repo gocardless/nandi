@@ -7,12 +7,18 @@ module Nandi
   class SafeMigrationEnforcer
     class MigrationLintingFailed < StandardError; end
 
-    SAFE_MIGRATION_DIR = "db/safe_migrations"
-    AR_MIGRATION_DIR = "db/migrate"
+    DEFAULT_SAFE_MIGRATION_DIR = "db/safe_migrations"
+    DEFAULT_AR_MIGRATION_DIR = "db/migrate"
+
+    def initialize(safe_migration_dir: DEFAULT_SAFE_MIGRATION_DIR,
+                   ar_migration_dir: DEFAULT_AR_MIGRATION_DIR)
+      @safe_migration_dir = safe_migration_dir
+      @ar_migration_dir = ar_migration_dir
+    end
 
     def run
-      safe_migration_paths = Dir.glob(File.join(SAFE_MIGRATION_DIR, "*.rb"))
-      ar_migration_paths = Dir.glob(File.join(AR_MIGRATION_DIR, "*.rb"))
+      safe_migration_paths = Dir.glob(File.join(@safe_migration_dir, "*.rb"))
+      ar_migration_paths = Dir.glob(File.join(@ar_migration_dir, "*.rb"))
 
       safe_migration_names = safe_migration_paths.map { |path| File.basename(path) }
       ar_migration_names = ar_migration_paths.map { |path| File.basename(path) }
@@ -54,7 +60,7 @@ module Nandi
                                             exceptions)
       handwritten_migrations = ar_migration_names - safe_migration_names
       handwritten_migration_paths = handwritten_migrations.map do |migration|
-        File.join(AR_MIGRATION_DIR, migration)
+        File.join(@ar_migration_dir, migration)
       end
       disallowed_handwritten_migrations = handwritten_migration_paths - exceptions
 
