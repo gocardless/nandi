@@ -5,6 +5,17 @@
 require "bundler"
 Bundler.setup(:default)
 
+require "slop"
+
 require_relative "../lib/nandi/safe_migration_enforcer"
 
-Nandi::SafeMigrationEnforcer.new.run
+opts = Slop.parse do |o|
+  o.string "--safe-migration-dir", "directory containing Nandi migrations"
+  o.string "--ar-migration-dir", "directory containing ActiveRecord migrations"
+end
+
+present_opts = opts.to_hash.reject { |_, value| value.nil? }
+
+enforcer = Nandi::SafeMigrationEnforcer.new(present_opts)
+
+enforcer.run
