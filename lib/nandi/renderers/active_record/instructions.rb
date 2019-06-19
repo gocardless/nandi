@@ -47,8 +47,16 @@ module Nandi
             !model.timestamps_args&.empty?
           end
 
+          def extra_args?
+            model.extra_args&.any?
+          end
+
           def timestamps_args
             format_value(model.timestamps_args, as_argument: true)
+          end
+
+          def extra_args
+            format_value(model.extra_args, as_argument: true)
           end
 
           def columns

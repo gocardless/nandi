@@ -125,6 +125,34 @@ RSpec.describe Nandi::Renderers::ActiveRecord do
         it { is_expected.to eq(fixture) }
       end
 
+      context "with extra args" do
+        let(:fixture) do
+          File.read(File.join(fixture_root, "create_and_drop_table_with_extra_args.rb"))
+        end
+
+        let(:safe_migration) do
+          Class.new(Nandi::Migration) do
+            def self.name
+              "MyAwesomeMigration"
+            end
+
+            def up
+              create_table :payments, id: false, force: true do |t|
+                t.column :payer, :string
+                t.column :ammount, :float
+                t.column :payed, :bool, default: false
+              end
+            end
+
+            def down
+              drop_table :payments
+            end
+          end
+        end
+
+        it { is_expected.to eq(fixture) }
+      end
+
       context "with timestamps without args" do
         let(:fixture) do
           File.read(
