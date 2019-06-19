@@ -46,8 +46,8 @@ You'll get a fresh file, by default in `db/safe_migrations`. Let's use it to cre
 class AddWidgets < Nandi::Migration
   def up
     create_table :widgets do |t|
-      t.column :name, :text
-      t.column :price, :integer
+      t.text :name
+      t.integer :price
 
       t.timestamps
     end
@@ -255,7 +255,7 @@ Examples:
 
 ```rb
 create_table :widgets do |t|
-  t.column :foo, :text, default: true
+  t.text :foo, default: true
 end
 ```
 

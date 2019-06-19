@@ -27,6 +27,38 @@ module Nandi
       class ColumnsReader
         attr_reader :columns, :timestamps_args
 
+        TYPES = %i[
+          bigint
+          binary
+          boolean
+          date
+          datetime
+          decimal
+          float
+          integer
+          json
+          string
+          text
+          time
+          timestamp
+          virtual
+          bigserial bit bit_varying box
+          cidr circle citext
+          daterange
+          hstore
+          inet int4range int8range interval
+          jsonb
+          line lseg ltree
+          macaddr money
+          numrange
+          oid
+          path point polygon primary_key
+          serial
+          tsrange tstzrange tsvector
+          uuid
+          xml
+        ].freeze
+
         def initialize
           @columns = []
           @timestamps_args = nil
@@ -38,6 +70,12 @@ module Nandi
 
         def timestamps(**args)
           @timestamps_args = args
+        end
+
+        TYPES.each do |type|
+          define_method type do |name, **args|
+            column(name, type, **args)
+          end
         end
       end
     end

@@ -156,7 +156,7 @@ module Nandi
     # columns.
     # @example
     #   create_table :widgets do |t|
-    #     t.column :foo, :text, default: true
+    #     t.text :foo, default: true
     #   end
     # @param table [String, Symbol] The name of the new table
     # @yieldparam columns_reader [Nandi::Instructions::CreateTable::ColumnsReader]
