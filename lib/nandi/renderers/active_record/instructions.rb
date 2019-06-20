@@ -95,12 +95,9 @@ module Nandi
         end
 
         class AddForeignKeyCell < Base
-          # Because all this stuff goes into a SQL string, we don't need to format
-          # the values.
-          property :table
-          property :target
-          property :column
-          property :name
+          formatted_property :table
+          formatted_property :target
+          formatted_property :extra_args
         end
 
         class ValidateForeignKeyCell < Base

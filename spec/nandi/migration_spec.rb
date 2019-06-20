@@ -513,12 +513,11 @@ RSpec.describe Nandi::Migration do
         expect(instructions.first.target).to eq(:mandates)
       end
 
-      it "has the correct column name" do
-        expect(instructions.first.column).to eq(:mandate_id)
-      end
-
-      it "has the correct constraint name" do
-        expect(instructions.first.name).to eq(:payments_mandates_fk)
+      it "has the correct extra args" do
+        expect(instructions.first.extra_args).to eq(
+          valid: false,
+          name: :payments_mandates_fk,
+        )
       end
     end
 
@@ -545,12 +544,11 @@ RSpec.describe Nandi::Migration do
         expect(instructions.first.target).to eq(:mandates)
       end
 
-      it "has the correct column name" do
-        expect(instructions.first.column).to eq(:mandate_id)
-      end
-
-      it "has the correct constraint name" do
-        expect(instructions.first.name).to eq(:zalgo_comes)
+      it "has the correct extra args" do
+        expect(instructions.first.extra_args).to eq(
+          name: :zalgo_comes,
+          valid: false,
+        )
       end
     end
 
@@ -577,8 +575,12 @@ RSpec.describe Nandi::Migration do
         expect(instructions.first.target).to eq(:mandates)
       end
 
-      it "has the correct column name" do
-        expect(instructions.first.column).to eq(:zalgo_comes)
+      it "has the correct extra args" do
+        expect(instructions.first.extra_args).to eq(
+          column: :zalgo_comes,
+          name: :payments_mandates_fk,
+          valid: false,
+        )
       end
     end
   end

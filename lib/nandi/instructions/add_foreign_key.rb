@@ -7,10 +7,10 @@ module Nandi
     class AddForeignKey
       attr_reader :table, :target
 
-      def initialize(table:, target:, column: nil, name: nil)
+      def initialize(table:, target:, name: nil, **extra_args)
         @table = table
         @target = target
-        @column = column
+        @extra_args = extra_args
         @name = name
       end
 
@@ -18,12 +18,18 @@ module Nandi
         :add_foreign_key
       end
 
-      def name
-        @name || :"#{table}_#{target}_fk"
+      def extra_args
+        {
+          **@extra_args,
+          name: name,
+          valid: false,
+        }.compact
       end
 
-      def column
-        @column || :"#{ActiveSupport::Inflector.singularize(target)}_id"
+      private
+
+      def name
+        @name || :"#{table}_#{target}_fk"
       end
     end
   end
