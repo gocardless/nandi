@@ -34,7 +34,6 @@ module Nandi
 
     private
 
-    # rubocop:disable Metrics/MethodLength
     def migration_invariants_respected
       Validation::Result.new(@instruction).tap do |result|
         unless at_most_one_object_modified
@@ -57,7 +56,6 @@ module Nandi
         end
       end
     end
-    # rubocop:enable Metrics/MethodLength
 
     def at_most_one_object_modified
       [migration.up_instructions, migration.down_instructions].map do |instructions|

@@ -1,0 +1,28 @@
+#!/usr/bin/env ruby
+
+# frozen_string_literal: true
+
+require "bundler"
+Bundler.setup(:default)
+
+require "optparse"
+
+require_relative "../lib/nandi/safe_migration_enforcer"
+
+opts = {}
+OptionParser.new do |o|
+  o.on("--safe-migration-dir DIR", "directory containing Nandi migrations") do |v|
+    opts[:safe_migration_dir] = v
+  end
+  o.on("--ar-migration-dir DIR", "directory containing ActiveRecord migrations") do |v|
+    opts[:ar_migration_dir] = v
+  end
+  o.on("-h", "--help") do
+    puts o
+    exit
+  end
+end.parse!
+
+enforcer = Nandi::SafeMigrationEnforcer.new(opts)
+
+enforcer.run

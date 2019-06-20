@@ -22,7 +22,6 @@ module Nandi
       end
     end
 
-    # rubocop:disable Metrics/MethodLength
     # Create a string representation of the value that is a valid
     # and correct Ruby literal for that value. Please note that the
     # exact representation is not guaranteed to be the same between
@@ -45,7 +44,6 @@ module Nandi
               "Cannot format value of type #{value.class.name}"
       end
     end
-    # rubocop:enable Metrics/MethodLength
 
     def self.included(base)
       base.extend(ClassMethods)

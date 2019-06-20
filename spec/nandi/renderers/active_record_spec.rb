@@ -358,7 +358,6 @@ RSpec.describe Nandi::Renderers::ActiveRecord do
               :new_method
             end
 
-            # rubocop:disable Metrics/MethodLength
             def mixins
               [
                 Class.new do
@@ -373,7 +372,6 @@ RSpec.describe Nandi::Renderers::ActiveRecord do
                 end,
               ]
             end
-            # rubocop:enable Metrics/MethodLength
 
             def template
               Class.new(Cell::ViewModel) do
