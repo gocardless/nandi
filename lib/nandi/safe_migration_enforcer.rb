@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "digest"
+require "rails"
 require "rails/generators"
 
 module Nandi
@@ -14,6 +15,11 @@ module Nandi
                    ar_migration_dir: DEFAULT_AR_MIGRATION_DIR)
       @safe_migration_dir = safe_migration_dir
       @ar_migration_dir = ar_migration_dir
+
+      Nandi.configure do |c|
+        c.migration_directory = @safe_migration_dir
+        c.output_directory = @ar_migration_dir
+      end
     end
 
     def run

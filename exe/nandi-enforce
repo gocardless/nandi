@@ -7,6 +7,7 @@ Bundler.setup(:default)
 
 require "optparse"
 
+require_relative "../lib/nandi"
 require_relative "../lib/nandi/safe_migration_enforcer"
 
 opts = {}

@@ -9,6 +9,60 @@ RSpec.describe Nandi do
     end
   end
 
+  describe "::ignored_files" do
+    subject(:files) { described_class.ignored_files }
+
+    before { described_class.instance_variable_set(:@ignored_files, nil) }
+
+    context "with no .nandiignore" do
+      before do
+        allow(File).to receive(:exist?).with(".nandiignore").
+          and_return(false)
+      end
+
+      it { is_expected.to eq([]) }
+    end
+
+    context "with no .nandiignore" do
+      before do
+        allow(File).to receive(:exist?).with(".nandiignore").
+          and_return(true)
+
+        allow(File).to receive(:read).with(".nandiignore").
+          and_return(["db/migrate/thing1.rb", "db/migrate/thing2.rb"].join("\n"))
+      end
+
+      it { is_expected.to eq(["db/migrate/thing1.rb", "db/migrate/thing2.rb"]) }
+    end
+  end
+
+  describe "::ignored_filenames" do
+    subject(:files) { described_class.ignored_filenames }
+
+    before { described_class.instance_variable_set(:@ignored_files, nil) }
+
+    context "with no .nandiignore" do
+      before do
+        allow(File).to receive(:exist?).with(".nandiignore").
+          and_return(false)
+      end
+
+      it { is_expected.to eq([]) }
+    end
+
+    context "with no .nandiignore" do
+      before do
+        allow(File).to receive(:exist?).with(".nandiignore").
+          and_return(true)
+
+        allow(File).to receive(:read).with(".nandiignore").
+          and_return(["db/migrate/thing1.rb", "db/migrate/thing2.rb"].join("\n"))
+      end
+
+      it { is_expected.to eq(["thing1.rb", "thing2.rb"]) }
+    end
+  end
+
   describe "::compile" do
     let(:args) do
       {
@@ -23,7 +77,11 @@ RSpec.describe Nandi do
       )
     end
 
+    let(:ignored_files) { [] }
+
     before do
+      allow(described_class).to receive(:ignored_files).
+        and_return(ignored_files)
       described_class.configure do |config|
         config.renderer = renderer
       end
@@ -61,6 +119,19 @@ RSpec.describe Nandi do
           described_class::InvalidMigrationError,
           /creating more than one index per migration/,
         )
+      end
+    end
+
+    context "with an ignored migration" do
+      let(:files) { ["#{base_path}/20180104120000_my_migration.rb"] }
+      let(:ignored_files) { files }
+
+      it "does not compile the migration" do
+        expect(renderer).to_not receive(:generate)
+
+        described_class.compile(args) do |output|
+          expect(output).to eq([])
+        end
       end
     end
 
