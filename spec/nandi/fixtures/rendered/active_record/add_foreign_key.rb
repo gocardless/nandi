@@ -10,9 +10,9 @@ class MyAwesomeMigration < ActiveRecord::Migration[5.2]
   :payments,
   :mandates,
   {
-  valid: false,
+  column: :zalgo_comes,
   name: :payments_mandates_fk,
-  column: :zalgo_comes
+  valid: false
 }
 )
 
