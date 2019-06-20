@@ -67,12 +67,7 @@ RSpec.shared_examples "linting" do
   end
 
   context "with a .nandiignore file that allows some handwritten migrations" do
-    before do
-      allow(File).to receive(:exist?).with(".nandiignore").and_return(true)
-
-      content = ar_migration_files[0..1].join("\n")
-      allow(File).to receive(:read).with(".nandiignore").and_return(content)
-    end
+    let(:ignored_files) { ar_migration_files[0..1] }
 
     context "and handwritten migrations that are specified in the file" do
       before do
@@ -123,6 +118,8 @@ RSpec.describe Nandi::SafeMigrationEnforcer do
     ]
   end
 
+  let(:ignored_files) { [] }
+
   before do
     safe_migration_glob = File.join(safe_migration_dir, "*.rb")
     ar_migration_glob = File.join(ar_migration_dir, "*.rb")
@@ -132,9 +129,10 @@ RSpec.describe Nandi::SafeMigrationEnforcer do
     allow(Dir).to receive(:glob).with(ar_migration_glob).
       and_return(ar_migration_files)
 
-    allow(File).to receive(:exist?).with(".nandiignore").and_return(false)
     allow(File).to receive(:read).with(Regexp.new(ar_migration_dir)).
       and_return("generated_content")
+
+    allow(Nandi).to receive(:ignored_files).and_return(ignored_files)
 
     allow(Rails::Generators).to receive(:invoke).with("nandi:compile")
   end
