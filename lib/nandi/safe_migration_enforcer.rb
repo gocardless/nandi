@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "digest"
+require "rails"
 require "rails/generators"
 
 module Nandi
@@ -14,6 +15,11 @@ module Nandi
                    ar_migration_dir: DEFAULT_AR_MIGRATION_DIR)
       @safe_migration_dir = safe_migration_dir
       @ar_migration_dir = ar_migration_dir
+
+      Nandi.configure do |c|
+        c.migration_directory = @safe_migration_dir
+        c.output_directory = @ar_migration_dir
+      end
     end
 
     def run
@@ -23,7 +29,7 @@ module Nandi
       safe_migration_names = safe_migration_paths.map { |path| File.basename(path) }
       ar_migration_names = ar_migration_paths.map { |path| File.basename(path) }
 
-      exceptions = read_nandiignore || []
+      exceptions = Nandi.ignored_files
 
       enforce_no_ungenerated_migrations!(safe_migration_names, ar_migration_names)
       enforce_no_hand_written_migrations!(safe_migration_names,
@@ -35,10 +41,6 @@ module Nandi
     end
 
     private
-
-    def read_nandiignore
-      File.read(".nandiignore").lines.map(&:strip) if File.exist?(".nandiignore")
-    end
 
     def enforce_no_ungenerated_migrations!(safe_migration_names, ar_migration_names)
       ungenerated_migrations = safe_migration_names - ar_migration_names

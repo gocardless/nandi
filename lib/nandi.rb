@@ -11,8 +11,23 @@ module Nandi
   CompiledMigration = Struct.new(:file_name, :body)
 
   class << self
+    def ignored_files
+      @ignored_files ||= if File.exist?(".nandiignore")
+                           File.read(".nandiignore").lines.map(&:strip)
+                         else
+                           []
+                         end
+    end
+
+    def ignored_filenames
+      ignored_files.map(&File.method(:basename))
+    end
+
     def compile(files:)
-      yield files.map(&method(:compiled_migration))
+      compiled = files.reject { |f| ignored_filenames.include?(File.basename(f)) }.
+        map(&method(:compiled_migration))
+
+      yield compiled
     end
 
     def configure
