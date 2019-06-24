@@ -11,10 +11,13 @@ module Nandi
     DEFAULT_SAFE_MIGRATION_DIR = "db/safe_migrations"
     DEFAULT_AR_MIGRATION_DIR = "db/migrate"
 
-    def initialize(safe_migration_dir: DEFAULT_SAFE_MIGRATION_DIR,
+    def initialize(require_path: nil,
+                   safe_migration_dir: DEFAULT_SAFE_MIGRATION_DIR,
                    ar_migration_dir: DEFAULT_AR_MIGRATION_DIR)
       @safe_migration_dir = safe_migration_dir
       @ar_migration_dir = ar_migration_dir
+
+      require require_path unless require_path.nil?
 
       Nandi.configure do |c|
         c.migration_directory = @safe_migration_dir
