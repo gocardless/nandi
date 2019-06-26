@@ -100,7 +100,7 @@ module Nandi
           formatted_property :extra_args
         end
 
-        class ValidateForeignKeyCell < Base
+        class ValidateConstraintCell < Base
           # Because all this stuff goes into a SQL string, we don't need to format
           # the values.
           property :table

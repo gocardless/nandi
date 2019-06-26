@@ -224,7 +224,7 @@ module Nandi
     # Add a foreign key constraint. The generated SQL will include the NOT VALID
     # parameter, which will prevent immediate validation of the constraint, which
     # locks the target table for writes potentially for a long time. Use the separate
-    # #validate_foreign_key method, in a separate migration; this only takes a row-level
+    # #validate_constraint method, in a separate migration; this only takes a row-level
     # lock as it scans through.
     # @param table [Symbol, String] The name of the table with the reference column
     # @param target [Symbol, String] The name of the referenced table
@@ -244,8 +244,8 @@ module Nandi
     # Validates an existing foreign key constraint.
     # @param table [Symbol, String] The name of the table with the constraint
     # @param name [Symbol, String] The name of the constraint
-    def validate_foreign_key(table, name)
-      current_instructions << Instructions::ValidateForeignKey.new(
+    def validate_constraint(table, name)
+      current_instructions << Instructions::ValidateConstraint.new(
         table: table,
         name: name,
       )
