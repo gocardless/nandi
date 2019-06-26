@@ -578,6 +578,36 @@ RSpec.describe Nandi::Migration do
     end
   end
 
+  describe "#add_check_constraint" do
+    subject(:instructions) { subject_class.new(validator).up_instructions }
+
+    let(:subject_class) do
+      Class.new(described_class) do
+        def up
+          add_check_constraint :payments, :check, "mandate_id IS NOT NULL"
+        end
+
+        def down; end
+      end
+    end
+
+    it "has the correct procedure" do
+      expect(instructions.first.procedure).to eq(:add_check_constraint)
+    end
+
+    it "has the correct table" do
+      expect(instructions.first.table).to eq(:payments)
+    end
+
+    it "has the correct check" do
+      expect(instructions.first.check).to eq("mandate_id IS NOT NULL")
+    end
+
+    it "has the correct name" do
+      expect(instructions.first.name).to eq(:check)
+    end
+  end
+
   describe "#drop_constraint" do
     subject(:instructions) { subject_class.new(validator).up_instructions }
 

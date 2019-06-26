@@ -100,6 +100,14 @@ module Nandi
           formatted_property :extra_args
         end
 
+        class AddCheckConstraintCell < Base
+          # Because all this stuff goes into a SQL string, we don't need to format
+          # the values.
+          property :table
+          property :name
+          property :check
+        end
+
         class ValidateConstraintCell < Base
           # Because all this stuff goes into a SQL string, we don't need to format
           # the values.

@@ -1,0 +1,7 @@
+execute <<-SQL
+  ALTER TABLE <%= table %>
+  ADD CONSTRAINT <%= name %>
+  CHECK (<%= check %>)
+  NOT VALID
+SQL
+

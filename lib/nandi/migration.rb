@@ -241,6 +241,18 @@ module Nandi
       )
     end
 
+    # Add a check constraint, in the NOT VALID state.
+    # @param table [Symbol, String] The name of the table with the column
+    # @param name [Symbol, String] The name of the constraint to create
+    # @param check [Symbol, String] The predicate to check
+    def add_check_constraint(table, name, check)
+      current_instructions << Instructions::AddCheckConstraint.new(
+        table: table,
+        name: name,
+        check: check,
+      )
+    end
+
     # Validates an existing foreign key constraint.
     # @param table [Symbol, String] The name of the table with the constraint
     # @param name [Symbol, String] The name of the constraint
