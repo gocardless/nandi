@@ -9,13 +9,42 @@ module Nandi
     DEFAULT_ACCESS_EXCLUSIVE_STATEMENT_TIMEOUT_LIMIT = DEFAULT_STATEMENT_TIMEOUT
     DEFAULT_ACCESS_EXCLUSIVE_LOCK_TIMEOUT_LIMIT = DEFAULT_LOCK_TIMEOUT
 
-    attr_accessor :renderer,
-                  :lock_timeout,
-                  :statement_timeout,
-                  :access_exclusive_statement_timeout_limit,
-                  :access_exclusive_lock_timeout_limit,
-                  :migration_directory,
-                  :output_directory
+    # The rendering backend used to produce output. The only supported option
+    # at current is Nandi::Renderers::ActiveRecord, which produces ActiveRecord
+    # migrations.
+    # @return [Class]
+    attr_accessor :renderer
+
+    # The default lock timeout for migrations. Can be overridden by way of the
+    # `set_lock_timeout` class method in a given migration. Default: 750ms.
+    # @return [Integer]
+    attr_accessor :lock_timeout
+
+    # The default statement timeout for migrations. Can be overridden by way of
+    # the `set_statement_timeout` class method in a given migration. Default:
+    # 1500ms.
+    # @return [Integer]
+    attr_accessor :statement_timeout
+
+    # The maximum lock timeout for migrations that take an ACCESS EXCLUSIVE
+    # lock and therefore block all reads and writes. Default: 750ms.
+    # @return [Integer]
+    attr_accessor :access_exclusive_statement_timeout_limit
+
+    # The maximum statement timeout for migrations that take an ACCESS
+    # EXCLUSIVE lock and therefore block all reads and writes. Default: 1500ms.
+    # @return [Integer]
+    attr_accessor :access_exclusive_lock_timeout_limit
+
+    # The directory for Nandi migrations. Default: `db/safe_migrations`
+    # @return [String]
+    attr_accessor :migration_directory
+
+    # The directory for output files. Default: `db/migrate`
+    # @return [String]
+    attr_accessor :output_directory
+
+    # @api private
     attr_reader :post_processor, :custom_methods
 
     def initialize(renderer: Renderers::ActiveRecord)
@@ -28,10 +57,22 @@ module Nandi
       @access_exclusive_lock_timeout_limit = DEFAULT_ACCESS_EXCLUSIVE_LOCK_TIMEOUT_LIMIT
     end
 
+    # Register a block to be called on output, for example a code formatter. Whatever is
+    # returned will be written to the output file.
+    # @yieldparam migration [string] The text of a compiled migration.
     def post_process(&block)
       @post_processor = block
     end
 
+    # Register a custom DDL method.
+    # @param name [Symbol] The name of the method to create. This will be monkey-patched
+    #   into Nandi::Migration.
+    # @param klass [Class] The class to initialise with the arguments to the
+    #   method. It should define a `template` instance method which will return a
+    #   subclass of Cell::ViewModel from the Cells templating library and a
+    #   `procedure` method that returns the name of the method. It may optionally
+    #   define a `mixins` method, which will return an array of `Module`s to be
+    #   mixed into any migration that uses this method.
     def register_method(name, klass)
       custom_methods[name] = klass
     end

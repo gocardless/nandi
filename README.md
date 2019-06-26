@@ -284,6 +284,65 @@ Because we cannot run in a transaction and therefore risk partially applied migr
 ### `#drop_table(table)`
 Drops an existing table.
 
+## Configuration
+
+Nandi can be configured in various ways, typically in an initializer:
+
+```rb
+Nandi.configure do |config|
+  config.lock_timeout = 1_000
+end
+```
+
+The configuration parameters are as follows.
+
+### `access_exclusive_lock_timeout_limit` (Integer)
+
+The maximum statement timeout for migrations that take an ACCESS EXCLUSIVE lock and therefore block all reads and writes. Default: 1500ms.
+
+### `access_exclusive_statement_timeout_limit` (Integer)
+
+The maximum lock timeout for migrations that take an ACCESS EXCLUSIVE lock and therefore block all reads and writes. Default: 750ms.
+
+### `lock_timeout` (Integer)
+
+The default lock timeout for migrations. Can be overridden by way of the `set_lock_timeout` class method in a given migration. Default: 750ms.
+
+### `migration_directory` (String)
+
+The directory for Nandi migrations. Default: `db/safe_migrations`
+
+### `output_directory` (String)
+
+The directory for output files. Default: `db/migrate`
+
+### `renderer` (Class)
+
+The rendering backend used to produce output. The only supported option at current is `Nandi::Renderers::ActiveRecord`, which produces ActiveRecord migrations.
+
+### `statement_timeout` (Integer)
+
+The default statement timeout for migrations. Can be overridden by way of the `set_statement_timeout` class method in a given migration. Default: 1500ms.
+
+#post_process {|migration| ... }
+
+Register a block to be called on output, for example a code formatter. Whatever is returned will be written to the output file.
+
+```rb
+config.post_process { |migration| MyFormatter.format(migration) }
+```
+
+#register_method(name, klass)
+
+Register a custom DDL method.
+
+Parameters:
+
+`name` (Symbol) - The name of the method to create. This will be monkey-patched into Nandi::Migration.
+
+`klass` (Class) — The class to initialise with the arguments to the method. It should define a `template` instance method which will return a subclass of Cell::ViewModel from the Cells templating library and a `procedure` method that returns the name of the method. It may optionally define a `mixins` method, which will return an array of `Module`s to be mixed into any migration that uses this method.
+
+
 ## Why Nandi?
 
 You may have noticed a GIF of an adorable baby elephant above. This elephant is called Nandi, and she was the star of many an internal presentation slide here at GoCardless. Of course, Postgres is elephant-themed; but it is sometimes an angry elephant, motivating the creation of gems like this one. What better mascot than a harmless, friendly calf?
