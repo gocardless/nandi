@@ -578,13 +578,13 @@ RSpec.describe Nandi::Migration do
     end
   end
 
-  describe "#drop_foreign_key" do
+  describe "#drop_constraint" do
     subject(:instructions) { subject_class.new(validator).up_instructions }
 
     let(:subject_class) do
       Class.new(described_class) do
         def up
-          drop_foreign_key :payments, :payments_mandates_fk
+          drop_constraint :payments, :payments_mandates_fk
         end
 
         def down; end
@@ -592,7 +592,7 @@ RSpec.describe Nandi::Migration do
     end
 
     it "has the correct procedure" do
-      expect(instructions.first.procedure).to eq(:drop_foreign_key)
+      expect(instructions.first.procedure).to eq(:drop_constraint)
     end
 
     it "has the correct table" do

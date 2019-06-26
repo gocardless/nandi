@@ -254,8 +254,8 @@ module Nandi
     # Drops an existing foreign key constraint.
     # @param table [Symbol, String] The name of the table with the constraint
     # @param name [Symbol, String] The name of the constraint
-    def drop_foreign_key(table, name)
-      current_instructions << Instructions::DropForeignKey.new(
+    def drop_constraint(table, name)
+      current_instructions << Instructions::DropConstraint.new(
         table: table,
         name: name,
       )

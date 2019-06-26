@@ -159,7 +159,7 @@ class AddForeignKeyOnFoosToBars < Nandi::Migration
   end
 
   def down
-    drop_foreign_key :foos, :foos_bars_fk
+    drop_constraint :foos, :foos_bars_fk
   end
 end
 
@@ -262,8 +262,8 @@ end
 ### `#remove_column(table, name, **extra_args)`
 Remove an existing column.
 
-### `#drop_foreign_key(table, name)`
-Drops an existing foreign key constraint.
+### `#drop_constraint(table, name)`
+Drops an existing constraint.
 
 ### `#remove_index(table, target)`
 Drop an index from the database.

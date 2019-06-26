@@ -278,9 +278,9 @@ RSpec.describe Nandi::Renderers::ActiveRecord do
       it { is_expected.to eq(fixture) }
     end
 
-    describe "#drop_foreign_key" do
+    describe "#drop_constraint" do
       let(:fixture) do
-        File.read(File.join(fixture_root, "drop_foreign_key.rb"))
+        File.read(File.join(fixture_root, "drop_constraint.rb"))
       end
 
       let(:safe_migration) do
@@ -290,7 +290,7 @@ RSpec.describe Nandi::Renderers::ActiveRecord do
           end
 
           def up
-            drop_foreign_key :payments, :payments_mandates_fk
+            drop_constraint :payments, :payments_mandates_fk
           end
 
           def down; end

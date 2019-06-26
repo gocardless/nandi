@@ -107,7 +107,7 @@ module Nandi
           property :name
         end
 
-        class DropForeignKeyCell < Base
+        class DropConstraintCell < Base
           # Because all this stuff goes into a SQL string, we don't need to format
           # the values.
           property :table
