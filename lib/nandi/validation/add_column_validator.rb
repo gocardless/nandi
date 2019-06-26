@@ -13,7 +13,7 @@ module Nandi
 
       def call
         Result.new(@instruction).tap do |result|
-          result << "column isn't nullable" unless nullable?
+          result << "non-null column lacks default" unless nullable? || default_value?
           result << "column is unique" if unique?
         end
       end
@@ -21,6 +21,10 @@ module Nandi
       attr_reader :instruction
 
       private
+
+      def default_value?
+        !instruction.extra_args[:default].nil?
+      end
 
       def nullable?
         instruction.extra_args[:null]

@@ -3,6 +3,7 @@
 require "spec_helper"
 require "nandi/migration"
 require "nandi/validator"
+require "nandi/migration"
 require "nandi/instructions"
 
 RSpec.describe Nandi::Validator do
@@ -157,6 +158,22 @@ RSpec.describe Nandi::Validator do
       end
 
       it { is_expected.to_not be_valid }
+
+      context "and a default" do
+        let(:instructions) do
+          [
+            Nandi::Instructions::AddColumn.new(
+              table: :payments,
+              name: :stuff,
+              type: :text,
+              null: false,
+              default: "swilly!",
+            ),
+          ]
+        end
+
+        it { is_expected.to be_valid }
+      end
     end
 
     context "with a default value" do
