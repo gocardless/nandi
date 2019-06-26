@@ -217,6 +217,16 @@ end
 
 ```
 
+## Class methods
+
+### `.set_lock_timeout(timeout)`
+
+Override the default lock timeout for the duration of the migration. For migrations that require AccessExclusive locks, this is limited to 750ms.
+
+### `.set_statement_timeout(timeout)`
+
+Override the default statement timeout for the duration of the migration. For migrations that require AccessExclusive locks, this is limited to 1500ms.
+
 ## Migration methods
 
 ### `#add_column(table, name, type, **kwargs)`
