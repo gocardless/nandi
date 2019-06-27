@@ -159,7 +159,7 @@ class AddForeignKeyOnFoosToBars < Nandi::Migration
   end
 
   def down
-    drop_foreign_key :foos, :foos_bars_fk
+    drop_constraint :foos, :foos_bars_fk
   end
 end
 
@@ -167,7 +167,7 @@ end
 
 class ValidateForeignKeyOnFoosToBars < Nandi::Migration
   def up
-    validate_foreign_key :foos, :foos_bars_fk
+    validate_constraint :foos, :foos_bars_fk
   end
 
   def down; end
@@ -233,7 +233,7 @@ Override the default statement timeout for the duration of the migration. For mi
 Adds a new column. Nandi will explicitly set the column to be NULL, as validating a new NOT NULL constraint can be very expensive on large tables and cause availability issues.
 
 ### `#add_foreign_key(table, target, column: nil, name: nil)`
-Add a foreign key constraint. The generated SQL will include the NOT VALID parameter, which will prevent immediate validation of the constraint, which locks the target table for writes potentially for a long time. Use the separate #validate_foreign_key method, in a separate migration; this only takes a row-level lock as it scans through.
+Add a foreign key constraint. The generated SQL will include the NOT VALID parameter, which will prevent immediate validation of the constraint, which locks the target table for writes potentially for a long time. Use the separate #validate_constraint method, in a separate migration; this only takes a row-level lock as it scans through.
 
 ### `#change_column(table, name, **alterations)`
 Alter an existing column. Nandi will validate that you are not doing any of the following unsafe operations:
@@ -272,8 +272,8 @@ end
 ### `#remove_column(table, name, **extra_args)`
 Remove an existing column.
 
-### `#drop_foreign_key(table, name)`
-Drops an existing foreign key constraint.
+### `#drop_constraint(table, name)`
+Drops an existing constraint.
 
 ### `#remove_index(table, target)`
 Drop an index from the database.

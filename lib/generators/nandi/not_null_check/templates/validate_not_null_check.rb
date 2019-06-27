@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class <%= validate_foreign_key_name.camelize %> < Nandi::Migration
+class <%= validate_not_null_check_name.camelize %> < Nandi::Migration
   def up
     validate_constraint <%= format_value(@table) %>, <%= format_value(name) %>
   end

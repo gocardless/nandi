@@ -1,0 +1,10 @@
+Description:
+    Generates two new database migrations which will safely add a check that
+    a column is not null, and validate it separately.
+
+Example:
+    rails generate nandi:not_null_check foos bar
+
+    This will create:
+        db/safe_migrations/20190424123727_add_not_null_check_on_bar_to_foos.rb
+        db/safe_migrations/20190424123728_validate_not_null_check_on_bar_to_foos.rb

@@ -2,7 +2,7 @@
 
 module Nandi
   module Instructions
-    class DropForeignKey
+    class ValidateConstraint
       attr_reader :table, :name
 
       def initialize(table:, name:)
@@ -11,7 +11,7 @@ module Nandi
       end
 
       def procedure
-        :drop_foreign_key
+        :validate_constraint
       end
     end
   end

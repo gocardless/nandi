@@ -8,7 +8,7 @@ class <%= add_foreign_key_name.camelize %> < Nandi::Migration
   end
 
   def down
-    drop_foreign_key <%= format_value(table) %>, <%= format_value(name) %>
+    drop_constraint <%= format_value(table) %>, <%= format_value(name) %>
   end
 end
 

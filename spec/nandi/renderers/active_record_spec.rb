@@ -256,9 +256,9 @@ RSpec.describe Nandi::Renderers::ActiveRecord do
       it { is_expected.to eq(fixture) }
     end
 
-    describe "#validate_foreign_key" do
+    describe "#add_check_constraint" do
       let(:fixture) do
-        File.read(File.join(fixture_root, "validate_foreign_key.rb"))
+        File.read(File.join(fixture_root, "add_check_constraint.rb"))
       end
 
       let(:safe_migration) do
@@ -268,7 +268,7 @@ RSpec.describe Nandi::Renderers::ActiveRecord do
           end
 
           def up
-            validate_foreign_key :payments, :payments_mandates_fk
+            add_check_constraint :payments, :check, "foo IS NOT NULL"
           end
 
           def down; end
@@ -278,9 +278,9 @@ RSpec.describe Nandi::Renderers::ActiveRecord do
       it { is_expected.to eq(fixture) }
     end
 
-    describe "#drop_foreign_key" do
+    describe "#validate_constraint" do
       let(:fixture) do
-        File.read(File.join(fixture_root, "drop_foreign_key.rb"))
+        File.read(File.join(fixture_root, "validate_constraint.rb"))
       end
 
       let(:safe_migration) do
@@ -290,7 +290,29 @@ RSpec.describe Nandi::Renderers::ActiveRecord do
           end
 
           def up
-            drop_foreign_key :payments, :payments_mandates_fk
+            validate_constraint :payments, :payments_mandates_fk
+          end
+
+          def down; end
+        end
+      end
+
+      it { is_expected.to eq(fixture) }
+    end
+
+    describe "#drop_constraint" do
+      let(:fixture) do
+        File.read(File.join(fixture_root, "drop_constraint.rb"))
+      end
+
+      let(:safe_migration) do
+        Class.new(Nandi::Migration) do
+          def self.name
+            "MyAwesomeMigration"
+          end
+
+          def up
+            drop_constraint :payments, :payments_mandates_fk
           end
 
           def down; end
