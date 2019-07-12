@@ -11,4 +11,3 @@ class <%= add_foreign_key_name.camelize %> < Nandi::Migration
     drop_constraint <%= format_value(table) %>, <%= format_value(name) %>
   end
 end
-

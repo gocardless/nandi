@@ -7,4 +7,3 @@ class <%= validate_not_null_check_name.camelize %> < Nandi::Migration
 
   def down; end
 end
-

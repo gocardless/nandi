@@ -11,4 +11,3 @@ class <%= class_name %> < Nandi::Migration
     # remove_index :payments, :index_payments_on_foo_bar
   end
 end
-

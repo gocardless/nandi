@@ -7,4 +7,3 @@ class <%= validate_foreign_key_name.camelize %> < Nandi::Migration
 
   def down; end
 end
-
