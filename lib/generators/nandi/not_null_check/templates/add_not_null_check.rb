@@ -9,4 +9,3 @@ class <%= add_not_null_check_name.camelize %> < Nandi::Migration
     drop_constraint <%= format_value(table) %>, <%= format_value(name) %>
   end
 end
-
