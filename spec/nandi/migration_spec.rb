@@ -660,6 +660,32 @@ RSpec.describe Nandi::Migration do
     end
   end
 
+  describe "#remove_not_null_constraint" do
+    subject(:instructions) { subject_class.new(validator).up_instructions }
+
+    let(:subject_class) do
+      Class.new(described_class) do
+        def up
+          remove_not_null_constraint :payments, :colour
+        end
+
+        def down; end
+      end
+    end
+
+    it "has the correct procedure" do
+      expect(instructions.first.procedure).to eq(:remove_not_null_constraint)
+    end
+
+    it "has the correct table" do
+      expect(instructions.first.table).to eq(:payments)
+    end
+
+    it "has the correct column name" do
+      expect(instructions.first.column).to eq(:colour)
+    end
+  end
+
   describe "syntax extensions" do
     subject(:instructions) { subject_class.new(validator).up_instructions }
 

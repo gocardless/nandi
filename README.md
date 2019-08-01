@@ -275,6 +275,9 @@ Remove an existing column.
 ### `#drop_constraint(table, name)`
 Drops an existing constraint.
 
+### `remove_not_null_constraint(table, column)`
+Drops an existing NOT NULL constraint. Please not that this migration is not safely reversible; to enforce NOT NULL like behaviour, use a CHECK constraint and validate it in a separate migration.
+
 ### `#remove_index(table, target)`
 Drop an index from the database.
 

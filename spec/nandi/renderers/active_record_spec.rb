@@ -322,6 +322,28 @@ RSpec.describe Nandi::Renderers::ActiveRecord do
       it { is_expected.to eq(fixture) }
     end
 
+    describe "#remove_not_null_constraint" do
+      let(:fixture) do
+        File.read(File.join(fixture_root, "remove_not_null_constraint.rb"))
+      end
+
+      let(:safe_migration) do
+        Class.new(Nandi::Migration) do
+          def self.name
+            "MyAwesomeMigration"
+          end
+
+          def up
+            remove_not_null_constraint :payments, :colours
+          end
+
+          def down; end
+        end
+      end
+
+      it { is_expected.to eq(fixture) }
+    end
+
     describe "custom instructions" do
       let(:fixture) do
         File.read(File.join(fixture_root, "custom_instruction.rb"))
