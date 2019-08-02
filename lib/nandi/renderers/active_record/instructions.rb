@@ -94,6 +94,11 @@ module Nandi
           formatted_property :alterations
         end
 
+        class RemoveNotNullConstraintCell < Base
+          formatted_property :table
+          formatted_property :column
+        end
+
         class AddForeignKeyCell < Base
           formatted_property :table
           formatted_property :target

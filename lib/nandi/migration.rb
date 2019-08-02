@@ -263,13 +263,26 @@ module Nandi
       )
     end
 
-    # Drops an existing foreign key constraint.
+    # Drops an existing constraint.
     # @param table [Symbol, String] The name of the table with the constraint
     # @param name [Symbol, String] The name of the constraint
     def drop_constraint(table, name)
       current_instructions << Instructions::DropConstraint.new(
         table: table,
         name: name,
+      )
+    end
+
+    # Drops an existing NOT NULL constraint. Please note that this migration is
+    # not safely reversible; to enforce NOT NULL like behaviour, use a CHECK
+    # constraint and validate it in a separate migration.
+    # @param table [Symbol, String] The name of the table with the constraint
+    # @param column [Symbol, String] The name of the column to remove NOT NULL
+    #   constraint from
+    def remove_not_null_constraint(table, column)
+      current_instructions << Instructions::RemoveNotNullConstraint.new(
+        table: table,
+        column: column,
       )
     end
 
