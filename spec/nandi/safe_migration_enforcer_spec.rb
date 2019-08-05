@@ -57,7 +57,7 @@ RSpec.shared_examples "linting" do
     # rubocop:disable RSpec/ExampleLength
     it "raises an error with an appropriate message" do
       expect(Rails::Generators).to receive(:invoke).
-        with("nandi:compile", "--files", "all")
+        with("nandi:compile", ["--files", "all"])
 
       expect { subject.run }.to raise_error do |err|
         expect(err.class).to eq(Nandi::SafeMigrationEnforcer::MigrationLintingFailed)
@@ -137,7 +137,7 @@ RSpec.describe Nandi::SafeMigrationEnforcer do
 
     allow(Nandi).to receive(:ignored_files).and_return(ignored_files)
 
-    allow(Rails::Generators).to receive(:invoke).with("nandi:compile", "--files", "all")
+    allow(Rails::Generators).to receive(:invoke).with("nandi:compile", ["--files", "all"])
   end
 
   describe "#run" do
