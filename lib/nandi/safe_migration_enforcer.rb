@@ -92,7 +92,7 @@ module Nandi
         initial_migration_digests[migration] = digest
       end
 
-      Rails::Generators.invoke("nandi:compile", "--files", "all")
+      Rails::Generators.invoke("nandi:compile", ["--files", "all"])
 
       migration_digests_after_compile = {}
       ar_migration_paths.each do |migration|
