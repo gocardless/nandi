@@ -344,6 +344,30 @@ RSpec.describe Nandi::Renderers::ActiveRecord do
       it { is_expected.to eq(fixture) }
     end
 
+    describe "#irreversible_migration" do
+      let(:fixture) do
+        File.read(File.join(fixture_root, "irreversible_migration.rb"))
+      end
+
+      let(:safe_migration) do
+        Class.new(Nandi::Migration) do
+          def self.name
+            "MyAwesomeMigration"
+          end
+
+          def up
+            remove_column :payments, :amount
+          end
+
+          def down
+            irreversible_migration
+          end
+        end
+      end
+
+      it { is_expected.to eq(fixture) }
+    end
+
     describe "custom instructions" do
       let(:fixture) do
         File.read(File.join(fixture_root, "custom_instruction.rb"))

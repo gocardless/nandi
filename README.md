@@ -287,6 +287,9 @@ Because we cannot run in a transaction and therefore risk partially applied migr
 ### `#drop_table(table)`
 Drops an existing table.
 
+### `#irreversible_migration`
+Raises `ActiveRecord::IrreversibleMigration` error.
+
 ## Configuration
 
 Nandi can be configured in various ways, typically in an initializer:

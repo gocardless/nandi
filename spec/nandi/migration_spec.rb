@@ -686,6 +686,26 @@ RSpec.describe Nandi::Migration do
     end
   end
 
+  describe "#irreversible_migration" do
+    subject(:instructions) { subject_class.new(validator).down_instructions }
+
+    let(:subject_class) do
+      Class.new(described_class) do
+        def up
+          remove_column :payments, :amount
+        end
+
+        def down
+          irreversible_migration
+        end
+      end
+    end
+
+    it "has the correct procedure" do
+      expect(instructions.first.procedure).to eq(:irreversible_migration)
+    end
+  end
+
   describe "syntax extensions" do
     subject(:instructions) { subject_class.new(validator).up_instructions }
 

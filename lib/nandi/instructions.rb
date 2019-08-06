@@ -12,6 +12,7 @@ require "nandi/instructions/drop_constraint"
 require "nandi/instructions/remove_not_null_constraint"
 require "nandi/instructions/validate_constraint"
 require "nandi/instructions/add_check_constraint"
+require "nandi/instructions/irreversible_migration"
 
 module Nandi
   module Instructions; end

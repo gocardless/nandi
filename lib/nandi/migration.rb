@@ -286,6 +286,12 @@ module Nandi
       )
     end
 
+    # Raises an `ActiveRecord::IrreversibleMigration` error for use in
+    # irreversible migrations
+    def irreversible_migration
+      current_instructions << Instructions::IrreversibleMigration.new
+    end
+
     # @api private
     def compile_instructions(direction)
       @direction = direction
