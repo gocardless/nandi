@@ -126,6 +126,8 @@ module Nandi
           property :table
           property :name
         end
+
+        class IrreversibleMigrationCell < Base; end
       end
     end
   end
