@@ -1,0 +1,11 @@
+Description:
+    Generates two new database migrations which will safely add an arbitrary
+    check constraint and validate it separately.
+
+Example:
+    rails generate nandi:check_constraint foos baz_or_quux_not_null
+
+    This will create:
+        db/safe_migrations/20190424123727_add_check_constraint_baz_or_quux_not_null_on_foos.rb
+        db/safe_migrations/20190424123728_validate_check_constraint_baz_or_quux_not_null_on_foos.rb
+
