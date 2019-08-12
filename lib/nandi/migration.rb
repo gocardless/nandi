@@ -268,6 +268,19 @@ module Nandi
       )
     end
 
+    # Changes the default value for this column when new rows are inserted into
+    # the table.
+    # @param table [Symbol, String] The name of the table with the column
+    # @param column [Symbol, String] The name of the column to change
+    # @param value [Object] The new default value
+    def change_column_default(table, column, value)
+      current_instructions << Instructions::ChangeColumnDefault.new(
+        table: table,
+        column: column,
+        value: value,
+      )
+    end
+
     # Raises an `ActiveRecord::IrreversibleMigration` error for use in
     # irreversible migrations
     def irreversible_migration

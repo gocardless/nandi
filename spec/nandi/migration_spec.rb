@@ -652,6 +652,36 @@ RSpec.describe Nandi::Migration do
     end
   end
 
+  describe "#change_column_default" do
+    subject(:instructions) { subject_class.new(validator).up_instructions }
+
+    let(:subject_class) do
+      Class.new(described_class) do
+        def up
+          change_column_default :payments, :colour, "blue"
+        end
+
+        def down; end
+      end
+    end
+
+    it "has the correct procedure" do
+      expect(instructions.first.procedure).to eq(:change_column_default)
+    end
+
+    it "has the correct table" do
+      expect(instructions.first.table).to eq(:payments)
+    end
+
+    it "has the correct column name" do
+      expect(instructions.first.column).to eq(:colour)
+    end
+
+    it "has the correct default value" do
+      expect(instructions.first.value).to eq("blue")
+    end
+  end
+
   describe "#irreversible_migration" do
     subject(:instructions) { subject_class.new(validator).down_instructions }
 

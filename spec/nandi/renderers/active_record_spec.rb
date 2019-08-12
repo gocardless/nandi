@@ -256,6 +256,28 @@ RSpec.describe Nandi::Renderers::ActiveRecord do
       it { is_expected.to eq(fixture) }
     end
 
+    describe "#change_column_default" do
+      let(:fixture) do
+        File.read(File.join(fixture_root, "change_column_default.rb"))
+      end
+
+      let(:safe_migration) do
+        Class.new(Nandi::Migration) do
+          def self.name
+            "MyAwesomeMigration"
+          end
+
+          def up
+            change_column_default :payments, :colour, "blue"
+          end
+
+          def down; end
+        end
+      end
+
+      it { is_expected.to eq(fixture) }
+    end
+
     describe "#validate_constraint" do
       let(:fixture) do
         File.read(File.join(fixture_root, "validate_constraint.rb"))
