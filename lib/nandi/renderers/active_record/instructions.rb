@@ -88,12 +88,6 @@ module Nandi
           formatted_property :extra_args
         end
 
-        class ChangeColumnCell < Base
-          formatted_property :table
-          formatted_property :name
-          formatted_property :alterations
-        end
-
         class RemoveNotNullConstraintCell < Base
           formatted_property :table
           formatted_property :column

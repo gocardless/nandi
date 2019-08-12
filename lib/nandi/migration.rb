@@ -203,24 +203,6 @@ module Nandi
       )
     end
 
-    # Alter an existing column. Nandi will validate that you are not doing
-    # any of the following unsafe operations:
-    # * Adding a NOT NULL constraint
-    # * Adding a UNIQUE constraint
-    # * Changing the type of the column
-    # @param table [Symbol, String] The name of the table with the target column
-    # @param name [Symbol, String] The name of the column
-    # @param alterations [Hash] Hash of values to represent changes to the column.
-    # @example
-    #   change_column :widgets, :foo, collation: :de_DE
-    def change_column(table, name, **alterations)
-      current_instructions << Instructions::ChangeColumn.new(
-        **alterations,
-        table: table,
-        name: name,
-      )
-    end
-
     # Add a foreign key constraint. The generated SQL will include the NOT VALID
     # parameter, which will prevent immediate validation of the constraint, which
     # locks the target table for writes potentially for a long time. Use the separate
