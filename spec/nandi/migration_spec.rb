@@ -446,40 +446,6 @@ RSpec.describe Nandi::Migration do
     end
   end
 
-  describe "#change_column" do
-    subject(:instructions) { subject_class.new(validator).up_instructions }
-
-    context "with extra args" do
-      let(:subject_class) do
-        Class.new(described_class) do
-          def up
-            change_column :payments, :my_column, default: "Zalgo comes"
-          end
-
-          def down; end
-        end
-      end
-
-      it "has the correct procedure" do
-        expect(instructions.first.procedure).to eq(:change_column)
-      end
-
-      it "has the correct table" do
-        expect(instructions.first.table).to eq(:payments)
-      end
-
-      it "has the correct column name" do
-        expect(instructions.first.name).to eq(:my_column)
-      end
-
-      it "has the correct alterations" do
-        expect(instructions.first.alterations).to eq(
-          default: "Zalgo comes",
-        )
-      end
-    end
-  end
-
   describe "#add_foreign_key" do
     subject(:instructions) { subject_class.new(validator).up_instructions }
 

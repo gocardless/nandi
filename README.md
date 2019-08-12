@@ -235,19 +235,6 @@ Adds a new column. Nandi will explicitly set the column to be NULL, as validatin
 ### `#add_foreign_key(table, target, column: nil, name: nil)`
 Add a foreign key constraint. The generated SQL will include the NOT VALID parameter, which will prevent immediate validation of the constraint, which locks the target table for writes potentially for a long time. Use the separate #validate_constraint method, in a separate migration; this only takes a row-level lock as it scans through.
 
-### `#change_column(table, name, **alterations)`
-Alter an existing column. Nandi will validate that you are not doing any of the following unsafe operations:
-
-- Adding a NOT NULL constraint
-- Adding a UNIQUE constraint
-- Changing the type of the column
-
-Examples:
-
-```rb
-change_column :widgets, :foo, collation: :de_DE
-```
-
 ### `#add_index(table, fields, **kwargs)`
 Adds a new index to the database.
 
