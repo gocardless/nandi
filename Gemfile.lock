@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    nandi (0.3.0)
+    nandi (0.4.0)
       activesupport
       cells
       tilt
