@@ -280,6 +280,59 @@ Drops an existing table.
 ### `#irreversible_migration`
 Raises `ActiveRecord::IrreversibleMigration` error.
 
+## Generators
+
+Some schema changes need to be split across two migration files. Whenever you want to add a constraint to a column, you'll have to do this to avoid locking the table while Postgres validates that all existing data meets the constraint.
+
+For some of the most common cases, we provide a Rails generator that generates both files for you.
+
+### Not-null checks
+
+To generate migration files for a not-null check, run this command:
+
+```bash
+rails generate nandi:not_null_check foos bar
+```
+
+This will generate two files:
+
+```
+db/safe_migrations/20190424123727_add_not_null_check_on_bar_to_foos.rb
+db/safe_migrations/20190424123728_validate_not_null_check_on_bar_to_foos.rb
+```
+
+From there, you can simply `rails generate nandi:compile` as usual and you're done!
+
+### Foreign key constraints
+
+You may have spotted this generator in our worked example above. We've added it to this reference section too for completeness.
+
+The simplest version of our foreign key migration generator is:
+
+```
+rails generate nandi:foreign_key foos bars
+```
+
+It assumes that you have a column called bar_id on your foos table that references the id column of bars. It will generate two files like these:
+
+```
+db/safe_migrations/20190424123727_add_foreign_key_on_bars_to_foos.rb
+db/safe_migrations/20190424123728_validate_foreign_key_on_bars_to_foos.rb
+```
+
+If your foreign key column is named differently, you can override it with the `--column` flag as seen in this example:
+
+```
+rails generate nandi:foreign_key foos bar --column special_bar_ids
+```
+
+We generate the name of your foreign key for you. If you want or need to override it (e.g. if it exceeds the max length of a constraint name in Postgres), you can use the `--name` flag:
+
+
+```
+rails generate nandi:foreign_key foos bar --name my_fk
+```
+
 ## Configuration
 
 Nandi can be configured in various ways, typically in an initializer:
