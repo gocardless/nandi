@@ -284,7 +284,7 @@ Raises `ActiveRecord::IrreversibleMigration` error.
 
 Some schema changes need to be split across two migration files. Whenever you want to add a constraint to a column, you'll have to do this to avoid locking the table while Postgres validates that all existing data meets the constraint.
 
-Wherever that's the case, we provide a Rails generator that generates both files for you.
+For some of the most common cases, we provide a Rails generator that generates both files for you.
 
 ### Not-null checks
 
