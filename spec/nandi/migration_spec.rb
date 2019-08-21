@@ -474,7 +474,7 @@ RSpec.describe Nandi::Migration do
 
       it "has the correct extra args" do
         expect(instructions.first.extra_args).to eq(
-          valid: false,
+          validate: false,
           name: :payments_mandates_fk,
         )
       end
@@ -506,7 +506,7 @@ RSpec.describe Nandi::Migration do
       it "has the correct extra args" do
         expect(instructions.first.extra_args).to eq(
           name: :zalgo_comes,
-          valid: false,
+          validate: false,
         )
       end
     end
@@ -538,7 +538,7 @@ RSpec.describe Nandi::Migration do
         expect(instructions.first.extra_args).to eq(
           column: :zalgo_comes,
           name: :payments_mandates_fk,
-          valid: false,
+          validate: false,
         )
       end
     end

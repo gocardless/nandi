@@ -22,7 +22,7 @@ module Nandi
         {
           **@extra_args,
           name: name,
-          valid: false,
+          validate: false,
         }.compact
       end
 
