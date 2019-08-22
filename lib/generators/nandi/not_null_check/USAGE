@@ -8,3 +8,12 @@ Example:
     This will create:
         db/safe_migrations/20190424123727_add_not_null_check_on_bar_to_foos.rb
         db/safe_migrations/20190424123728_validate_not_null_check_on_bar_to_foos.rb
+
+Example:
+    rails generate nandi:not_null_check foos bar --validation-timeout 20000
+
+    This will create:
+        db/safe_migrations/20190424123727_add_not_null_check_on_bar_to_foos.rb
+        db/safe_migrations/20190424123728_validate_not_null_check_on_bar_to_foos.rb
+
+    The statement timeout in the second migration will be set to 20,000ms.

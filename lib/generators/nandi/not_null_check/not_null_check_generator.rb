@@ -9,6 +9,7 @@ module Nandi
 
     argument :table, type: :string
     argument :column, type: :string
+    class_option :validation_timeout, type: :numeric, default: 15 * 60 * 1000
 
     source_root File.expand_path("templates", __dir__)
 
@@ -50,6 +51,10 @@ module Nandi
 
     def name
       "#{table}_check_#{column}_not_null"
+    end
+
+    def validation_timeout
+      options["validation_timeout"]
     end
   end
 end
