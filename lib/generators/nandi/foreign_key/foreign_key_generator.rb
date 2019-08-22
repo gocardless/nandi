@@ -11,6 +11,7 @@ module Nandi
     argument :target, type: :string
     class_option :name, type: :string
     class_option :column, type: :string
+    class_option :validation_timeout, type: :numeric, default: 15 * 60 * 1000
 
     source_root File.expand_path("templates", __dir__)
 
@@ -60,6 +61,10 @@ module Nandi
 
     def any_options?
       options["name"] || options["column"]
+    end
+
+    def validation_timeout
+      options["validation_timeout"]
     end
   end
 end

@@ -9,6 +9,7 @@ module Nandi
 
     argument :table, type: :string
     argument :name, type: :string
+    class_option :validation_timeout, type: :numeric, default: 15 * 60 * 1000
 
     source_root File.expand_path("templates", __dir__)
 
@@ -46,6 +47,10 @@ module Nandi
 
     def timestamp(offset = 0)
       (Time.now.utc + offset).strftime("%Y%m%d%H%M%S")
+    end
+
+    def validation_timeout
+      options["validation_timeout"]
     end
   end
 end

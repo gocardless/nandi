@@ -13,6 +13,17 @@ Example:
     Will create an FK constraint called foos_bars_fk
 
 Example:
+    rails generate nandi:foreign_key foos bars --validation-timeout 20000
+
+    This will create:
+        db/safe_migrations/20190424123727_add_foreign_key_on_bars_to_foos.rb
+        db/safe_migrations/20190424123728_validate_foreign_key_on_bars_to_foos.rb
+
+    Assumes that there is a column on table foos called bar_id that points to bars.
+    Will create an FK constraint called foos_bars_fk. Will set the statement timeout
+    on the second migration to 20,000ms
+
+Example:
     rails generate nandi:foreign_key foos bars --column special_bar_id --name my_fk
 
     This will create:
