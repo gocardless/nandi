@@ -10,6 +10,10 @@ module Nandi
         @name = name
       end
 
+      def lock
+        Nandi::Migration::LockWeights::SHARE
+      end
+
       def procedure
         :validate_constraint
       end

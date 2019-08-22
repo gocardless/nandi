@@ -624,6 +624,12 @@ RSpec.describe Nandi::Migration do
     it "has the correct constraint name" do
       expect(instructions.first.name).to eq(:payments_mandates_fk)
     end
+
+    it "has a low lock weight" do
+      expect(instructions.first.lock).to eq(
+        described_class::LockWeights::SHARE,
+      )
+    end
   end
 
   describe "#remove_not_null_constraint" do
