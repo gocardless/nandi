@@ -95,6 +95,12 @@ RSpec.describe Nandi::Validator do
     end
   end
 
+  context "with an irreversible migration" do
+    let(:instructions) { [Nandi::Instructions::IrreversibleMigration.new] }
+
+    it { is_expected.to be_valid }
+  end
+
   context "with more than one object modified" do
     let(:instructions) do
       [

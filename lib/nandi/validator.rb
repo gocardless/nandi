@@ -58,9 +58,13 @@ module Nandi
     end
 
     def at_most_one_object_modified
-      [migration.up_instructions, migration.down_instructions].map do |instructions|
-        instructions.map(&:table).map(&:to_sym).uniq.count <= 1
-      end.all?
+      [migration.up_instructions, migration.down_instructions].all? do |instructions|
+        affected_tables = instructions.map do |instruction|
+          instruction.respond_to?(:table) && instruction.table.to_sym
+        end
+
+        affected_tables.uniq.count <= 1
+      end
     end
 
     def new_indexes_are_separated_from_other_migrations
