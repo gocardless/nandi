@@ -706,6 +706,12 @@ RSpec.describe Nandi::Migration do
     it "has the correct procedure" do
       expect(instructions.first.procedure).to eq(:irreversible_migration)
     end
+
+    it "has a low lock weight" do
+      expect(instructions.first.lock).to eq(
+        described_class::LockWeights::SHARE,
+      )
+    end
   end
 
   describe "syntax extensions" do
