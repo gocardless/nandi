@@ -47,7 +47,7 @@ module Nandi
     def compiled_migration(file_path)
       require file_path
 
-      file_name, class_name = /\d+_([a-z_]+)\.rb\z/.match(file_path)[0..1]
+      file_name, class_name = /\d+_([a-z0-9_]+)\.rb\z/.match(file_path)[0..1]
 
       migration = class_name.camelize.constantize.new(validator)
 
