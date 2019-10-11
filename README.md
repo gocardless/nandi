@@ -347,11 +347,11 @@ The configuration parameters are as follows.
 
 ### `access_exclusive_lock_timeout_limit` (Integer)
 
-The maximum statement timeout for migrations that take an ACCESS EXCLUSIVE lock and therefore block all reads and writes. Default: 1500ms.
+The maximum lock timeout for migrations that take an ACCESS EXCLUSIVE lock and therefore block all reads and writes. Default: 750ms.
 
 ### `access_exclusive_statement_timeout_limit` (Integer)
 
-The maximum lock timeout for migrations that take an ACCESS EXCLUSIVE lock and therefore block all reads and writes. Default: 750ms.
+The maximum statement timeout for migrations that take an ACCESS EXCLUSIVE lock and therefore block all reads and writes. Default: 1500ms.
 
 ### `lock_timeout` (Integer)
 
