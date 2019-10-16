@@ -11,7 +11,7 @@ module Nandi
 
       template(
         "migration.rb",
-        "#{base_path}/#{timestamp}_#{file_name.snakecase}.rb",
+        "#{base_path}/#{timestamp}_#{file_name.underscore}.rb",
       )
     end
 
