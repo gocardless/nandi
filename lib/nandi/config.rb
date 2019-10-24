@@ -5,7 +5,17 @@ require "nandi/renderers"
 module Nandi
   class Config
     DEFAULT_LOCK_TIMEOUT = 5_000
-    DEFAULT_STATEMENT_TIMEOUT = 1500
+    # Most DDL changes take a very strict lock, but execute very quickly. For these
+    # the statement timeout should be very tight, so that if there's an unexpected
+    # delay the query queue does not back up.
+    #
+    # However, some operations are very slow but take locks that do not impact
+    # database availability - for instance, adding an index concurrently, which will
+    # take an extremely unpredictable amount of time to finish. Our default for these
+    # statements is much higher.
+    DEFAULT_STATEMENT_TIMEOUT = 1_500
+    DEFAULT_SAFE_STATEMENT_TIMEOUT = 1_080_000 # 3 hours
+
     DEFAULT_ACCESS_EXCLUSIVE_STATEMENT_TIMEOUT_LIMIT = DEFAULT_STATEMENT_TIMEOUT
     DEFAULT_ACCESS_EXCLUSIVE_LOCK_TIMEOUT_LIMIT = DEFAULT_LOCK_TIMEOUT
 
@@ -25,6 +35,12 @@ module Nandi
     # 1500ms.
     # @return [Integer]
     attr_accessor :statement_timeout
+
+    # The default statement timeout for safe but slow migrations. Can be
+    # overridden by way of the `set_statement_timeout` class method in a given
+    # migration. Default: 1,080,000ms (ie, 3 hours).
+    # @return [Integer]
+    attr_accessor :safe_statement_timeout
 
     # The maximum lock timeout for migrations that take an ACCESS EXCLUSIVE
     # lock and therefore block all reads and writes. Default: 750ms.
@@ -51,6 +67,7 @@ module Nandi
       @renderer = renderer
       @lock_timeout = DEFAULT_LOCK_TIMEOUT
       @statement_timeout = DEFAULT_STATEMENT_TIMEOUT
+      @safe_statement_timeout = DEFAULT_SAFE_STATEMENT_TIMEOUT
       @custom_methods = {}
       @access_exclusive_statement_timeout_limit =
         DEFAULT_ACCESS_EXCLUSIVE_STATEMENT_TIMEOUT_LIMIT
