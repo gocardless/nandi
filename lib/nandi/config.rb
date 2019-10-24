@@ -26,7 +26,7 @@ module Nandi
     attr_accessor :renderer
 
     # The default lock timeout for migrations. Can be overridden by way of the
-    # `set_lock_timeout` class method in a given migration. Default: 750ms.
+    # `set_lock_timeout` class method in a given migration. Default: 5,000ms.
     # @return [Integer]
     attr_accessor :lock_timeout
 
@@ -43,7 +43,7 @@ module Nandi
     attr_accessor :safe_statement_timeout
 
     # The maximum lock timeout for migrations that take an ACCESS EXCLUSIVE
-    # lock and therefore block all reads and writes. Default: 750ms.
+    # lock and therefore block all reads and writes. Default: 5,000ms.
     # @return [Integer]
     attr_accessor :access_exclusive_statement_timeout_limit
 
