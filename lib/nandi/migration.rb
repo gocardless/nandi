@@ -39,18 +39,10 @@ module Nandi
     end
 
     class << self
-      # The current lock timeout.
-      def lock_timeout
-        @lock_timeout ||= Nandi.config.lock_timeout
-      end
-
-      # The current statement timeout.
-      def statement_timeout
-        @statement_timeout ||= Nandi.config.statement_timeout
-      end
-
+      attr_reader :lock_timeout, :statement_timeout
       # For sake both of correspondence with Postgres syntax and familiarity
-      # with ActiveRecord's identically named macros, we disable this cop.
+      # with activerecord-safe_migrations's identically named macros, we
+      # disable this cop.
 
       # rubocop:disable Naming/AccessorMethodName
 
@@ -89,11 +81,12 @@ module Nandi
     end
 
     def lock_timeout
-      self.class.lock_timeout
+      self.class.lock_timeout || Nandi.config.lock_timeout
     end
 
+    # The current statement timeout.
     def statement_timeout
-      self.class.statement_timeout
+      self.class.statement_timeout || default_statement_timeout
     end
 
     # @api private
@@ -328,6 +321,14 @@ module Nandi
     private
 
     attr_reader :validator
+
+    def default_statement_timeout
+      if strictest_lock == LockWeights::SHARE
+        Nandi.config.safe_statement_timeout
+      else
+        Nandi.config.statement_timeout
+      end
+    end
 
     def current_instructions
       @instructions[@direction]
