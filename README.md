@@ -347,15 +347,15 @@ The configuration parameters are as follows.
 
 ### `access_exclusive_lock_timeout_limit` (Integer)
 
-The maximum lock timeout for migrations that take an ACCESS EXCLUSIVE lock and therefore block all reads and writes. Default: 750ms.
+The maximum lock timeout for migrations that take an ACCESS EXCLUSIVE lock and therefore block all reads and writes. Default: 5,000ms.
 
 ### `access_exclusive_statement_timeout_limit` (Integer)
 
-The maximum statement timeout for migrations that take an ACCESS EXCLUSIVE lock and therefore block all reads and writes. Default: 1500ms.
+The maximum statement timeout for migrations that take an ACCESS EXCLUSIVE lock and therefore block all reads and writes. Default: 1,500ms.
 
 ### `lock_timeout` (Integer)
 
-The default lock timeout for migrations. Can be overridden by way of the `set_lock_timeout` class method in a given migration. Default: 750ms.
+The default lock timeout for migrations. Can be overridden by way of the `set_lock_timeout` class method in a given migration. Default: 5,000ms.
 
 ### `migration_directory` (String)
 
@@ -371,7 +371,11 @@ The rendering backend used to produce output. The only supported option at curre
 
 ### `statement_timeout` (Integer)
 
-The default statement timeout for migrations. Can be overridden by way of the `set_statement_timeout` class method in a given migration. Default: 1500ms.
+The default statement timeout for migrations that take permissive locks. Can be overridden by way of the `set_statement_timeout` class method in a given migration. Default: 1,080,000ms (ie, 3 hours).
+
+### `access_exclusive_statement_timeout` (Integer)
+
+The default statement timeout for migrations that take ACCESS EXCLUSIVE locks. Can be overridden by way of the `set_statement_timeout` class method in a given migration. Default: 1500ms.
 
 #post_process {|migration| ... }
 

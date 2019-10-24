@@ -13,10 +13,11 @@ module Nandi
     # database availability - for instance, adding an index concurrently, which will
     # take an extremely unpredictable amount of time to finish. Our default for these
     # statements is much higher.
-    DEFAULT_STATEMENT_TIMEOUT = 1_500
-    DEFAULT_SAFE_STATEMENT_TIMEOUT = 1_080_000 # 3 hours
+    DEFAULT_ACCESS_EXCLUSIVE_STATEMENT_TIMEOUT = 1_500
+    DEFAULT_STATEMENT_TIMEOUT = 1_080_000 # 3 hours
 
-    DEFAULT_ACCESS_EXCLUSIVE_STATEMENT_TIMEOUT_LIMIT = DEFAULT_STATEMENT_TIMEOUT
+    DEFAULT_ACCESS_EXCLUSIVE_STATEMENT_TIMEOUT_LIMIT =
+      DEFAULT_ACCESS_EXCLUSIVE_STATEMENT_TIMEOUT
     DEFAULT_ACCESS_EXCLUSIVE_LOCK_TIMEOUT_LIMIT = DEFAULT_LOCK_TIMEOUT
 
     # The rendering backend used to produce output. The only supported option
@@ -26,24 +27,24 @@ module Nandi
     attr_accessor :renderer
 
     # The default lock timeout for migrations. Can be overridden by way of the
-    # `set_lock_timeout` class method in a given migration. Default: 750ms.
+    # `set_lock_timeout` class method in a given migration. Default: 5,000ms.
     # @return [Integer]
     attr_accessor :lock_timeout
 
-    # The default statement timeout for migrations. Can be overridden by way of
-    # the `set_statement_timeout` class method in a given migration. Default:
-    # 1500ms.
+    # The default statement timeout for migrations that take permissive locks.
+    # Can be overridden by way of the `set_statement_timeout` class method in a
+    # given migration. Default: 1,080,000ms (ie, 3 hours).
     # @return [Integer]
     attr_accessor :statement_timeout
 
-    # The default statement timeout for safe but slow migrations. Can be
-    # overridden by way of the `set_statement_timeout` class method in a given
-    # migration. Default: 1,080,000ms (ie, 3 hours).
+    # The default statement timeout for migrations that take ACCESS EXCLUSIVE
+    # locks. Can be overridden by way of the `set_statement_timeout` class
+    # method in a given migration. Default: 1500ms.
     # @return [Integer]
-    attr_accessor :safe_statement_timeout
+    attr_accessor :access_exclusive_statement_timeout
 
     # The maximum lock timeout for migrations that take an ACCESS EXCLUSIVE
-    # lock and therefore block all reads and writes. Default: 750ms.
+    # lock and therefore block all reads and writes. Default: 5,000ms.
     # @return [Integer]
     attr_accessor :access_exclusive_statement_timeout_limit
 
@@ -67,7 +68,7 @@ module Nandi
       @renderer = renderer
       @lock_timeout = DEFAULT_LOCK_TIMEOUT
       @statement_timeout = DEFAULT_STATEMENT_TIMEOUT
-      @safe_statement_timeout = DEFAULT_SAFE_STATEMENT_TIMEOUT
+      @access_exclusive_statement_timeout = DEFAULT_ACCESS_EXCLUSIVE_STATEMENT_TIMEOUT
       @custom_methods = {}
       @access_exclusive_statement_timeout_limit =
         DEFAULT_ACCESS_EXCLUSIVE_STATEMENT_TIMEOUT_LIMIT
