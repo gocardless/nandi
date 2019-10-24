@@ -236,7 +236,7 @@ RSpec.describe Nandi::Validator do
 
   context "with too great a lock timeout" do
     let(:strictest_lock) { Nandi::Migration::LockWeights::ACCESS_EXCLUSIVE }
-    let(:lock_timeout) { 2_000 }
+    let(:lock_timeout) { 20_000 }
 
     let(:instructions) do
       [
