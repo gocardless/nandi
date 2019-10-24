@@ -324,9 +324,9 @@ module Nandi
 
     def default_statement_timeout
       if strictest_lock == LockWeights::SHARE
-        Nandi.config.safe_statement_timeout
-      else
         Nandi.config.statement_timeout
+      else
+        Nandi.config.access_exclusive_statement_timeout
       end
     end
 

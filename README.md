@@ -371,11 +371,12 @@ The rendering backend used to produce output. The only supported option at curre
 
 ### `statement_timeout` (Integer)
 
-The default statement timeout for migrations. Can be overridden by way of the `set_statement_timeout` class method in a given migration. Default: 1500ms.
+The default statement timeout for migrations that take permissive locks. Can be overridden by way of the `set_statement_timeout` class method in a given migration. Default: 1,080,000ms (ie, 3 hours).
 
-### `safe_statement_timeout` (Integer)
+### `access_exclusive_statement_timeout` (Integer)
 
-The default statement timeout for safe but slow migrations. Can be overridden by way of the `set_statement_timeout` class method in a given migration. Default: 1,080,000ms (ie, 3 hours).
+The default statement timeout for migrations that take ACCESS EXCLUSIVE locks. Can be overridden by way of the `set_statement_timeout` class method in a given migration. Default: 1500ms.
+
 #post_process {|migration| ... }
 
 Register a block to be called on output, for example a code formatter. Whatever is returned will be written to the output file.
