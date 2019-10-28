@@ -1,8 +1,12 @@
 # frozen_string_literal: true
 
+require "nandi/validation/failure_helpers"
+
 module Nandi
   module Validation
     class AddColumnValidator
+      include Nandi::Validation::FailureHelpers
+
       def self.call(instruction)
         new(instruction).call
       end
@@ -12,10 +16,11 @@ module Nandi
       end
 
       def call
-        Result.new(@instruction).tap do |result|
-          result << "non-null column lacks default" unless nullable? || default_value?
-          result << "column is unique" if unique?
-        end
+        collect_errors(
+          assert(nullable? || default_value?,
+                 "add_column: non-null column lacks default"),
+          assert(!unique?, "add_column: column is unique"),
+        )
       end
 
       attr_reader :instruction

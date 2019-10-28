@@ -1,8 +1,12 @@
 # frozen_string_literal: true
 
+require "nandi/validation/failure_helpers"
+
 module Nandi
   module Validation
     class EachValidator
+      include Nandi::Validation::FailureHelpers
+
       def self.call(instruction)
         new(instruction).call
       end
@@ -12,14 +16,14 @@ module Nandi
       end
 
       def call
-        result = Result.new
         case instruction.procedure
         when :remove_index
-          result.merge(RemoveIndexValidator.call(instruction))
+          RemoveIndexValidator.call(instruction)
         when :add_column
-          result.merge(AddColumnValidator.call(instruction))
+          AddColumnValidator.call(instruction)
+        else
+          success
         end
-        result
       end
 
       attr_reader :instruction

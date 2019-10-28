@@ -4,6 +4,7 @@ PATH
     nandi (0.5.0)
       activesupport
       cells
+      dry-monads
       tilt
 
 GEM
@@ -66,6 +67,13 @@ GEM
       declarative-option (< 0.2.0)
     declarative-option (0.1.0)
     diff-lcs (1.3)
+    dry-core (0.4.9)
+      concurrent-ruby (~> 1.0)
+    dry-equalizer (0.2.2)
+    dry-monads (1.3.1)
+      concurrent-ruby (~> 1.0)
+      dry-core (~> 0.4, >= 0.4.4)
+      dry-equalizer
     erubi (1.8.0)
     gc_ruboconfig (2.3.14)
       rubocop (>= 0.57, < 0.62)
