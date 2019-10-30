@@ -26,6 +26,10 @@ module Nandi
         }.compact
       end
 
+      def lock
+        Nandi::Migration::LockWeights::ACCESS_EXCLUSIVE
+      end
+
       private
 
       def name

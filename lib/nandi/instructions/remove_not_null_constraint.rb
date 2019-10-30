@@ -13,6 +13,10 @@ module Nandi
       def procedure
         :remove_not_null_constraint
       end
+
+      def lock
+        Nandi::Migration::LockWeights::ACCESS_EXCLUSIVE
+      end
     end
   end
 end

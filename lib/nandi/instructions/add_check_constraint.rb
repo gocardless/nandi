@@ -14,6 +14,10 @@ module Nandi
       def procedure
         :add_check_constraint
       end
+
+      def lock
+        Nandi::Migration::LockWeights::ACCESS_EXCLUSIVE
+      end
     end
   end
 end
