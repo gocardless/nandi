@@ -14,7 +14,7 @@ module Nandi
     # take an extremely unpredictable amount of time to finish. Our default for these
     # statements is much higher.
     DEFAULT_ACCESS_EXCLUSIVE_STATEMENT_TIMEOUT = 1_500
-    DEFAULT_STATEMENT_TIMEOUT = 1_080_000 # 3 hours
+    DEFAULT_STATEMENT_TIMEOUT = 10_800_000 # 3 hours
 
     DEFAULT_ACCESS_EXCLUSIVE_STATEMENT_TIMEOUT_LIMIT =
       DEFAULT_ACCESS_EXCLUSIVE_STATEMENT_TIMEOUT
