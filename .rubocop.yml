@@ -51,3 +51,5 @@ Naming/UncommunicativeMethodParamName:
     - x
     - y
     - of
+    # Useful as a placeholder for an unused argument
+    - _

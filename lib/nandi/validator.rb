@@ -1,9 +1,13 @@
 # frozen_string_literal: true
 
+require "dry/monads"
 require "nandi/validation"
+require "nandi/timeout_policies"
 
 module Nandi
   class Validator
+    include Nandi::Validation::FailureHelpers
+
     class InstructionValidator
       def self.call(instruction)
         new(instruction).call
@@ -29,31 +33,24 @@ module Nandi
     end
 
     def call
-      migration_invariants_respected.merge(each_instruction_validation)
+      migration_invariants_respected << each_instruction_validation
     end
 
     private
 
     def migration_invariants_respected
-      Validation::Result.new(@instruction).tap do |result|
-        unless at_most_one_object_modified
-          result << "modifying more than one table per migragrion"
-        end
-        unless new_indexes_are_separated_from_other_migrations
-          result << "creating more than one index per migration"
-        end
-        unless statement_timeout_is_within_acceptable_bounds
-          result << <<~MSG
-            statement timeout too high for a migration that needs
-            ACCESS EXCLUSIVE lock
-          MSG
-        end
-        unless lock_timeout_is_within_acceptable_bounds
-          result << <<~MSG
-            lock timeout too high for a migration that needs
-            ACCESS EXCLUSIVE lock
-          MSG
-        end
+      Validation::Result.new.tap do |result|
+        result << assert(
+          at_most_one_object_modified,
+          "modifying more than one table per migration",
+        )
+
+        result << assert(
+          new_indexes_are_separated_from_other_migrations,
+          "creating more than one index per migration",
+        )
+
+        result << validate_timeouts
       end
     end
 
@@ -87,11 +84,17 @@ module Nandi
     end
 
     def each_instruction_validation
-      instructions = migration.up_instructions + migration.down_instructions
-
-      instructions.inject(Validation::Result.new) do |result, instruction|
-        result.merge(Validation::EachValidator.call(instruction))
+      instructions.inject(success) do |result, instruction|
+        collect_errors(Validation::EachValidator.call(instruction), result)
       end
+    end
+
+    def validate_timeouts
+      Nandi::Validation::TimeoutValidator.call(migration)
+    end
+
+    def instructions
+      [*migration.up_instructions, *migration.down_instructions]
     end
 
     attr_reader :migration

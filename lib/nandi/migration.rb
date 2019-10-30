@@ -2,6 +2,7 @@
 
 require "nandi/instructions"
 require "nandi/validator"
+require "nandi/validation/failure_helpers"
 
 module Nandi
   # @abstract A migration must implement #up (the forward migration), and may
@@ -25,6 +26,8 @@ module Nandi
   #       end
   #     end
   class Migration
+    include Nandi::Validation::FailureHelpers
+
     module LockWeights
       ACCESS_EXCLUSIVE = 1
       SHARE = 0
@@ -293,7 +296,7 @@ module Nandi
     def validate
       validator.call(self)
     rescue NotImplementedError => e
-      Validation::Result.new << e.message
+      Validation::Result.new << failure(e.message)
     end
 
     def name
