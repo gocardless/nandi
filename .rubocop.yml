@@ -13,6 +13,7 @@ AllCops:
     - lib/**/templates/**/*
     - spec/nandi/fixtures/**/*
     - node_modules/**/*
+    - vendor/**/*
 
 Metrics/MethodLength:
   Max: 29
