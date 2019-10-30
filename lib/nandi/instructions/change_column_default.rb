@@ -14,6 +14,10 @@ module Nandi
       def procedure
         :change_column_default
       end
+
+      def lock
+        Nandi::Migration::LockWeights::ACCESS_EXCLUSIVE
+      end
     end
   end
 end

@@ -13,6 +13,10 @@ module Nandi
       def procedure
         :drop_constraint
       end
+
+      def lock
+        Nandi::Migration::LockWeights::ACCESS_EXCLUSIVE
+      end
     end
   end
 end
