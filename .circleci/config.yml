@@ -4,6 +4,14 @@ references:
   steps: &steps
     - checkout
     - run: gem install bundler
+
+    - restore_cache:
+        key: nandi-bundler-{{ checksum "Gemfile.lock" }}
+    - run: bundle install --path vendor/bundle
+    - save_cache:
+        key: nandi-bundler-{{ checksum "Gemfile.lock" }}
+        paths:
+          - vendor/bundle
     - run: bundle install
     - run: bundle exec rspec spec
     - run: bundle exec rubocop
