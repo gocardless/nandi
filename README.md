@@ -353,6 +353,10 @@ The maximum lock timeout for migrations that take an ACCESS EXCLUSIVE lock and t
 
 The maximum statement timeout for migrations that take an ACCESS EXCLUSIVE lock and therefore block all reads and writes. Default: 1,500ms.
 
+### `concurrent_statement_timeout_limit` (Integer)
+
+The minimum statement timeout for migrations that take place concurrently. Default: 3,600,000ms (ie, 3 hours).
+
 ### `lock_timeout` (Integer)
 
 The default lock timeout for migrations. Can be overridden by way of the `set_lock_timeout` class method in a given migration. Default: 5,000ms.
@@ -371,7 +375,7 @@ The rendering backend used to produce output. The only supported option at curre
 
 ### `statement_timeout` (Integer)
 
-The default statement timeout for migrations that take permissive locks. Can be overridden by way of the `set_statement_timeout` class method in a given migration. Default: 1,080,000ms (ie, 3 hours).
+The default statement timeout for migrations that take permissive locks. Can be overridden by way of the `set_statement_timeout` class method in a given migration. Default: 10,800,000ms (ie, 3 hours).
 
 ### `access_exclusive_statement_timeout` (Integer)
 

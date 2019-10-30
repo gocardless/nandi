@@ -23,6 +23,8 @@ RSpec.describe Nandi::Validator do
   end
 
   context "creating an index" do
+    let(:statement_timeout) { 3_600_000 }
+
     context "with one new index" do
       let(:instructions) do
         [
@@ -55,6 +57,8 @@ RSpec.describe Nandi::Validator do
   end
 
   context "dropping an index" do
+    let(:statement_timeout) { 3_600_000 }
+
     context "dropping an index by index name" do
       let(:instructions) do
         [
@@ -119,6 +123,8 @@ RSpec.describe Nandi::Validator do
   end
 
   context "with one object modified as string and symbol" do
+    let(:statement_timeout) { 3_600_000 }
+
     let(:instructions) do
       [
         Nandi::Instructions::RemoveIndex.new(

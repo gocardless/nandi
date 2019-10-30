@@ -19,6 +19,7 @@ module Nandi
     DEFAULT_ACCESS_EXCLUSIVE_STATEMENT_TIMEOUT_LIMIT =
       DEFAULT_ACCESS_EXCLUSIVE_STATEMENT_TIMEOUT
     DEFAULT_ACCESS_EXCLUSIVE_LOCK_TIMEOUT_LIMIT = DEFAULT_LOCK_TIMEOUT
+    DEFAULT_CONCURRENT_STATEMENT_TIMEOUT_LIMIT = 3_600_000 # 1 hour
 
     # The rendering backend used to produce output. The only supported option
     # at current is Nandi::Renderers::ActiveRecord, which produces ActiveRecord
@@ -33,7 +34,7 @@ module Nandi
 
     # The default statement timeout for migrations that take permissive locks.
     # Can be overridden by way of the `set_statement_timeout` class method in a
-    # given migration. Default: 1,080,000ms (ie, 3 hours).
+    # given migration. Default: 10,800,000ms (ie, 3 hours).
     # @return [Integer]
     attr_accessor :statement_timeout
 
@@ -53,6 +54,11 @@ module Nandi
     # @return [Integer]
     attr_accessor :access_exclusive_lock_timeout_limit
 
+    # The minimum statement timeout for migrations that take place concurrently.
+    # Default: 3,600,000ms (ie, 3 hours).
+    # @return [Integer]
+    attr_accessor :concurrent_statement_timeout_limit
+
     # The directory for Nandi migrations. Default: `db/safe_migrations`
     # @return [String]
     attr_accessor :migration_directory
@@ -68,6 +74,7 @@ module Nandi
       @renderer = renderer
       @lock_timeout = DEFAULT_LOCK_TIMEOUT
       @statement_timeout = DEFAULT_STATEMENT_TIMEOUT
+      @concurrent_statement_timeout_limit = DEFAULT_CONCURRENT_STATEMENT_TIMEOUT_LIMIT
       @access_exclusive_statement_timeout = DEFAULT_ACCESS_EXCLUSIVE_STATEMENT_TIMEOUT
       @custom_methods = {}
       @access_exclusive_statement_timeout_limit =
