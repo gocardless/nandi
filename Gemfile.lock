@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    nandi (0.5.0)
+    nandi (0.6.0)
       activesupport
       cells
       dry-monads
