@@ -3,6 +3,7 @@
 require "rails/generators"
 require "nandi"
 require "nandi/migration"
+require "nandi/file_matcher"
 
 module Nandi
   class CompileGenerator < Rails::Generators::Base
@@ -35,30 +36,12 @@ module Nandi
       end
     end
 
-    def compiled_migrations_glob
-      File.expand_path("*.rb", output_path)
-    end
-
     def output_path
       Nandi.config.output_directory || "db/migrate"
     end
 
     def files
-      safe_migrations = Dir.glob(safe_migrations_glob)
-      case options["files"]
-      when "all"
-        safe_migrations
-      when "git-diff"
-        changed_files & safe_migrations
-      else
-        Dir.glob(options["files"])
-      end
-    end
-
-    def changed_files
-      `git status -s`.lines.map do |line|
-        Rails.root.join(line.chomp.strip.split[1]).to_s
-      end
+      FileMatcher.call(files: Dir.glob(safe_migrations_glob), spec: options["files"])
     end
   end
 end

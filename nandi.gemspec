@@ -37,6 +37,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency "activesupport"
   spec.add_dependency "cells"
   spec.add_dependency "dry-monads"
+  spec.add_dependency "git"
   spec.add_dependency "tilt"
 
   spec.add_development_dependency "bundler", "~> 2.0"
