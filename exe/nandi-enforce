@@ -21,6 +21,10 @@ OptionParser.new do |o|
   o.on("--require PATH", "file to require before execution") do |v|
     opts[:require_path] = v
   end
+  o.on("--files FILE_SPEC",
+       "Files to compile for check - eg, all, git-diff, 201901010101") do |v|
+    opts[:files] = v
+  end
   o.on("-h", "--help") do
     puts o
     exit

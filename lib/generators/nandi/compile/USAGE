@@ -2,5 +2,18 @@ Description:
     Takes all files from the db/nandi directory and turns
     them into ActiveRecordmigration files.
 
-Example:
+Examples:
     rails generate nandi:compile
+        compiles all migrations that have changed since last git commit
+
+    rails generate nandi:compile --files all
+        compiles all migrations ever
+
+    rails generate nandi:compile --files 20190101010101
+        compiles specific migration
+
+    rails generate nandi:compile --files 20190101
+        compiles all migrations from January 1st 2019
+
+    rails generate nandi:compile --files >=20190101
+        compiles all migrations from January 1st 2019 and after

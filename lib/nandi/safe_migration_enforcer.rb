@@ -10,12 +10,15 @@ module Nandi
 
     DEFAULT_SAFE_MIGRATION_DIR = "db/safe_migrations"
     DEFAULT_AR_MIGRATION_DIR = "db/migrate"
+    DEFAULT_FILE_SPEC = "all"
 
     def initialize(require_path: nil,
                    safe_migration_dir: DEFAULT_SAFE_MIGRATION_DIR,
-                   ar_migration_dir: DEFAULT_AR_MIGRATION_DIR)
+                   ar_migration_dir: DEFAULT_AR_MIGRATION_DIR,
+                   files: DEFAULT_FILE_SPEC)
       @safe_migration_dir = safe_migration_dir
       @ar_migration_dir = ar_migration_dir
+      @files = files
 
       require require_path unless require_path.nil?
 
@@ -92,7 +95,7 @@ module Nandi
         initial_migration_digests[migration] = digest
       end
 
-      Rails::Generators.invoke("nandi:compile", ["--files", "all"])
+      Rails::Generators.invoke("nandi:compile", ["--files", @files])
 
       migration_digests_after_compile = {}
       ar_migration_paths.each do |migration|
