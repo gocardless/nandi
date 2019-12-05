@@ -13,9 +13,11 @@ module Nandi
                  type: :string,
                  default: "git-diff",
                  desc: <<-DESC
-                 Files to compile. May be a glob pattern or one of the following:
+                 Files to compile. May be one of the following:
                  -- 'all' compiles all files
-                 -- 'git-diff' only changed.
+                 -- 'git-diff' only changed
+                 -- a full or partial version timestamp, eg '20190101010101', '20190101'
+                 -- a timestamp range , eg '>=20190101010101'
                  DESC
 
     def compile_migration_files
