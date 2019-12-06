@@ -3,6 +3,8 @@
 require "digest"
 require "rails"
 require "rails/generators"
+require "nandi/file_diff"
+require "nandi/lockfile"
 
 module Nandi
   class SafeMigrationEnforcer
@@ -38,7 +40,7 @@ module Nandi
       enforce_no_hand_written_migrations!(safe_migration_names,
                                           ar_migration_names,
                                           exceptions)
-      enforce_no_hand_edited_migrations!(ar_migration_paths)
+      enforce_no_hand_edited_migrations!(ar_migration_paths, exceptions)
 
       true
     end
@@ -84,28 +86,16 @@ module Nandi
       end
     end
 
-    def enforce_no_hand_edited_migrations!(ar_migration_paths)
-      initial_migration_digests = {}
-      ar_migration_paths.each do |migration|
-        content = File.read(migration)
-        digest = Digest::SHA256.hexdigest(content)
-        initial_migration_digests[migration] = digest
-      end
+    def enforce_no_hand_edited_migrations!(ar_migration_paths, exceptions)
+      ar_migration_paths -= exceptions
 
-      Rails::Generators.invoke("nandi:compile", ["--files", "all"])
+      hand_altered_migrations = ar_migration_paths.select do |ar_migration_path|
+        file_name = File.basename(ar_migration_path)
 
-      migration_digests_after_compile = {}
-      ar_migration_paths.each do |migration|
-        content = File.read(migration)
-        digest = Digest::SHA256.hexdigest(content)
-        migration_digests_after_compile[migration] = digest
-      end
-
-      hand_altered_migrations = []
-      initial_migration_digests.each do |migration, digest|
-        if digest != migration_digests_after_compile[migration]
-          hand_altered_migrations << migration
-        end
+        Nandi::FileDiff.new(
+          file_path: ar_migration_path,
+          known_digest: Nandi::Lockfile.get(file_name).fetch(:compiled_digest),
+        ).changed?
       end
 
       if hand_altered_migrations.any?

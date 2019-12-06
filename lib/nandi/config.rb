@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "nandi/renderers"
+require "nandi/lockfile"
 
 module Nandi
   class Config
@@ -67,6 +68,11 @@ module Nandi
     # @return [String]
     attr_accessor :output_directory
 
+    # Directory where .nandilock.yml will be stored
+    # Defaults to project root
+    # @return [String]
+    attr_writer :lockfile_directory
+
     # @api private
     attr_reader :post_processor, :custom_methods
 
@@ -100,6 +106,10 @@ module Nandi
     #   mixed into any migration that uses this method.
     def register_method(name, klass)
       custom_methods[name] = klass
+    end
+
+    def lockfile_directory
+      @lockfile_directory ||= Pathname.new(@lockfile_directory || "")
     end
   end
 end

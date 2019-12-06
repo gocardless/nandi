@@ -90,17 +90,8 @@ RSpec.describe Nandi do
     context "with a valid migration" do
       let(:files) { ["#{base_path}/20180104120000_my_migration.rb"] }
 
-      it "calls the generator with the correct migration class" do
-        expect(renderer).to receive(:generate) do |migration|
-          expect(migration).to be_a(Nandi::Migration)
-          expect(migration.name).to eq("MyMigration")
-        end
-
-        described_class.compile(args) { |_| nil }
-      end
-
       it "yields output" do
-        expect(renderer).to receive(:generate).and_return("output")
+        allow(renderer).to receive(:generate).and_return("output")
 
         described_class.compile(args) do |output|
           expect(output.first.file_name).to eq("20180104120000_my_migration.rb")
@@ -116,7 +107,7 @@ RSpec.describe Nandi do
         expect do
           described_class.compile(args) { |_| nil }
         end.to raise_error(
-          described_class::InvalidMigrationError,
+          Nandi::CompiledMigration::InvalidMigrationError,
           /creating more than one index per migration/,
         )
       end

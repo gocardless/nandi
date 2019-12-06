@@ -17,5 +17,9 @@ RSpec.configure do |config|
     c.syntax = :expect
   end
 
+  config.before do
+    allow(Nandi::Lockfile).to receive(:create)
+  end
+
   Tilt.prefer Tilt::ERBTemplate
 end

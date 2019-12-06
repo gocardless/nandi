@@ -56,9 +56,6 @@ RSpec.shared_examples "linting" do
 
     # rubocop:disable RSpec/ExampleLength
     it "raises an error with an appropriate message" do
-      expect(Rails::Generators).to receive(:invoke).
-        with("nandi:compile", ["--files", "all"])
-
       expect { subject.run }.to raise_error do |err|
         expect(err.class).to eq(Nandi::SafeMigrationEnforcer::MigrationLintingFailed)
         expect(err.message).
@@ -122,6 +119,18 @@ RSpec.describe Nandi::SafeMigrationEnforcer do
   end
 
   let(:ignored_files) { [] }
+  let(:lockfile) do
+    lockfile_contents = ar_migration_files.each_with_object({}) do |ar_file, hash|
+      file_name = File.basename(ar_file)
+
+      hash[file_name] = {
+        source_digest: Digest::SHA256.hexdigest("generated_content"),
+        compiled_digest: Digest::SHA256.hexdigest("generated_content"),
+      }
+    end
+
+    StringIO.new(lockfile_contents.deep_stringify_keys.to_yaml)
+  end
 
   before do
     safe_migration_glob = File.join(safe_migration_dir, "*.rb")
@@ -132,12 +141,13 @@ RSpec.describe Nandi::SafeMigrationEnforcer do
     allow(Dir).to receive(:glob).with(ar_migration_glob).
       and_return(ar_migration_files)
 
+    allow(File).to receive(:read).with(Nandi::Lockfile.path).and_return(lockfile)
+    allow(File).to receive(:write).with(Nandi::Lockfile.path).and_return(lockfile)
+
     allow(File).to receive(:read).with(Regexp.new(ar_migration_dir)).
       and_return("generated_content")
 
     allow(Nandi).to receive(:ignored_files).and_return(ignored_files)
-
-    allow(Rails::Generators).to receive(:invoke).with("nandi:compile", ["--files", "all"])
   end
 
   describe "#run" do
