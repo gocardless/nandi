@@ -15,6 +15,7 @@ module Nandi
     # statements is much higher.
     DEFAULT_ACCESS_EXCLUSIVE_STATEMENT_TIMEOUT = 1_500
     DEFAULT_STATEMENT_TIMEOUT = 10_800_000 # 3 hours
+    DEFAULT_COMPILE_FILES = "all"
 
     DEFAULT_ACCESS_EXCLUSIVE_STATEMENT_TIMEOUT_LIMIT =
       DEFAULT_ACCESS_EXCLUSIVE_STATEMENT_TIMEOUT
@@ -67,6 +68,15 @@ module Nandi
     # @return [String]
     attr_accessor :output_directory
 
+    # The files to compile when the compile generator is run. Default: `all`
+    # May be one of the following:
+    # - 'all' compiles all files
+    # - 'git-diff' only files changed since last commit
+    # - a full or partial version timestamp, eg '20190101010101', '20190101'
+    # - a timestamp range , eg '>=20190101010101'
+    # @return [String]
+    attr_accessor :compile_files
+
     # @api private
     attr_reader :post_processor, :custom_methods
 
@@ -80,6 +90,7 @@ module Nandi
       @access_exclusive_statement_timeout_limit =
         DEFAULT_ACCESS_EXCLUSIVE_STATEMENT_TIMEOUT_LIMIT
       @access_exclusive_lock_timeout_limit = DEFAULT_ACCESS_EXCLUSIVE_LOCK_TIMEOUT_LIMIT
+      @compile_files = DEFAULT_COMPILE_FILES
     end
 
     # Register a block to be called on output, for example a code formatter. Whatever is

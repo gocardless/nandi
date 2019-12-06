@@ -11,7 +11,7 @@ module Nandi
 
     class_option :files,
                  type: :string,
-                 default: "git-diff",
+                 default: Nandi.config.compile_files,
                  desc: <<-DESC
                  Files to compile. May be one of the following:
                  -- 'all' compiles all files
