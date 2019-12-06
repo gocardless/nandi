@@ -4,7 +4,9 @@ require "digest"
 require "rails"
 require "rails/generators"
 
+require "nandi/file_diff"
 require "nandi/file_matcher"
+require "nandi/lockfile"
 
 module Nandi
   class SafeMigrationEnforcer
@@ -40,7 +42,7 @@ module Nandi
 
       enforce_no_ungenerated_migrations!(safe_migrations, ar_migrations)
       enforce_no_hand_written_migrations!(safe_migrations, ar_migrations, exceptions)
-      enforce_no_hand_edited_migrations!(ar_migrations)
+      enforce_no_hand_edited_migrations!(ar_migrations, exceptions)
 
       true
     end
@@ -88,31 +90,19 @@ module Nandi
       end
     end
 
-    def enforce_no_hand_edited_migrations!(ar_migrations)
-      ar_migration_paths = names_to_paths(ar_migrations)
+    def enforce_no_hand_edited_migrations!(ar_migrations, exceptions)
+      hand_altered_migrations = ar_migrations.
+        map { |m| [m, Nandi::Lockfile.get(m)] }.
+        select do |filename, digests|
+          path = File.join(@ar_migration_dir, filename)
 
-      initial_migration_digests = {}
-      ar_migration_paths.each do |migration|
-        content = File.read(migration)
-        digest = Digest::SHA256.hexdigest(content)
-        initial_migration_digests[migration] = digest
-      end
+          next false if exceptions.include?(path)
 
-      Rails::Generators.invoke("nandi:compile", ["--files", @files])
-
-      migration_digests_after_compile = {}
-      ar_migration_paths.each do |migration|
-        content = File.read(migration)
-        digest = Digest::SHA256.hexdigest(content)
-        migration_digests_after_compile[migration] = digest
-      end
-
-      hand_altered_migrations = []
-      initial_migration_digests.each do |migration, digest|
-        if digest != migration_digests_after_compile[migration]
-          hand_altered_migrations << migration
+          Nandi::FileDiff.new(
+            file_path: path,
+            known_digest: digests[:compiled_digest],
+          ).changed?
         end
-      end
 
       if hand_altered_migrations.any?
         error = <<~ERROR
