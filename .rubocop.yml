@@ -16,7 +16,7 @@ AllCops:
     - vendor/**/*
 
 Metrics/MethodLength:
-  Max: 29
+  Max: 30
 
 Metrics/AbcSize:
   Max: 20

@@ -1,24 +1,6 @@
 # frozen_string_literal: true
 
-require "git"
-
 module Nandi
-  class GitUtils
-    class << self
-      def diff(base)
-        git.diff(base).map(&:path)
-      end
-
-      def status
-        git.status.map(&:path)
-      end
-
-      def git
-        @git ||= Git.open(".")   
-      end
-    end
-  end
-
   class FileMatcher
     TIMESTAMP_REGEX = /\A(?<operator>>|>=)?(?<timestamp>\d+)\z/.freeze
 
@@ -36,7 +18,7 @@ module Nandi
       when "all"
         files
       when "git-diff"
-        files.intersection(GitUtils.status)
+        files.intersection(files_from_git_status)
       when TIMESTAMP_REGEX
         match_timestamp
       end
@@ -50,7 +32,7 @@ module Nandi
       case match[:operator]
       when nil
         files.select do |file|
-          File.basename(file).start_with?(match[:timestamp])
+          file.start_with?(match[:timestamp])
         end
       when ">"
         migrations_after((Integer(match[:timestamp]) + 1).to_s)
@@ -60,9 +42,15 @@ module Nandi
     end
 
     def migrations_after(minimum)
-      files.select do |file|
-        File.basename(file) >= minimum
-      end
+      files.select { |file| file >= minimum }
+    end
+
+    def files_from_git_status
+      `
+        git status --porcelain --short --untracked-files=all |
+        cut -c4- |
+        xargs -n1 basename
+      `.lines.map(&:strip)
     end
 
     attr_reader :files, :spec

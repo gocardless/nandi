@@ -1,11 +1,10 @@
 PATH
   remote: .
   specs:
-    nandi (0.6.1)
+    nandi (0.6.3)
       activesupport
       cells
       dry-monads
-      git
       tilt
 
 GEM
@@ -79,7 +78,6 @@ GEM
     gc_ruboconfig (2.3.14)
       rubocop (>= 0.57, < 0.62)
       rubocop-rspec (~> 1.25)
-    git (1.5.0)
     globalid (0.4.2)
       activesupport (>= 4.2.0)
     i18n (1.6.0)
