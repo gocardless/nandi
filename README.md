@@ -381,6 +381,15 @@ The default statement timeout for migrations that take permissive locks. Can be 
 
 The default statement timeout for migrations that take ACCESS EXCLUSIVE locks. Can be overridden by way of the `set_statement_timeout` class method in a given migration. Default: 1500ms.
 
+### `compile_files` (String)
+The files to compile when the compile generator is run. Default: `all`
+
+May be one of the following:
+- 'all' compiles all files
+- 'git-diff' only files changed since last commit
+- a full or partial version timestamp, eg '20190101010101', '20190101'
+- a timestamp range , eg '>=20190101010101'
+
 #post_process {|migration| ... }
 
 Register a block to be called on output, for example a code formatter. Whatever is returned will be written to the output file.
