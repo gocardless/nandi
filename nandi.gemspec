@@ -5,7 +5,7 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 
 Gem::Specification.new do |spec|
   spec.name          = "nandi"
-  spec.version       = "0.6.2"
+  spec.version       = "0.6.3"
   spec.authors       = ["James Turley"]
   spec.email         = ["jamesturley@gocardless.com"]
 
@@ -37,7 +37,6 @@ Gem::Specification.new do |spec|
   spec.add_dependency "activesupport"
   spec.add_dependency "cells"
   spec.add_dependency "dry-monads"
-  spec.add_dependency "git"
   spec.add_dependency "tilt"
 
   spec.add_development_dependency "bundler", "~> 2.0"

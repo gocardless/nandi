@@ -30,11 +30,11 @@ module Nandi
 
     private
 
-    def safe_migrations_glob
+    def safe_migrations_dir
       if Nandi.config.migration_directory.nil?
-        Rails.root.join("db", "safe_migrations", "*.rb").to_s
+        Rails.root.join("db", "safe_migrations").to_s
       else
-        File.expand_path("*.rb", Nandi.config.migration_directory)
+        File.expand_path(Nandi.config.migration_directory)
       end
     end
 
@@ -43,7 +43,9 @@ module Nandi
     end
 
     def files
-      FileMatcher.call(files: Dir.glob(safe_migrations_glob), spec: options["files"])
+      safe_migration_files = Dir.chdir(safe_migrations_dir) { Dir["*.rb"] }
+      FileMatcher.call(files: safe_migration_files, spec: options["files"]).
+        map { |file| File.join(safe_migrations_dir, file) }
     end
   end
 end

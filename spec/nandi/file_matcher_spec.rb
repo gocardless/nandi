@@ -9,10 +9,10 @@ RSpec.describe Nandi::FileMatcher do
 
     let(:files) do
       [
-        "db/migrations/20180402010101_do_thing_1.rb",
-        "db/migrations/20190101010101_do_thing_2.rb",
-        "db/migrations/20190102010101_do_thing_3.rb",
-        "db/migrations/20190402010101_do_thing_4.rb",
+        "20180402010101_do_thing_1.rb",
+        "20190101010101_do_thing_2.rb",
+        "20190102010101_do_thing_3.rb",
+        "20190402010101_do_thing_4.rb",
       ]
     end
 
@@ -26,11 +26,11 @@ RSpec.describe Nandi::FileMatcher do
       let(:spec) { "git-diff" }
 
       before do
-        allow(Nandi::GitUtils).to receive(:status).
-          and_return(["db/migrations/20180402010101_do_thing_1.rb"])
+        allow_any_instance_of(described_class).to receive(:files_from_git_status).
+          and_return(["20180402010101_do_thing_1.rb"])
       end
 
-      it { is_expected.to eq(Set["db/migrations/20180402010101_do_thing_1.rb"]) }
+      it { is_expected.to eq(Set["20180402010101_do_thing_1.rb"]) }
     end
 
     context "timestamp" do
@@ -38,7 +38,7 @@ RSpec.describe Nandi::FileMatcher do
         context "with full timestamp" do
           let(:spec) { "20190101010101" }
 
-          it { is_expected.to eq(Set["db/migrations/20190101010101_do_thing_2.rb"]) }
+          it { is_expected.to eq(Set["20190101010101_do_thing_2.rb"]) }
         end
 
         context "with partial timestamp" do
@@ -46,9 +46,9 @@ RSpec.describe Nandi::FileMatcher do
 
           it "returns all matches" do
             expect(match).to eq(Set[
-              "db/migrations/20190101010101_do_thing_2.rb",
-              "db/migrations/20190102010101_do_thing_3.rb",
-              "db/migrations/20190402010101_do_thing_4.rb",
+              "20190101010101_do_thing_2.rb",
+              "20190102010101_do_thing_3.rb",
+              "20190402010101_do_thing_4.rb",
             ])
           end
         end
@@ -60,8 +60,8 @@ RSpec.describe Nandi::FileMatcher do
         
         it "returns all matches" do
           expect(match).to eq(Set[
-            "db/migrations/20190102010101_do_thing_3.rb",
-            "db/migrations/20190402010101_do_thing_4.rb",
+            "20190102010101_do_thing_3.rb",
+            "20190402010101_do_thing_4.rb",
           ])
         end
       end
@@ -71,9 +71,9 @@ RSpec.describe Nandi::FileMatcher do
         
         it "returns all matches" do
           expect(match).to eq(Set[
-            "db/migrations/20190101010101_do_thing_2.rb",
-            "db/migrations/20190102010101_do_thing_3.rb",
-            "db/migrations/20190402010101_do_thing_4.rb",
+            "20190101010101_do_thing_2.rb",
+            "20190102010101_do_thing_3.rb",
+            "20190402010101_do_thing_4.rb",
           ])
         end
       end

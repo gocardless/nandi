@@ -4,6 +4,8 @@ require "digest"
 require "rails"
 require "rails/generators"
 
+require "nandi/file_matcher"
+
 module Nandi
   class SafeMigrationEnforcer
     class MigrationLintingFailed < StandardError; end
@@ -29,27 +31,29 @@ module Nandi
     end
 
     def run
-      safe_migration_paths = Dir.glob(File.join(@safe_migration_dir, "*.rb"))
-      ar_migration_paths = Dir.glob(File.join(@ar_migration_dir, "*.rb"))
+      safe_migrations = matching_migrations(@safe_migration_dir)
+      ar_migrations = matching_migrations(@ar_migration_dir)
 
-      safe_migration_names = safe_migration_paths.map { |path| File.basename(path) }
-      ar_migration_names = ar_migration_paths.map { |path| File.basename(path) }
+      return true if safe_migrations.none? && ar_migrations.none?
 
       exceptions = Nandi.ignored_files
 
-      enforce_no_ungenerated_migrations!(safe_migration_names, ar_migration_names)
-      enforce_no_hand_written_migrations!(safe_migration_names,
-                                          ar_migration_names,
-                                          exceptions)
-      enforce_no_hand_edited_migrations!(ar_migration_paths)
+      enforce_no_ungenerated_migrations!(safe_migrations, ar_migrations)
+      enforce_no_hand_written_migrations!(safe_migrations, ar_migrations, exceptions)
+      enforce_no_hand_edited_migrations!(ar_migrations)
 
       true
     end
 
     private
 
-    def enforce_no_ungenerated_migrations!(safe_migration_names, ar_migration_names)
-      ungenerated_migrations = safe_migration_names - ar_migration_names
+    def matching_migrations(dir)
+      names = Dir.glob(File.join(dir, "*.rb")).map { |path| File.basename(path) }
+      FileMatcher.call(files: names, spec: @files)
+    end
+
+    def enforce_no_ungenerated_migrations!(safe_migrations, ar_migrations)
+      ungenerated_migrations = safe_migrations - ar_migrations
       if ungenerated_migrations.any?
         error = <<~ERROR
           The following migrations are pending generation:
@@ -63,13 +67,10 @@ module Nandi
       end
     end
 
-    def enforce_no_hand_written_migrations!(safe_migration_names,
-                                            ar_migration_names,
-                                            exceptions)
-      handwritten_migrations = ar_migration_names - safe_migration_names
-      handwritten_migration_paths = handwritten_migrations.map do |migration|
-        File.join(@ar_migration_dir, migration)
-      end
+    def enforce_no_hand_written_migrations!(safe_migrations, ar_migrations, exceptions)
+      handwritten_migrations = ar_migrations - safe_migrations
+      handwritten_migration_paths = names_to_paths(handwritten_migrations)
+
       disallowed_handwritten_migrations = handwritten_migration_paths - exceptions
 
       if disallowed_handwritten_migrations.any?
@@ -87,7 +88,9 @@ module Nandi
       end
     end
 
-    def enforce_no_hand_edited_migrations!(ar_migration_paths)
+    def enforce_no_hand_edited_migrations!(ar_migrations)
+      ar_migration_paths = names_to_paths(ar_migrations)
+
       initial_migration_digests = {}
       ar_migration_paths.each do |migration|
         content = File.read(migration)
@@ -124,6 +127,10 @@ module Nandi
 
         raise MigrationLintingFailed, error
       end
+    end
+
+    def names_to_paths(names)
+      names.map { |name| File.join(@ar_migration_dir, name) }
     end
   end
 end
