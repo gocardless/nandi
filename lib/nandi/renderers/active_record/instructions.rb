@@ -82,6 +82,12 @@ module Nandi
           formatted_property :extra_args
         end
 
+        class AddReferenceCell < Base
+          formatted_property :table
+          formatted_property :ref_name
+          formatted_property :extra_args
+        end
+
         class RemoveColumnCell < Base
           formatted_property :table
           formatted_property :name
