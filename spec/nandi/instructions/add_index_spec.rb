@@ -61,6 +61,14 @@ RSpec.describe Nandi::Instructions::AddIndex do
           name: :idx_widgets_on_foo,
         )
       end
+
+      context "with fields containing operators" do
+        let(:fields) { "((reports::json->>'source_id'))" }
+
+        it "generates a readable index name" do
+          expect(args[:name]).to eq(:idx_widgets_on_reports_json_source_id)
+        end
+      end
     end
 
     context "with custom name" do
