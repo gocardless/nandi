@@ -20,13 +20,13 @@ RSpec.describe Nandi::Instructions::RemoveIndex do
     subject(:args) { instance.extra_args }
 
     context "with a field" do
-      it { is_expected.to eq(column: [:foo], algorithm: :concurrently) }
+      it { is_expected.to eq(column: :foo, algorithm: :concurrently) }
     end
 
     context "with an array of fields" do
-      let(:field) { [:foo] }
+      let(:field) { %i[foo bar] }
 
-      it { is_expected.to eq(column: [:foo], algorithm: :concurrently) }
+      it { is_expected.to eq(column: %i[foo bar], algorithm: :concurrently) }
     end
 
     context "with a hash of arguments" do

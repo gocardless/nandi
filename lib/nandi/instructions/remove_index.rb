@@ -16,7 +16,7 @@ module Nandi
         if field.is_a?(Hash)
           field.merge(algorithm: :concurrently)
         else
-          { column: Array(field), algorithm: :concurrently }
+          { column: columns, algorithm: :concurrently }
         end
       end
 
@@ -29,6 +29,13 @@ module Nandi
       private
 
       attr_reader :field
+
+      def columns
+        columns = Array(field)
+        columns = columns.first if columns.one?
+
+        columns
+      end
     end
   end
 end
