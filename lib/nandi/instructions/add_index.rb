@@ -5,6 +5,8 @@ module Nandi
     class AddIndex
       def initialize(fields:, table:, **kwargs)
         @fields = Array(fields)
+        @fields = @fields.first if @fields.one?
+
         @table = table
         @extra_args = kwargs
       end
@@ -36,7 +38,11 @@ module Nandi
       private
 
       def name
-        :"idx_#{table.to_s}_on_#{fields.map(&:to_s).join("_")}"
+        :"idx_#{table.to_s}_on_#{field_names}"
+      end
+
+      def field_names
+        fields.respond_to?(:map) ? fields.map(&:to_s).join("_") : fields
       end
     end
   end

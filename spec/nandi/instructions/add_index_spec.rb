@@ -20,9 +20,17 @@ RSpec.describe Nandi::Instructions::AddIndex do
     subject(:result) { instance.fields }
 
     context "with one field" do
-      let(:fields) { :foo }
+      context "specified without an Array" do
+        let(:fields) { :foo }
 
-      it { is_expected.to eq([:foo]) }
+        it { is_expected.to eq(:foo) }
+      end
+
+      context "specified as an Array" do
+        let(:fields) { [:foo] }
+
+        it { is_expected.to eq(:foo) }
+      end
     end
 
     context "with an array of fields" do
