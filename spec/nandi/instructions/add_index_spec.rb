@@ -20,9 +20,17 @@ RSpec.describe Nandi::Instructions::AddIndex do
     subject(:result) { instance.fields }
 
     context "with one field" do
-      let(:fields) { :foo }
+      context "specified without an Array" do
+        let(:fields) { :foo }
 
-      it { is_expected.to eq([:foo]) }
+        it { is_expected.to eq(:foo) }
+      end
+
+      context "specified as an Array" do
+        let(:fields) { [:foo] }
+
+        it { is_expected.to eq(:foo) }
+      end
     end
 
     context "with an array of fields" do
@@ -52,6 +60,14 @@ RSpec.describe Nandi::Instructions::AddIndex do
           using: :btree,
           name: :idx_widgets_on_foo,
         )
+      end
+
+      context "with fields containing operators" do
+        let(:fields) { "((reports::json->>'source_id'))" }
+
+        it "generates a readable index name" do
+          expect(args[:name]).to eq(:idx_widgets_on_reports_json_source_id)
+        end
       end
     end
 
