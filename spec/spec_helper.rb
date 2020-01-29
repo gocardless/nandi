@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "bundler/setup"
+require "pathname"
 require "nandi"
 
 # Always handy to have in tests
@@ -15,6 +16,11 @@ RSpec.configure do |config|
 
   config.expect_with :rspec do |c|
     c.syntax = :expect
+  end
+
+  config.before do
+    # Do not leave lockfiles lying around after test runs
+    allow(File).to receive(:write).with(Pathname.new(".nandilock.yml"), anything)
   end
 
   Tilt.prefer Tilt::ERBTemplate

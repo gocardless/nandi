@@ -4,6 +4,7 @@ require "rails/generators"
 require "nandi"
 require "nandi/migration"
 require "nandi/file_matcher"
+require "nandi/lockfile"
 
 module Nandi
   class CompileGenerator < Rails::Generators::Base
@@ -23,9 +24,19 @@ module Nandi
     def compile_migration_files
       Nandi.compile(files: files) do |results|
         results.each do |result|
-          create_file "#{output_path}/#{result.file_name}", result.body, force: true
+          Nandi::Lockfile.add(
+            file_name: result.file_name,
+            source_digest: result.source_digest,
+            compiled_digest: result.compiled_digest,
+          )
+
+          unless result.migration_unchanged?
+            create_file result.output_path, result.body, force: true
+          end
         end
       end
+
+      Nandi::Lockfile.persist!
     end
 
     private
