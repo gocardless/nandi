@@ -43,6 +43,7 @@ module Nandi
       enforce_no_ungenerated_migrations!(safe_migrations, ar_migrations)
       enforce_no_hand_written_migrations!(safe_migrations, ar_migrations, exceptions)
       enforce_no_hand_edited_migrations!(ar_migrations, exceptions)
+      enforce_no_out_of_date_migrations!(ar_migrations)
 
       true
     end
@@ -84,6 +85,30 @@ module Nandi
           Please use Nandi to generate your migrations. In exeptional cases, hand-written
           ActiveRecord migrations can be added to the .nandiignore file. Doing so will
           require additional review that will slow your PR down.
+        ERROR
+
+        raise MigrationLintingFailed, error
+      end
+    end
+
+    def enforce_no_out_of_date_migrations!(safe_migrations)
+      out_of_date_migrations = safe_migrations.
+        map { |m| [m, Nandi::Lockfile.get(m)] }.
+        select do |filename, digests|
+          Nandi::FileDiff.new(
+            file_path: File.join(@safe_migration_dir, filename),
+            known_digest: digests[:compiled_digest],
+          ).changed?
+        end
+
+      if out_of_date_migrations.any?
+        error = <<~ERROR
+          The following migrations have changed but not been recompiled:
+
+            - #{out_of_date_migrations.sort.join("\n  - ")}
+
+          Please recompile your migrations to make sure that the changes you expect are
+          applied.
         ERROR
 
         raise MigrationLintingFailed, error
