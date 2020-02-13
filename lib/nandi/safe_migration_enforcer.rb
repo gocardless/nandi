@@ -97,7 +97,7 @@ module Nandi
         select do |filename, digests|
           Nandi::FileDiff.new(
             file_path: File.join(@safe_migration_dir, filename),
-            known_digest: digests[:compiled_digest],
+            known_digest: digests[:source_digest],
           ).changed?
         end
 
