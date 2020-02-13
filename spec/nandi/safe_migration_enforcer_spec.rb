@@ -53,6 +53,9 @@ RSpec.shared_examples "linting" do
       allow(File).to receive(:read).
         with(Regexp.new("#{safe_migration_dir}/#{altered_migration}")).
         and_return("newer_content")
+      allow(File).to receive(:read).with(Nandi::Lockfile.path).and_return(lockfile)
+      allow(File).to receive(:write).with(Nandi::Lockfile.path, kind_of(String)).
+        and_return(lockfile)
     end
 
     # rubocop:disable RSpec/ExampleLength
@@ -78,6 +81,9 @@ RSpec.shared_examples "linting" do
       allow(File).to receive(:read).
         with(Regexp.new("#{ar_migration_dir}/#{altered_migration}")).
         and_return("hand_edited_content")
+      allow(File).to receive(:read).with(Nandi::Lockfile.path).and_return(lockfile)
+      allow(File).to receive(:write).with(Nandi::Lockfile.path, kind_of(String)).
+        and_return(lockfile)
     end
 
     it "raises an error with an appropriate message" do
