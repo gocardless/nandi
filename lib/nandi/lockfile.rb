@@ -46,7 +46,10 @@ module Nandi
       end
 
       def path
-        Nandi.config.lockfile_directory.join(".nandilock.yml")
+        File.join(
+          Nandi.config.lockfile_directory,
+          ".nandilock.yml",
+        )
       end
 
       attr_accessor :lockfile

@@ -2,8 +2,9 @@
 
 RSpec.describe Nandi::Lockfile do
   before do
+    allow(Nandi.config).to receive(:lockfile_directory).and_return("db")
     allow(File).to receive(:read).
-      with(Nandi.config.lockfile_directory.join(".nandilock.yml")).and_return("")
+      with("db/.nandilock.yml").and_return("")
 
     described_class.lockfile = nil
   end
@@ -31,7 +32,7 @@ RSpec.describe Nandi::Lockfile do
 
     it "creates a file" do
       expect(File).to receive(:write).
-        with(Pathname.new(".nandilock.yml"), "--- {}\n")
+        with("db/.nandilock.yml", "--- {}\n")
 
       create!
     end
@@ -49,8 +50,8 @@ RSpec.describe Nandi::Lockfile do
     let(:lockfile) { "--- {}\n" }
 
     before do
-      allow(File).to receive(:write).with(Pathname.new(".nandilock.yml"), kind_of(String))
-      allow(File).to receive(:read).with(Pathname.new(".nandilock.yml")).
+      allow(File).to receive(:write).with("db/.nandilock.yml", kind_of(String))
+      allow(File).to receive(:read).with("db/.nandilock.yml").
         and_return(lockfile)
     end
 
@@ -75,8 +76,8 @@ RSpec.describe Nandi::Lockfile do
     end
 
     before do
-      allow(File).to receive(:write).with(Pathname.new(".nandilock.yml"), kind_of(String))
-      allow(File).to receive(:read).with(Pathname.new(".nandilock.yml")).
+      allow(File).to receive(:write).with("db/.nandilock.yml", kind_of(String))
+      allow(File).to receive(:read).with("db/.nandilock.yml").
         and_return(lockfile)
     end
 
@@ -109,7 +110,7 @@ RSpec.describe Nandi::Lockfile do
 
     it "writes the existing file" do
       expect(File).to receive(:write).with(
-        Pathname.new(".nandilock.yml"),
+        "db/.nandilock.yml",
         expected_yaml,
       )
 
