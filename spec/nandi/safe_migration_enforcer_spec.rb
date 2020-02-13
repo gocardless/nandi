@@ -44,6 +44,31 @@ RSpec.shared_examples "linting" do
     end
   end
 
+  context "when a safe migration has had its content altered" do
+    let(:altered_migration) { safe_migrations.first }
+
+    before do
+      allow(File).to receive(:read).with(kind_of(String)).
+        and_return("generated_content")
+      allow(File).to receive(:read).
+        with(Regexp.new("#{safe_migration_dir}/#{altered_migration}")).
+        and_return("newer_content")
+    end
+
+    # rubocop:disable RSpec/ExampleLength
+    it "raises an error with an appropriate message" do
+      expect { subject.run }.to raise_error do |err|
+        expect(err.class).to eq(Nandi::SafeMigrationEnforcer::MigrationLintingFailed)
+        expect(err.message).
+          to match(
+            /20190513163422_add_elephants.rb.*Please recompile your migrations/m,
+          )
+        expect(err.message).to_not match(/20190513163423_add_beachballs.rb/)
+      end
+    end
+    # rubocop:enable RSpec/ExampleLength
+  end
+
   context "when a generated migration has had its content altered" do
     let(:altered_migration) { ar_migrations.first }
 
@@ -157,6 +182,9 @@ RSpec.describe Nandi::SafeMigrationEnforcer do
     allow(File).to receive(:read).with(Nandi::Lockfile.path).and_return(lockfile)
     allow(File).to receive(:write).with(Nandi::Lockfile.path, kind_of(String)).
       and_return(lockfile)
+
+    allow(File).to receive(:read).with(Regexp.new(safe_migration_dir)).
+      and_return("generated_content")
 
     allow(File).to receive(:read).with(Regexp.new(ar_migration_dir)).
       and_return("generated_content")
