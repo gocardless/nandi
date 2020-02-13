@@ -43,7 +43,7 @@ module Nandi
       enforce_no_ungenerated_migrations!(safe_migrations, ar_migrations)
       enforce_no_hand_written_migrations!(safe_migrations, ar_migrations, exceptions)
       enforce_no_hand_edited_migrations!(ar_migrations, exceptions)
-      enforce_no_out_of_date_migrations!(ar_migrations)
+      enforce_no_out_of_date_migrations!(safe_migrations)
 
       true
     end
