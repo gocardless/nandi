@@ -9,21 +9,8 @@ module Nandi
   class Error < StandardError; end
 
   class << self
-    def ignored_files
-      @ignored_files ||= if File.exist?(".nandiignore")
-                           File.read(".nandiignore").lines.map(&:strip)
-                         else
-                           []
-                         end
-    end
-
-    def ignored_filenames
-      ignored_files.map(&File.method(:basename))
-    end
-
     def compile(files:)
       compiled = files.
-        reject { |f| ignored_filenames.include?(File.basename(f)) }.
         map { |f| CompiledMigration.build(f) }
 
       yield compiled
