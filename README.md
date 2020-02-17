@@ -256,6 +256,9 @@ create_table :widgets do |t|
 end
 ```
 
+### `#add_reference(table, ref_name, **extra_args)`
+Adds a new reference column. Nandi will validate that the foreign key flag is not set to true; use `add_foreign_key` and `validate_foreign_key` instead!
+
 ### `#remove_reference(table, ref_name, **extra_args)`
 Removes a reference column.
 

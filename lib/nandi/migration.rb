@@ -189,7 +189,7 @@ module Nandi
     # Adds a new reference column. Nandi will validate that the foreign key flag
     # is not set to true; use `add_foreign_key` and `validate_foreign_key` instead!
     # @param table [Symbol, String] The name of the table to add the column to
-    # @param ref_name [Symbol, String] The referenced type
+    # @param ref_name [Symbol, String] The referenced column name
     # @param kwargs [Hash] Arbitrary options to be passed to the backend.
     def add_reference(table, ref_name, **kwargs)
       current_instructions << Instructions::AddReference.new(

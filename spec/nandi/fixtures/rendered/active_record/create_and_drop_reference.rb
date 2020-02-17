@@ -19,10 +19,12 @@ class MyAwesomeMigration < ActiveRecord::Migration[5.2]
   
   def down
   
-    remove_column(
+    remove_reference(
   :payments,
-  :mandate_id,
-  nil
+  :mandate,
+  {
+  
+}
 )
 
   

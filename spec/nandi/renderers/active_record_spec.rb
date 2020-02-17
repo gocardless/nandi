@@ -228,7 +228,7 @@ RSpec.describe Nandi::Renderers::ActiveRecord do
           end
 
           def down
-            remove_column :payments, :mandate_id
+            remove_reference :payments, :mandate
           end
         end
       end
