@@ -390,6 +390,9 @@ May be one of the following:
 - a full or partial version timestamp, eg '20190101010101', '20190101'
 - a timestamp range , eg '>=20190101010101'
 
+### `lockfile_directory` (String)
+The directory where .nandilock.yml will be stored. Default: `db/` in working directory.
+
 #post_process {|migration| ... }
 
 Register a block to be called on output, for example a code formatter. Whatever is returned will be written to the output file.
