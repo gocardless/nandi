@@ -256,6 +256,9 @@ create_table :widgets do |t|
 end
 ```
 
+### `#remove_reference(table, ref_name, **extra_args)`
+Removes a reference column.
+
 ### `#remove_column(table, name, **extra_args)`
 Remove an existing column.
 

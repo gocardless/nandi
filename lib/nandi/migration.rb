@@ -199,6 +199,18 @@ module Nandi
       )
     end
 
+    # Removes a reference column.
+    # @param table [Symbol, String] The name of the table to remove the reference from
+    # @param ref_name [Symbol, String] The referenced column name
+    # @param kwargs [Hash] Arbitrary options to be passed to the backend.
+    def remove_reference(table, ref_name, **kwargs)
+      current_instructions << Instructions::RemoveReference.new(
+        table: table,
+        ref_name: ref_name,
+        **kwargs,
+      )
+    end
+
     # Remove an existing column.
     # @param table [Symbol, String] The name of the table to remove the column
     #   from.
