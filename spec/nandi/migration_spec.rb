@@ -388,6 +388,122 @@ RSpec.describe Nandi::Migration do
     end
   end
 
+  describe "#add_reference" do
+    subject(:instructions) { subject_class.new(validator).up_instructions }
+
+    context "with no extra options" do
+      let(:subject_class) do
+        Class.new(described_class) do
+          def up
+            add_reference :payments, :mandate
+          end
+
+          def down; end
+        end
+      end
+
+      it "has the correct procedure" do
+        expect(instructions.first.procedure).to eq(:add_reference)
+      end
+
+      it "has the correct table" do
+        expect(instructions.first.table).to eq(:payments)
+      end
+
+      it "has the correct ref name" do
+        expect(instructions.first.ref_name).to eq(:mandate)
+      end
+    end
+
+    context "with extra options" do
+      let(:subject_class) do
+        Class.new(described_class) do
+          def up
+            add_reference :payments, :mandate, type: :text
+          end
+
+          def down; end
+        end
+      end
+
+      it "has the correct procedure" do
+        expect(instructions.first.procedure).to eq(:add_reference)
+      end
+
+      it "has the correct table" do
+        expect(instructions.first.table).to eq(:payments)
+      end
+
+      it "has the correct ref name" do
+        expect(instructions.first.ref_name).to eq(:mandate)
+      end
+
+      it "forwards the extra options" do
+        expect(instructions.first.extra_args).to eq(
+          type: :text,
+        )
+      end
+    end
+  end
+
+  describe "#remove_reference" do
+    subject(:instructions) { subject_class.new(validator).up_instructions }
+
+    context "with no extra options" do
+      let(:subject_class) do
+        Class.new(described_class) do
+          def up
+            remove_reference :payments, :mandate
+          end
+
+          def down; end
+        end
+      end
+
+      it "has the correct procedure" do
+        expect(instructions.first.procedure).to eq(:remove_reference)
+      end
+
+      it "has the correct table" do
+        expect(instructions.first.table).to eq(:payments)
+      end
+
+      it "has the correct ref name" do
+        expect(instructions.first.ref_name).to eq(:mandate)
+      end
+    end
+
+    context "with extra options" do
+      let(:subject_class) do
+        Class.new(described_class) do
+          def up
+            remove_reference :payments, :mandate, index: true
+          end
+
+          def down; end
+        end
+      end
+
+      it "has the correct procedure" do
+        expect(instructions.first.procedure).to eq(:remove_reference)
+      end
+
+      it "has the correct table" do
+        expect(instructions.first.table).to eq(:payments)
+      end
+
+      it "has the correct ref name" do
+        expect(instructions.first.ref_name).to eq(:mandate)
+      end
+
+      it "forwards the extra options" do
+        expect(instructions.first.extra_args).to eq(
+          index: true,
+        )
+      end
+    end
+  end
+
   describe "#remove_column" do
     subject(:instructions) { subject_class.new(validator).up_instructions }
 
