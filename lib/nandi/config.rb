@@ -22,6 +22,7 @@ module Nandi
       DEFAULT_ACCESS_EXCLUSIVE_STATEMENT_TIMEOUT
     DEFAULT_ACCESS_EXCLUSIVE_LOCK_TIMEOUT_LIMIT = DEFAULT_LOCK_TIMEOUT
     DEFAULT_CONCURRENT_STATEMENT_TIMEOUT_LIMIT = 3_600_000 # 1 hour
+    DEFAULT_LOCKFILE_DIRECTORY = File.join(Dir.pwd, "db")
 
     # The rendering backend used to produce output. The only supported option
     # at current is Nandi::Renderers::ActiveRecord, which produces ActiveRecord
@@ -97,6 +98,7 @@ module Nandi
         DEFAULT_ACCESS_EXCLUSIVE_STATEMENT_TIMEOUT_LIMIT
       @access_exclusive_lock_timeout_limit = DEFAULT_ACCESS_EXCLUSIVE_LOCK_TIMEOUT_LIMIT
       @compile_files = DEFAULT_COMPILE_FILES
+      @lockfile_directory = DEFAULT_LOCKFILE_DIRECTORY
     end
 
     # Register a block to be called on output, for example a code formatter. Whatever is
@@ -120,7 +122,7 @@ module Nandi
     end
 
     def lockfile_directory
-      @lockfile_directory ||= Pathname.new(@lockfile_directory || "")
+      @lockfile_directory ||= Pathname.new(@lockfile_directory)
     end
   end
 end
