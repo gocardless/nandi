@@ -16,7 +16,9 @@ module Nandi
     def call
       case spec
       when "all"
-        files
+        Set.new(
+          files.reject { |f| ignored_filenames.include?(File.basename(f)) },
+        )
       when "git-diff"
         files.intersection(files_from_git_status)
       when TIMESTAMP_REGEX
@@ -25,6 +27,18 @@ module Nandi
     end
 
     private
+
+    def ignored_files
+      @ignored_files ||= if File.exist?(".nandiignore")
+                           File.read(".nandiignore").lines.map(&:strip)
+                         else
+                           []
+                         end
+    end
+
+    def ignored_filenames
+      ignored_files.map(&File.method(:basename))
+    end
 
     def match_timestamp
       match = TIMESTAMP_REGEX.match(spec)

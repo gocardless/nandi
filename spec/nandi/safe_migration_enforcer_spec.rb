@@ -94,44 +94,6 @@ RSpec.shared_examples "linting" do
         expect(err.message).to_not match(/20190513163423_add_beachballs.rb/)
       end
     end
-
-    context "and the edited file is ignored" do
-      let(:ignored_files) { ar_migration_paths[0..1] }
-
-      it "returns true" do
-        expect(subject.run).to eq(true)
-      end
-    end
-  end
-
-  context "with a .nandiignore file that allows some handwritten migrations" do
-    let(:ignored_files) { ar_migration_paths[0..1] }
-
-    context "and handwritten migrations that are specified in the file" do
-      before do
-        safe_migrations.shift(2)
-      end
-
-      it "returns true" do
-        expect(subject.run).to eq(true)
-      end
-    end
-
-    context "and a handwritten migration that isn't specified in the file" do
-      before do
-        safe_migrations.shift(3)
-      end
-
-      it "raises an error with an appropriate message" do
-        expect { subject.run }.to raise_error do |err|
-          expect(err.class).to eq(Nandi::SafeMigrationEnforcer::MigrationLintingFailed)
-
-          expect(err.message).to match(/20190513163424_add_zoos.rb.*Please use Nandi/m)
-          expect(err.message).to_not match(/20190513163422_add_elephants.rb/)
-          expect(err.message).to_not match(/20190513163423_add_beachballs.rb/)
-        end
-      end
-    end
   end
 end
 
@@ -158,7 +120,6 @@ RSpec.describe Nandi::SafeMigrationEnforcer do
 
   let(:ar_migration_paths) { ar_migrations.map { |f| File.join(ar_migration_dir, f) } }
 
-  let(:ignored_files) { [] }
   let(:lockfile) do
     lockfile_contents = ar_migration_paths.each_with_object({}) do |ar_file, hash|
       file_name = File.basename(ar_file)
@@ -194,8 +155,6 @@ RSpec.describe Nandi::SafeMigrationEnforcer do
 
     allow(File).to receive(:read).with(Regexp.new(ar_migration_dir)).
       and_return("generated_content")
-
-    allow(Nandi).to receive(:ignored_files).and_return(ignored_files)
   end
 
   describe "#run" do

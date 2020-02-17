@@ -38,11 +38,9 @@ module Nandi
 
       return true if safe_migrations.none? && ar_migrations.none?
 
-      exceptions = Nandi.ignored_files
-
       enforce_no_ungenerated_migrations!(safe_migrations, ar_migrations)
-      enforce_no_hand_written_migrations!(safe_migrations, ar_migrations, exceptions)
-      enforce_no_hand_edited_migrations!(ar_migrations, exceptions)
+      enforce_no_hand_written_migrations!(safe_migrations, ar_migrations)
+      enforce_no_hand_edited_migrations!(ar_migrations)
       enforce_no_out_of_date_migrations!(safe_migrations)
 
       true
@@ -70,17 +68,15 @@ module Nandi
       end
     end
 
-    def enforce_no_hand_written_migrations!(safe_migrations, ar_migrations, exceptions)
+    def enforce_no_hand_written_migrations!(safe_migrations, ar_migrations)
       handwritten_migrations = ar_migrations - safe_migrations
       handwritten_migration_paths = names_to_paths(handwritten_migrations)
 
-      disallowed_handwritten_migrations = handwritten_migration_paths - exceptions
-
-      if disallowed_handwritten_migrations.any?
+      if handwritten_migration_paths.any?
         error = <<~ERROR
           The following migrations have been written by hand, not generated:
 
-            - #{disallowed_handwritten_migrations.sort.join("\n  - ")}
+            - #{handwritten_migration_paths.sort.join("\n  - ")}
 
           Please use Nandi to generate your migrations. In exeptional cases, hand-written
           ActiveRecord migrations can be added to the .nandiignore file. Doing so will
@@ -115,16 +111,12 @@ module Nandi
       end
     end
 
-    def enforce_no_hand_edited_migrations!(ar_migrations, exceptions)
+    def enforce_no_hand_edited_migrations!(ar_migrations)
       hand_altered_migrations = ar_migrations.
         map { |m| [m, Nandi::Lockfile.get(m)] }.
         select do |filename, digests|
-          path = File.join(@ar_migration_dir, filename)
-
-          next false if exceptions.include?(path)
-
           Nandi::FileDiff.new(
-            file_path: path,
+            file_path: File.join(@ar_migration_dir, filename),
             known_digest: digests[:compiled_digest],
           ).changed?
         end

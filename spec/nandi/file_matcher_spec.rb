@@ -16,10 +16,34 @@ RSpec.describe Nandi::FileMatcher do
       ]
     end
 
+    before do
+      allow(File).to receive(:exist?).with(".nandiignore").and_return(false)
+    end
+
     context "all files" do
       let(:spec) { "all" }
 
       it { is_expected.to eq(Set.new(files)) }
+
+      context "and some files are ignored" do
+        let(:nandiignore) { ignored_files.join("\n") }
+        let(:ignored_files) { ["db/migrate/20190402010101_do_thing_4.rb"] }
+
+        let(:expected) do
+          Set.new([
+            "20180402010101_do_thing_1.rb",
+            "20190101010101_do_thing_2.rb",
+            "20190102010101_do_thing_3.rb",
+          ])
+        end
+
+        before do
+          allow(File).to receive(:exist?).with(".nandiignore").and_return(true)
+          allow(File).to receive(:read).with(".nandiignore").and_return(nandiignore)
+        end
+
+        it { is_expected.to eq(Set.new(expected)) }
+      end
     end
 
     context "git-diff" do
