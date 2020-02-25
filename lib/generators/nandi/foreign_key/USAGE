@@ -6,22 +6,35 @@ Example:
     rails generate nandi:foreign_key foos bars
 
     This will create:
-        db/safe_migrations/20190424123727_add_foreign_key_on_bars_to_foos.rb
-        db/safe_migrations/20190424123728_validate_foreign_key_on_bars_to_foos.rb
+        db/safe_migrations/20190424123727_add_reference_on_bars_to_foos.rb
+        db/safe_migrations/20190424123728_add_foreign_key_on_bars_to_foos.rb
+        db/safe_migrations/20190424123729_validate_foreign_key_on_bars_to_foos.rb
 
-    Assumes that there is a column on table foos called bar_id that points to bars.
-    Will create an FK constraint called foos_bars_fk
+    These migrations will create a new column on the table foos called bar_id, a
+    new foreign key constraint on that column against the id column of bars, and
+    validate that constraint separately.
 
 Example:
-    rails generate nandi:foreign_key foos bars --validation-timeout 20000
+    rails generate nandi:foreign_key foos bars --type text
+
+    This will create:
+        db/safe_migrations/20190424123727_add_reference_on_bars_to_foos.rb
+        db/safe_migrations/20190424123728_add_foreign_key_on_bars_to_foos.rb
+        db/safe_migrations/20190424123729_validate_foreign_key_on_bars_to_foos.rb
+
+    These migrations will create a new text column on the table foos called bar_id,
+    a new foreign key constraint on that column against the id column of bars, and
+    validate that constraint separately.
+
+Example:
+    rails generate nandi:foreign_key foos bars --no-create-column
 
     This will create:
         db/safe_migrations/20190424123727_add_foreign_key_on_bars_to_foos.rb
         db/safe_migrations/20190424123728_validate_foreign_key_on_bars_to_foos.rb
 
     Assumes that there is a column on table foos called bar_id that points to bars.
-    Will create an FK constraint called foos_bars_fk. Will set the statement timeout
-    on the second migration to 20,000ms
+    Will create an FK constraint called foos_bars_fk.
 
 Example:
     rails generate nandi:foreign_key foos bars --column special_bar_id --name my_fk
