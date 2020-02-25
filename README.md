@@ -148,9 +148,21 @@ But wait a minute - what about the foreign key one we started out with? The griz
 rails generate nandi:foreign_key foos bars
 ```
 
-We now have two new migration files:
+We now have three new migration files:
 
 ```rb
+# db/safe_migrations/20190611124816_add_reference_on_foos_to_bars.rb
+
+class AddReferenceOnFoosToBars < Nandi::Migration
+  def up
+    add_reference :foos, :bar
+  end
+
+  def down
+    drop_constraint :foos, :foos_bars_fk
+  end
+end
+
 # db/safe_migrations/20190611124817_add_foreign_key_on_foos_to_bars.rb
 
 class AddForeignKeyOnFoosToBars < Nandi::Migration
@@ -174,9 +186,23 @@ class ValidateForeignKeyOnFoosToBars < Nandi::Migration
 end
 ```
 
-Which, when compiled, turns into some pretty hairy `execute` action:
+Which, when compiled, takes care of things in the right order:
 
 ```rb
+# db/migrate/20190611124816_add_reference_on_foos_to_bars.rb
+
+class AddReferenceOnFoosToBars < ActiveRecord::Migration[5.2]
+  set_lock_timeout(5_000)
+  set_statement_timeout(1_500)
+
+  def up
+    add_reference(:foos, :bar)
+  end
+  def down
+    remove_reference(:foos, :bar)
+  end
+end
+
 # db/migrate/20190611124817_add_foreign_key_on_foos_to_bars.rb
 
 class AddForeignKeyOnFoosToBars < ActiveRecord::Migration[5.2]
@@ -184,13 +210,11 @@ class AddForeignKeyOnFoosToBars < ActiveRecord::Migration[5.2]
   set_statement_timeout(1500)
 
   def up
-    execute <<-SQL
-    ALTER TABLE foos
-    ADD_CONSTRAINT foos_bars_fk
-    FOREIGN KEY (bar_id)
-    REFERENCES bars (id)
-    NOT VALID
-    SQL
+    add_foreign_key(
+      :foos,
+      :bars,
+      { name: :foos_bars_fk, validate: false },
+    )
   end
 
   def down

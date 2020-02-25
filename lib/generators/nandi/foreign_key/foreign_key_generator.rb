@@ -11,11 +11,28 @@ module Nandi
     argument :target, type: :string
     class_option :name, type: :string
     class_option :column, type: :string
+    class_option :type, type: :string
+    class_option :no_create_column, type: :boolean
     class_option :validation_timeout, type: :numeric, default: 15 * 60 * 1000
 
     source_root File.expand_path("templates", __dir__)
 
-    attr_reader :add_foreign_key_name, :validate_foreign_key_name
+    attr_reader :add_reference_name,
+                :add_foreign_key_name,
+                :validate_foreign_key_name
+
+    def add_reference
+      return if options["no_create_column"]
+
+      self.table = table.to_sym
+
+      @add_reference_name = "add_reference_on_#{table}_to_#{target}"
+
+      template(
+        "add_reference.rb",
+        "#{base_path}/#{timestamp}_#{add_reference_name}.rb",
+      )
+    end
 
     def add_foreign_key
       self.table = table.to_sym
@@ -25,7 +42,7 @@ module Nandi
 
       template(
         "add_foreign_key.rb",
-        "#{base_path}/#{timestamp}_#{add_foreign_key_name}.rb",
+        "#{base_path}/#{timestamp(1)}_#{add_foreign_key_name}.rb",
       )
     end
 
@@ -37,11 +54,19 @@ module Nandi
 
       template(
         "validate_foreign_key.rb",
-        "#{base_path}/#{timestamp(1)}_#{validate_foreign_key_name}.rb",
+        "#{base_path}/#{timestamp(2)}_#{validate_foreign_key_name}.rb",
       )
     end
 
     private
+
+    def type
+      options["type"]&.to_sym
+    end
+
+    def reference_name
+      target.singularize.to_sym
+    end
 
     def base_path
       Nandi.config.migration_directory || "db/safe_migrations"
