@@ -71,6 +71,7 @@ module Nandi
     def initialize(validator)
       @validator = validator
       @instructions = Hash.new { |h, k| h[k] = InstructionSet.new([]) }
+      validate
     end
 
     # @api private
@@ -83,8 +84,9 @@ module Nandi
       compile_instructions(:down)
     end
 
+    # The current lock timeout.
     def lock_timeout
-      self.class.lock_timeout || Nandi.config.lock_timeout
+      self.class.lock_timeout || default_lock_timeout
     end
 
     # The current statement timeout.
@@ -324,6 +326,22 @@ module Nandi
       Validation::Result.new << failure(e.message)
     end
 
+    def disable_lock_timeout?
+      if self.class.lock_timeout.nil?
+        strictest_lock == LockWeights::SHARE
+      else
+        false
+      end
+    end
+
+    def disable_statement_timeout?
+      if self.class.statement_timeout.nil?
+        strictest_lock == LockWeights::SHARE
+      else
+        false
+      end
+    end
+
     def name
       self.class.name
     end
@@ -350,16 +368,16 @@ module Nandi
 
     attr_reader :validator
 
-    def default_statement_timeout
-      if strictest_lock == LockWeights::SHARE
-        Nandi.config.statement_timeout
-      else
-        Nandi.config.access_exclusive_statement_timeout
-      end
-    end
-
     def current_instructions
       @instructions[@direction]
+    end
+
+    def default_statement_timeout
+      Nandi.config.access_exclusive_statement_timeout
+    end
+
+    def default_lock_timeout
+      Nandi.config.access_exclusive_lock_timeout
     end
 
     def invoke_custom_method(name, *args, &block)

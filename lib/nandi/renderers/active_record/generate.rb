@@ -44,6 +44,8 @@ module Nandi
         property :down_instructions
         property :name
         property :mixins
+        property :disable_lock_timeout?
+        property :disable_statement_timeout?
         property :lock_timeout
         property :statement_timeout
       end

@@ -1,7 +1,11 @@
 class MyAwesomeMigration < ActiveRecord::Migration[5.2]
   
-  set_lock_timeout(5000)
-  set_statement_timeout(10800000)
+  
+  disable_lock_timeout!
+  
+  
+  disable_statement_timeout!
+  
 
   disable_ddl_transaction!
   def up

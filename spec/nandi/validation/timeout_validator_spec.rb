@@ -21,6 +21,12 @@ RSpec.describe Nandi::Validation::TimeoutValidator do
   end
 
   before do
+    allow(migration).to receive(:disable_statement_timeout?).
+      and_return(false)
+    allow(migration).to receive(:disable_lock_timeout?).
+      and_return(false)
+    allow(Nandi.config).to receive(:access_exclusive_lock_timeout_limit).
+      and_return(750)
     allow(Nandi.config).to receive(:access_exclusive_statement_timeout_limit).
       and_return(1500)
     allow(Nandi.config).to receive(:access_exclusive_lock_timeout_limit).
@@ -41,6 +47,17 @@ RSpec.describe Nandi::Validation::TimeoutValidator do
     end
 
     it { is_expected.to be_success }
+
+    context "with timeouts disabled" do
+      before do
+        allow(migration).to receive(:disable_statement_timeout?).
+          and_return(true)
+        allow(migration).to receive(:disable_lock_timeout?).
+          and_return(true)
+      end
+
+      it { is_expected.to be_failure }
+    end
 
     context "with too great a statement timeout" do
       let(:statement_timeout) { 1501 }
@@ -90,6 +107,17 @@ RSpec.describe Nandi::Validation::TimeoutValidator do
       ]
     end
 
+    context "with timeouts disabled" do
+      before do
+        allow(migration).to receive(:disable_statement_timeout?).
+          and_return(true)
+        allow(migration).to receive(:disable_lock_timeout?).
+          and_return(true)
+      end
+
+      it { is_expected.to be_success }
+    end
+
     context "with huge timeouts set" do
       let(:lock_timeout) { Float::INFINITY }
       let(:statement_timeout) { Float::INFINITY }
@@ -100,6 +128,13 @@ RSpec.describe Nandi::Validation::TimeoutValidator do
     context "with too-low statement timeout" do
       let(:lock_timeout) { Float::INFINITY }
       let(:statement_timeout) { 3_599_999 }
+
+      it { is_expected.to be_failure }
+    end
+
+    context "with too-low lock timeout" do
+      let(:statement_timeout) { Float::INFINITY }
+      let(:lock_timeout) { 3_599_999 }
 
       it { is_expected.to be_failure }
     end

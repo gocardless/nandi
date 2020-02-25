@@ -1,8 +1,12 @@
 class MyAwesomeMigration < ActiveRecord::Migration[5.2]
   include My::Important::Mixin
 include My::Other::Mixin
-  set_lock_timeout(5000)
-  set_statement_timeout(1500)
+  
+  disable_lock_timeout!
+  
+  
+  disable_statement_timeout!
+  
 
   
   def up
