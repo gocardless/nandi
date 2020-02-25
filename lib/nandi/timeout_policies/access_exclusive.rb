@@ -26,6 +26,7 @@ module Nandi
 
       def validate_statement_timeout
         assert(
+          !migration.disable_statement_timeout? &&
           migration.statement_timeout <= statement_timeout_maximum,
           "statement timeout must be at most #{statement_timeout_maximum}ms" \
           " as it takes an ACCESS EXCLUSIVE lock",
@@ -34,6 +35,7 @@ module Nandi
 
       def validate_lock_timeout
         assert(
+          !migration.disable_lock_timeout? &&
           migration.lock_timeout <= lock_timeout_maximum,
           "lock timeout must be at most #{lock_timeout_maximum}ms" \
           " as it takes an ACCESS EXCLUSIVE lock",

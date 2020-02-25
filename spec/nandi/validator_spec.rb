@@ -22,8 +22,20 @@ RSpec.describe Nandi::Validator do
                     strictest_lock: strictest_lock)
   end
 
+  before do
+    allow(migration).to receive(:disable_statement_timeout?).
+      and_return(false)
+    allow(migration).to receive(:disable_lock_timeout?).
+      and_return(false)
+  end
+
   context "creating an index" do
-    let(:statement_timeout) { 3_600_000 }
+    before do
+      allow(migration).to receive(:disable_statement_timeout?).
+        and_return(true)
+      allow(migration).to receive(:disable_lock_timeout?).
+        and_return(true)
+    end
 
     context "with one new index" do
       let(:instructions) do
@@ -57,7 +69,12 @@ RSpec.describe Nandi::Validator do
   end
 
   context "dropping an index" do
-    let(:statement_timeout) { 3_600_000 }
+    before do
+      allow(migration).to receive(:disable_statement_timeout?).
+        and_return(true)
+      allow(migration).to receive(:disable_lock_timeout?).
+        and_return(true)
+    end
 
     context "dropping an index by index name" do
       let(:instructions) do
@@ -123,7 +140,12 @@ RSpec.describe Nandi::Validator do
   end
 
   context "with one object modified as string and symbol" do
-    let(:statement_timeout) { 3_600_000 }
+    before do
+      allow(migration).to receive(:disable_statement_timeout?).
+        and_return(true)
+      allow(migration).to receive(:disable_lock_timeout?).
+        and_return(true)
+    end
 
     let(:instructions) do
       [

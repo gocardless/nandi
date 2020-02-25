@@ -848,6 +848,10 @@ RSpec.describe Nandi::Migration do
         def procedure
           :new_method
         end
+
+        def lock
+          Nandi::Migration::LockWeights::SHARE
+        end
       end
     end
 
@@ -868,6 +872,65 @@ RSpec.describe Nandi::Migration do
 
       expect(instruction.foo).to eq(:arg1)
       expect(instruction.bar).to eq(:arg2)
+    end
+  end
+
+  describe "timeouts" do
+    subject(:migration) { subject_class.new(validator) }
+
+    context "when the strictest lock is SHARE" do
+      let(:subject_class) do
+        Class.new(described_class) do
+          def up
+            validate_constraint :payments, :payments_mandates_fk
+          end
+
+          def down; end
+        end
+      end
+
+      it "disables timeouts" do
+        expect(migration.disable_lock_timeout?).to be(true)
+        expect(migration.disable_statement_timeout?).to be(true)
+      end
+
+      context "and we have set a statement timeout" do
+        let(:subject_class) do
+          Class.new(described_class) do
+            set_statement_timeout(10_000)
+
+            def up
+              validate_constraint :payments, :payments_mandates_fk
+            end
+
+            def down; end
+          end
+        end
+
+        it "disables only the lock timeout" do
+          expect(migration.disable_lock_timeout?).to be(true)
+          expect(migration.disable_statement_timeout?).to be(false)
+        end
+      end
+
+      context "and we have set a lock timeout" do
+        let(:subject_class) do
+          Class.new(described_class) do
+            set_lock_timeout(10_000)
+
+            def up
+              validate_constraint :payments, :payments_mandates_fk
+            end
+
+            def down; end
+          end
+        end
+
+        it "disables only the lock timeout" do
+          expect(migration.disable_lock_timeout?).to be(false)
+          expect(migration.disable_statement_timeout?).to be(true)
+        end
+      end
     end
   end
 end

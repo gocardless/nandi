@@ -410,6 +410,10 @@ RSpec.describe Nandi::Renderers::ActiveRecord do
               end
             end
           end
+
+          def lock
+            Nandi::Migration::LockWeights::SHARE
+          end
         end
       end
 
@@ -472,6 +476,10 @@ RSpec.describe Nandi::Renderers::ActiveRecord do
                 end
               end
             end
+
+            def lock
+              Nandi::Migration::LockWeights::SHARE
+            end
           end
         end
 
@@ -518,6 +526,10 @@ RSpec.describe Nandi::Renderers::ActiveRecord do
             end
 
             attr_reader :block_result
+
+            def lock
+              Nandi::Migration::LockWeights::SHARE
+            end
 
             def template
               Class.new(Cell::ViewModel) do

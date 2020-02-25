@@ -1,7 +1,15 @@
 class <%= name %> < ActiveRecord::Migration[5.2]
   <%= mixins.map { |m| "include #{m.name}"}.join("\n") %>
+  <% if disable_lock_timeout? %>
+  disable_lock_timeout!
+  <% else %>
   set_lock_timeout(<%= lock_timeout %>)
+  <% end %>
+  <% if disable_statement_timeout? %>
+  disable_statement_timeout!
+  <% else %>
   set_statement_timeout(<%= statement_timeout %>)
+  <% end %>
 
   <% if should_disable_ddl_transaction? %>disable_ddl_transaction!<% end %>
   def up
