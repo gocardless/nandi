@@ -159,7 +159,7 @@ class AddReferenceOnFoosToBars < Nandi::Migration
   end
 
   def down
-    drop_constraint :foos, :foos_bars_fk
+    remove_reference :foos, :bar
   end
 end
 
