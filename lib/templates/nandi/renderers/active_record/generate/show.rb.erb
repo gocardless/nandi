@@ -1,4 +1,4 @@
-class <%= name %> < ActiveRecord::Migration[5.2]
+class <%= name %> < ActiveRecord::Migration[<%= activerecord_version %>]
   <%= mixins.map { |m| "include #{m.name}"}.join("\n") %>
   <% if disable_lock_timeout? %>
   disable_lock_timeout!

@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require "active_record"
 require "cell"
 require "tilt"
 require "nandi/renderers/active_record/instructions"
@@ -30,6 +31,10 @@ module Nandi
         def should_disable_ddl_transaction?
           [*up_instructions, *down_instructions].
             select { |i| i.procedure =~ /index/ }.any?
+        end
+
+        def activerecord_version
+          ::ActiveRecord::Migration.current_version
         end
 
         def render_partial(instruction)
