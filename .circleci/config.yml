@@ -6,10 +6,10 @@ references:
     - run: gem install bundler
 
     - restore_cache:
-        key: nandi-bundler-{{ checksum "Gemfile.lock" }}
+        key: nandi-bundler-{{ checksum "nandi.gemspec" }}
     - run: bundle install --path vendor/bundle
     - save_cache:
-        key: nandi-bundler-{{ checksum "Gemfile.lock" }}
+        key: nandi-bundler-{{ checksum "nandi.gemspec" }}
         paths:
           - vendor/bundle
     - run: bundle install
