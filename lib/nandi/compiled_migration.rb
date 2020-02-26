@@ -9,7 +9,7 @@ module Nandi
     attr_reader :file_name, :source_file_path, :class_name
 
     def self.build(source_file_path)
-      new(source_file_path).validate!
+      new(source_file_path)
     end
 
     def initialize(source_file_path)
@@ -34,6 +34,7 @@ module Nandi
       @body ||= if migration_unchanged?
                   File.read(output_path)
                 else
+                  validate!
                   compiled_body
                 end
     end

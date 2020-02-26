@@ -47,19 +47,6 @@ RSpec.describe Nandi do
       end
     end
 
-    context "with an invalid migration" do
-      let(:files) { ["#{base_path}/20180104120000_my_invalid_migration.rb"] }
-
-      it "throws an invalid migration error" do
-        expect do
-          described_class.compile(args) { |_| nil }
-        end.to raise_error(
-          Nandi::CompiledMigration::InvalidMigrationError,
-          /creating more than one index per migration/,
-        )
-      end
-    end
-
     context "with a post-processing step" do
       let(:files) { ["#{base_path}/20180104120000_my_migration.rb"] }
 
