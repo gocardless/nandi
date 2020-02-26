@@ -48,19 +48,6 @@ RSpec.describe Nandi::CompiledMigration do
     end
   end
 
-  describe "::build" do
-    context "invalid migration" do
-      let(:file) { invalid_migration }
-
-      it "raises an InvalidMigrationError" do
-        expect { described_class.build(file) }.to raise_error(
-          described_class::InvalidMigrationError,
-          /creating more than one index per migration/,
-        )
-      end
-    end
-  end
-
   describe "#body" do
     subject(:body) { described_class.new(file).body }
 
@@ -75,6 +62,17 @@ RSpec.describe Nandi::CompiledMigration do
         end
 
         body
+      end
+    end
+
+    context "invalid migration" do
+      let(:file) { invalid_migration }
+
+      it "raises an InvalidMigrationError" do
+        expect { body }.to raise_error(
+          described_class::InvalidMigrationError,
+          /creating more than one index per migration/,
+        )
       end
     end
 
