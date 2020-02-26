@@ -141,9 +141,7 @@ RSpec.describe Nandi::Formatting do
     let(:subject_class) do
       Struct.new(:model) do
         # described_class is not in scope here.
-        # rubocop:disable RSpec/DescribedClass
         include Nandi::Formatting
-        # rubocop:enable RSpec/DescribedClass
 
         formatted_property :my_hash
       end
