@@ -52,9 +52,5 @@ module Nandi
     def name
       "#{table}_check_#{column}_not_null"
     end
-
-    def validation_timeout
-      options["validation_timeout"]
-    end
   end
 end

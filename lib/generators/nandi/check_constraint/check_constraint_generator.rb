@@ -48,9 +48,5 @@ module Nandi
     def timestamp(offset = 0)
       (Time.now.utc + offset).strftime("%Y%m%d%H%M%S")
     end
-
-    def validation_timeout
-      options["validation_timeout"]
-    end
   end
 end
