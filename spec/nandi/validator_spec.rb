@@ -164,7 +164,7 @@ RSpec.describe Nandi::Validator do
   end
 
   context "adding a column" do
-    context "a valid instruction" do
+    context "with null: true" do
       let(:instructions) do
         [
           Nandi::Instructions::AddColumn.new(
@@ -172,6 +172,20 @@ RSpec.describe Nandi::Validator do
             name: :stuff,
             type: :text,
             null: true,
+          ),
+        ]
+      end
+
+      it { is_expected.to be_valid }
+    end
+
+    context "with no null value" do
+      let(:instructions) do
+        [
+          Nandi::Instructions::AddColumn.new(
+            table: :payments,
+            name: :stuff,
+            type: :text,
           ),
         ]
       end

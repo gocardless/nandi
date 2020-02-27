@@ -32,7 +32,7 @@ module Nandi
       end
 
       def nullable?
-        instruction.extra_args[:null]
+        instruction.extra_args.fetch(:null, true)
       end
 
       def unique?
