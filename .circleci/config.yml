@@ -17,13 +17,28 @@ references:
     - run: bundle exec rubocop
 
 jobs:
-  test:
+  ruby27:
+    docker:
+      - image: 'ruby:2.7'
+    steps: *steps
+  ruby26:
     docker:
       - image: 'ruby:2.6'
+    steps: *steps
+  ruby25:
+    docker:
+      - image: 'ruby:2.5'
+    steps: *steps
+  ruby24:
+    docker:
+      - image: 'ruby:2.4'
     steps: *steps
 
 workflows:
   version: 2
   tests:
     jobs:
-      - test
+      - ruby27
+      - ruby26
+      - ruby25
+      - ruby24
