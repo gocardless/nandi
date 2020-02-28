@@ -4,19 +4,19 @@ references:
   steps: &steps
     - checkout
     - run: gem install bundler
-
-    - restore_cache:
-        key: nandi-bundler-{{ checksum "nandi.gemspec" }}
-    - run: bundle install --path vendor/bundle
-    - save_cache:
-        key: nandi-bundler-{{ checksum "nandi.gemspec" }}
-        paths:
-          - vendor/bundle
     - run: bundle install
     - run: bundle exec rspec spec
-    - run: bundle exec rubocop
 
 jobs:
+  rubocop:
+    docker:
+      - image: 'ruby:2.6'
+    steps:
+      - checkout
+      - run: gem install bundler
+      - run: bundle install
+      - run: bundle exec rubocop
+
   ruby27:
     docker:
       - image: 'ruby:2.7'
@@ -38,6 +38,7 @@ workflows:
   version: 2
   tests:
     jobs:
+      - rubocop
       - ruby27
       - ruby26
       - ruby25
