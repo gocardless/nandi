@@ -40,7 +40,7 @@ RSpec.describe Nandi do
       it "yields output" do
         allow(renderer).to receive(:generate).and_return("output")
 
-        described_class.compile(args) do |output|
+        described_class.compile(**args) do |output|
           expect(output.first.file_name).to eq("20180104120000_my_migration.rb")
           expect(output.first.body).to eq("output")
         end
@@ -64,7 +64,7 @@ RSpec.describe Nandi do
           end
         end
 
-        described_class.compile(args) do |output|
+        described_class.compile(**args) do |output|
           expect(output.first.file_name).to eq("20180104120000_my_migration.rb")
           expect(output.first.body).to eq("processed output")
         end
