@@ -87,9 +87,5 @@ module Nandi
     def any_options?
       options["name"] || options["column"]
     end
-
-    def validation_timeout
-      options["validation_timeout"]
-    end
   end
 end
