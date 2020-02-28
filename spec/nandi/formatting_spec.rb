@@ -21,9 +21,11 @@ RSpec.describe Nandi::Formatting do
 
       # rubocop:disable Security/Eval
       it "evaluates to the same value" do
-        expect(eval(result)).to eq(input)
-      rescue SyntaxError
-        raise StandardError, "not valid ruby: #{result}"
+        begin
+          expect(eval(result)).to eq(input)
+        rescue SyntaxError
+          raise StandardError, "not valid ruby: #{result}"
+        end
       end
       # rubocop:enable Security/Eval
     end
