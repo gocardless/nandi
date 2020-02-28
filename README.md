@@ -2,6 +2,12 @@
 
 Friendly Postgres migrations for people who don't want to take down their database to add a column!
 
+## Supported
+
+- Ruby 2.4 or above
+- Rails 5.2 or above
+- Postgres 11 or above
+
 ## What does it do?
 
 Nandi provides an alternative API to ActiveRecord's built-in Migration DSL for defining changes to your database schema.
