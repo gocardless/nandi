@@ -2,8 +2,8 @@
 version: 1
 update_configs:
  - package_manager: "ruby:bundler"
-    update_schedule: "live"
-    automerged_updates:
-      - match:
-          dependency_type: "all"
-          update_type: "in_range"
+   update_schedule: "live"
+   automerged_updates:
+     - match:
+         dependency_type: "all"
+         update_type: "in_range"
