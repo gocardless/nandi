@@ -2,6 +2,7 @@
 version: 1
 update_configs:
  - package_manager: "ruby:bundler"
+   directory: "/"
    update_schedule: "live"
    automerged_updates:
      - match:
