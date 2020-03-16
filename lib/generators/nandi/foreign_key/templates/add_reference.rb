@@ -2,10 +2,10 @@
 
 class <%= add_reference_name.camelize %> < Nandi::Migration
   def up
-    add_reference <%= format_value(table) %>, <%= format_value(reference_name) %><% if type %>, type: <%= format_value(type) %><% end %>
+    add_column <%= format_value(table) %>, <%= format_value(reference_name) %>, <%= format_value(type) %>
   end
 
   def down
-    remove_reference <%= format_value(table) %>, <%= format_value(reference_name) %>
+    remove_column <%= format_value(table) %>, <%= format_value(reference_name) %>
   end
 end

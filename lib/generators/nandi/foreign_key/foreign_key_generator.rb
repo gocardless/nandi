@@ -11,7 +11,7 @@ module Nandi
     argument :target, type: :string
     class_option :name, type: :string
     class_option :column, type: :string
-    class_option :type, type: :string
+    class_option :type, type: :string, default: "bigint"
     class_option :no_create_column, type: :boolean
     class_option :validation_timeout, type: :numeric, default: 15 * 60 * 1000
 
@@ -61,11 +61,11 @@ module Nandi
     private
 
     def type
-      options["type"]&.to_sym
+      options["type"].to_sym
     end
 
     def reference_name
-      target.singularize.to_sym
+      "#{target.singularize}_id".to_sym
     end
 
     def base_path
