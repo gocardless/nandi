@@ -202,10 +202,10 @@ class AddReferenceOnFoosToBars < ActiveRecord::Migration[5.2]
   set_statement_timeout(1_500)
 
   def up
-    add_reference(:foos, :bar)
+    add_column(:foos, :bar_id, :bigint)
   end
   def down
-    remove_reference(:foos, :bar)
+    remove_column(:foos, :bar_id)
   end
 end
 
@@ -285,6 +285,12 @@ create_table :widgets do |t|
   t.text :foo, default: true
 end
 ```
+
+### `#add_reference(table, ref_name, **extra_args)`
+Adds a new reference column. Nandi will validate that the foreign key flag is not set to true; use `add_foreign_key` and `validate_foreign_key` instead! Nandi will also set the `index: false` flag, as index creation is unsafe unless done concurrently in a separate migration.
+
+### `#remove_reference(table, ref_name, **extra_args)`
+Removes a reference column.
 
 ### `#remove_column(table, name, **extra_args)`
 Remove an existing column.
