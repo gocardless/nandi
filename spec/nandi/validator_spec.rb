@@ -294,4 +294,40 @@ RSpec.describe Nandi::Validator do
 
     it { is_expected.to_not be_valid }
   end
+
+  context "adding a reference" do
+    let(:instructions) do
+      [
+        Nandi::Instructions::AddReference.new(
+          table: :payments,
+          ref_name: :mandate,
+          **options,
+        ),
+      ]
+    end
+
+    context "with no options" do
+      let(:options) { {} }
+
+      it { is_expected.to be_valid }
+    end
+
+    context "with valid options" do
+      let(:options) { { type: :text } }
+
+      it { is_expected.to be_valid }
+    end
+
+    context "with foreign_key: true" do
+      let(:options) { { foreign_key: true } }
+
+      it { is_expected.to_not be_valid }
+    end
+
+    context "with index: true" do
+      let(:options) { { index: true } }
+
+      it { is_expected.to_not be_valid }
+    end
+  end
 end
