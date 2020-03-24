@@ -38,7 +38,7 @@ module Nandi
       private
 
       def name
-        :"idx_#{table.to_s}_on_#{field_names}"
+        :"idx_#{table}_on_#{field_names}"
       end
 
       def field_names
