@@ -30,7 +30,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "gc_ruboconfig", "~> 2.3.14"
   spec.add_development_dependency "pry-byebug", "~> 3.9.0"
   spec.add_development_dependency "rails", "~> 5.2.3"
-  spec.add_development_dependency "rake", "~> 12.3", ">= 12.3.3"
+  spec.add_development_dependency "rake", ">= 12.3.3", "~> 13.0"
   spec.add_development_dependency "rspec", "~> 3.0"
   spec.add_development_dependency "rspec_junit_formatter", "~> 0.4"
   spec.add_development_dependency "rubocop", "~> 0.61"
