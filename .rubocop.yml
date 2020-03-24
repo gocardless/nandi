@@ -40,7 +40,7 @@ RSpec/ContextWording:
 RSpec/AnyInstance:
   Enabled: false
 
-Naming/UncommunicativeMethodParamName:
+Naming/MethodParameterName:
   AllowedNames:
     # These are the default allowed names, set by Rubocop
     - io

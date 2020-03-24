@@ -27,7 +27,7 @@ Gem::Specification.new do |spec|
 
   spec.add_development_dependency "bundler", "~> 2.0"
   spec.add_development_dependency "byebug", "~> 11.0"
-  spec.add_development_dependency "gc_ruboconfig", "~> 2.3.14"
+  spec.add_development_dependency "gc_ruboconfig", "~> 2.10.0"
   spec.add_development_dependency "pry-byebug", "~> 3.9.0"
   spec.add_development_dependency "rails", "~> 5.2.3"
   spec.add_development_dependency "rake", ">= 12.3.3", "~> 13.0"
