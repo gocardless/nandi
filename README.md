@@ -287,7 +287,7 @@ end
 ```
 
 ### `#add_reference(table, ref_name, **extra_args)`
-Adds a new reference column. Nandi will validate that the foreign key flag is not set to true; use `add_foreign_key` and `validate_foreign_key` instead! Nandi will also set the `index: false` flag, as index creation is unsafe unless done concurrently in a separate migration.
+Adds a new reference column. Nandi will validate that the foreign key flag is not set to true; use `add_foreign_key` and `validate_foreign_key` instead! Nandi will also set the `index: false` flag, as index creation is unsafe unless done concurrently in a separate migration. You can use the `nandi:reference` generator to generate the column(s) and the index more easily.
 
 ### `#remove_reference(table, ref_name, **extra_args)`
 Removes a reference column.
@@ -318,7 +318,7 @@ Raises `ActiveRecord::IrreversibleMigration` error.
 
 ## Generators
 
-Some schema changes need to be split across two migration files. Whenever you want to add a constraint to a column, you'll have to do this to avoid locking the table while Postgres validates that all existing data meets the constraint.
+Some schema changes need to be split across two or more migration files to be accomplished safely. For example, whenever you want to add a constraint to a column, you'll have to do this to avoid locking the table while Postgres validates that all existing data meets the constraint.
 
 For some of the most common cases, we provide a Rails generator that generates both files for you.
 
@@ -374,6 +374,27 @@ We generate the name of your foreign key for you. If you want or need to overrid
 
 ```
 rails generate nandi:foreign_key foos bar --name my_fk
+```
+
+### 'Rails-like' add_reference
+
+Rails's built-in `add_reference` method does two things: create a column (or pair of columns, for polymorphic references) and create an index on the column(s) (unless you set the `index: false` flag). This is a good default in theory, as typically references are there to be traversed, and efficient reads are paramount. However, the index is added naively, and so on large tables `add_reference` is not availability safe. To reproduce this helpful feature, we have the `nandi:reference` generator.
+
+```
+rails generate nandi:reference foos bar
+
+ create db/safe_migrations/20190424123727_add_reference_on_foos_to_bar.rb
+ create db/safe_migrations/20190424123728_index_foos_on_bar_id.rb
+```
+
+Using the `--polymorphic` flag, we can create a polymorphic reference:
+
+
+```
+rails generate nandi:reference foos bar
+
+ create db/safe_migrations/20190424123727_add_reference_on_foos_to_bar.rb
+ create db/safe_migrations/20190424123728_index_foos_on_bar_id_bar_type.rb
 ```
 
 ## Configuration
