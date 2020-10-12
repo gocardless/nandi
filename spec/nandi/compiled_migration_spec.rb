@@ -19,6 +19,9 @@ RSpec.describe Nandi::CompiledMigration do
 
   let(:valid_migration) { "#{base_path}/20180104120000_my_migration.rb" }
   let(:invalid_migration) { "#{base_path}/20180104120000_my_invalid_migration.rb" }
+  let(:invalid_index_migration) do
+    "#{base_path}/20180104120000_my_invalid_index_migration.rb"
+  end
 
   let(:source_contents) { "source_migration" }
   let(:compiled_contents) { "compiled_migration" }
@@ -72,6 +75,17 @@ RSpec.describe Nandi::CompiledMigration do
         expect { body }.to raise_error(
           described_class::InvalidMigrationError,
           /creating more than one index per migration/,
+        )
+      end
+    end
+
+    context "invalid index migration" do
+      let(:file) { invalid_index_migration }
+
+      it "raises an InvalidMigrationError" do
+        expect { body }.to raise_error(
+          described_class::InvalidMigrationError,
+          /add_index: index type can only be one of \[:btree, :hash\]/,
         )
       end
     end

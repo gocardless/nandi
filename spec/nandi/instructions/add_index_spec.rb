@@ -83,8 +83,20 @@ RSpec.describe Nandi::Instructions::AddIndex do
       end
     end
 
-    context "with custom algorithm and using values" do
-      let(:extra_args) { { algorithm: :paxos, using: :gin } }
+    context "with custom using" do
+      let(:extra_args) { { using: :hash } }
+
+      it "allows override" do
+        expect(args).to eq(
+          algorithm: :concurrently,
+          using: :hash,
+          name: :idx_widgets_on_foo,
+        )
+      end
+    end
+
+    context "with custom algorithm" do
+      let(:extra_args) { { algorithm: :paxos } }
 
       it "does not allow override" do
         expect(args).to eq(

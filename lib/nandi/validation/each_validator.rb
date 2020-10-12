@@ -21,6 +21,8 @@ module Nandi
           RemoveIndexValidator.call(instruction)
         when :add_column
           AddColumnValidator.call(instruction)
+        when :add_index
+          AddIndexValidator.call(instruction)
         when :add_reference
           AddReferenceValidator.call(instruction)
         else

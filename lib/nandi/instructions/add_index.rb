@@ -21,11 +21,10 @@ module Nandi
           name: name,
 
           # Overrides and extra options
-          **@extra_args,
+          **extra_args_with_default_index_type,
 
           # Mandatory values
           algorithm: :concurrently,
-          using: :btree,
         }
       end
 
@@ -44,6 +43,12 @@ module Nandi
       def field_names
         field_names = fields.respond_to?(:map) ? fields.map(&:to_s).join("_") : fields
         field_names.to_s.scan(/\w+/).join("_")
+      end
+
+      def extra_args_with_default_index_type
+        {
+          using: :btree,
+        }.merge(@extra_args)
       end
     end
   end
