@@ -40,6 +40,13 @@ RSpec/ContextWording:
 RSpec/AnyInstance:
   Enabled: false
 
+RSpec/MultipleMemoizedHelpers:
+  Max: 20
+
+Gemspec/RequiredRubyVersion:
+  Exclude:
+    - 'nandi.gemspec'
+
 Naming/MethodParameterName:
   AllowedNames:
     # These are the default allowed names, set by Rubocop
