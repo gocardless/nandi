@@ -15,8 +15,8 @@ class MyAwesomeMigration < ActiveRecord::Migration[5.2]
   [:foo, :bar],
   {
   name: :idx_payments_on_foo_bar,
-  algorithm: :concurrently,
-  using: :btree
+  using: :btree,
+  algorithm: :concurrently
 }
 )
 
