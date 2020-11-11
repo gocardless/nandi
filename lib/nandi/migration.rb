@@ -43,6 +43,7 @@ module Nandi
 
     class << self
       attr_reader :lock_timeout, :statement_timeout
+
       # For sake both of correspondence with Postgres syntax and familiarity
       # with activerecord-safe_migrations's identically named macros, we
       # disable this cop.
@@ -111,7 +112,7 @@ module Nandi
     # Nandi will:
     # * add the `CONCURRENTLY` option, which means the change takes a less
     #   restrictive lock at the cost of not running in a DDL transaction
-    # * use the `BTREE` index type which is the safest to create.
+    # * default to the `BTREE` index type, as it is commonly a good fit.
     #
     # Because index creation is particularly failure-prone, and because
     # we cannot run in a transaction and therefore risk partially applied

@@ -16,8 +16,8 @@ module Nandi
       end
 
       def call
-        foreign_key = instruction.extra_args.fetch(:foreign_key) { false }
-        index = instruction.extra_args.fetch(:index) { false }
+        foreign_key = instruction.extra_args.fetch(:foreign_key, false)
+        index = instruction.extra_args.fetch(:index, false)
 
         collect_errors(
           assert(
