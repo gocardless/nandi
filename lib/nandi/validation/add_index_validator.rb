@@ -7,7 +7,7 @@ module Nandi
     class AddIndexValidator
       include Nandi::Validation::FailureHelpers
 
-      VALID_INDEX_TYPES = %i[btree hash].freeze
+      VALID_INDEX_TYPES = %i[btree hash brin].freeze
 
       def self.call(instruction)
         new(instruction).call

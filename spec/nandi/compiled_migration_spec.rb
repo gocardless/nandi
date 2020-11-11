@@ -85,7 +85,7 @@ RSpec.describe Nandi::CompiledMigration do
       it "raises an InvalidMigrationError" do
         expect { body }.to raise_error(
           described_class::InvalidMigrationError,
-          /add_index: index type can only be one of \[:btree, :hash\]/,
+          /add_index: index type can only be one of \[:btree, :hash, :brin\]/,
         )
       end
     end

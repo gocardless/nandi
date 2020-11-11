@@ -271,7 +271,7 @@ Adds a new index to the database.
 Nandi will:
 
 - add the `CONCURRENTLY` option, which means the change takes a less restrictive lock at the cost of not running in a DDL transaction
-- enforce the index type is either `BTREE` or `HASH`. defaulting to the `BTREE` index type, as they are the safest to create.
+- enforce the index type is either `BTREE`, `HASH`, or `BRIN`. defaulting to the `BTREE` index type, as they are the safest to create.
 
 Because index creation is particularly failure-prone, and because we cannot run in a transaction and therefore risk partially applied migrations that (in a Rails environment) require manual intervention, Nandi Validates that, if there is a add_index statement in the migration, it must be the only statement.
 
