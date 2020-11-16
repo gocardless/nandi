@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require "spec_helper"
-require "nandi/migration"
 require "nandi/validation/timeout_validator"
 require "nandi/migration"
 require "nandi/instructions"

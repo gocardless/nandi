@@ -79,17 +79,6 @@ RSpec.describe Nandi::CompiledMigration do
       end
     end
 
-    context "invalid index migration" do
-      let(:file) { invalid_index_migration }
-
-      it "raises an InvalidMigrationError" do
-        expect { body }.to raise_error(
-          described_class::InvalidMigrationError,
-          /add_index: index type can only be one of \[:btree, :hash\]/,
-        )
-      end
-    end
-
     context "when both migrations are unchanged" do
       let(:file) { valid_migration }
 

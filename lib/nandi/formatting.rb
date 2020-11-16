@@ -64,7 +64,7 @@ module Nandi
         key = if k.is_a?(Symbol)
                 symbol_key(k)
               else
-                format_value(k) + " =>"
+                "#{format_value(k)} =>"
               end
         "#{key} #{format_value(v)}"
       end

@@ -22,13 +22,11 @@ RSpec.describe Nandi::Formatting do
       # rubocop:disable Security/Eval
       it "evaluates to the same value" do
         # Not redundant in Ruby 2.4
-        # rubocop:disable Style/RedundantBegin
         begin
           expect(eval(result)).to eq(input)
         rescue SyntaxError
           raise StandardError, "not valid ruby: #{result}"
         end
-        # rubocop:enable Style/RedundantBegin
       end
       # rubocop:enable Security/Eval
     end
@@ -67,10 +65,10 @@ RSpec.describe Nandi::Formatting do
         context "when as_argument: is provided" do
           let(:with_as_argument) { true }
 
-          it_behaves_like "outputs valid ruby", [:bar, foo: 5]
-          it_behaves_like "outputs valid ruby", [:bar, foo: { bar: 5 }]
-          it_behaves_like "outputs valid ruby", [:bar, łódź: 5]
-          it_behaves_like "outputs valid ruby", [:bar, "lots of words": 5]
+          it_behaves_like "outputs valid ruby", [:bar, { foo: 5 }]
+          it_behaves_like "outputs valid ruby", [:bar, { foo: { bar: 5 } }]
+          it_behaves_like "outputs valid ruby", [:bar, { łódź: 5 }]
+          it_behaves_like "outputs valid ruby", [:bar, { "lots of words": 5 }]
         end
       end
 
@@ -82,9 +80,9 @@ RSpec.describe Nandi::Formatting do
         context "when as_argument: is provided" do
           let(:with_as_argument) { true }
 
-          it_behaves_like "outputs valid ruby", [:bar, "łódź" => 5]
-          it_behaves_like "outputs valid ruby", [:bar, "foo" => 5]
-          it_behaves_like "outputs valid ruby", [:bar, "foo" => { "bar" => 5 }]
+          it_behaves_like "outputs valid ruby", [:bar, { "łódź" => 5 }]
+          it_behaves_like "outputs valid ruby", [:bar, { "foo" => 5 }]
+          it_behaves_like "outputs valid ruby", [:bar, { "foo" => { "bar" => 5 } }]
         end
       end
 
