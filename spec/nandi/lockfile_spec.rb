@@ -116,5 +116,37 @@ RSpec.describe Nandi::Lockfile do
 
       persist!
     end
+
+    context "with multiple keys, not sorted by their SHA-256 hash" do
+      let(:expected_yaml) do
+        <<~YAML
+          ---
+          lower_hash:
+            foo: 5
+          higher_hash:
+            foo: 5
+        YAML
+      end
+
+      before do
+        described_class.lockfile = {
+          higher_hash: {
+            foo: 5,
+          },
+          lower_hash: {
+            foo: 5,
+          },
+        }
+      end
+
+      it "sorts the keys by their SHA-256 hash" do
+        expect(File).to receive(:write).with(
+          "db/.nandilock.yml",
+          expected_yaml,
+        )
+
+        persist!
+      end
+    end
   end
 end
