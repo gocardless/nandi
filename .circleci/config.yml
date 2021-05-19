@@ -29,10 +29,6 @@ jobs:
     docker:
       - image: 'ruby:2.5'
     steps: *steps
-  ruby24:
-    docker:
-      - image: 'ruby:2.4'
-    steps: *steps
 
 workflows:
   version: 2
@@ -42,4 +38,3 @@ workflows:
       - ruby27
       - ruby26
       - ruby25
-      - ruby24
