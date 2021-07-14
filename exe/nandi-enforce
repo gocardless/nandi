@@ -31,6 +31,6 @@ OptionParser.new do |o|
   end
 end.parse!
 
-enforcer = Nandi::SafeMigrationEnforcer.new(opts)
+enforcer = Nandi::SafeMigrationEnforcer.new(**opts)
 
 enforcer.run
