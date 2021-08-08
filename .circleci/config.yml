@@ -1,40 +1,52 @@
-version: 2
+version: 2.1
 
 references:
-  steps: &steps
-    - checkout
-    - run: gem install bundler
-    - run: bundle install
-    - run: bundle exec rspec spec
+  bundle_install: &bundle_install
+    run:
+      name: Bundle
+      command: |
+        gem install bundler --no-document && \
+        bundle config set no-cache 'true' && \
+        bundle config set jobs '4' && \
+        bundle config set retry '3' && \
+        bundle install
+
+  cache_bundle: &cache_bundle
+    save_cache:
+      key: bundle-<< parameters.ruby_version >>-{{ checksum "nandi.gemspec" }}-{{ checksum "Gemfile" }}
+      paths:
+        - vendor/bundle
+
+  restore_bundle: &restore_bundle
+    restore_cache:
+      key: bundle-<< parameters.ruby_version >>-{{ checksum "nandi.gemspec" }}-{{ checksum "Gemfile" }}
 
 jobs:
-  rubocop:
+  rspec:
+    working_directory: ~/nandi
+    parameters:
+      ruby_version:
+        type: string
     docker:
-      - image: 'ruby:2.6'
+      - image: cimg/ruby:<< parameters.ruby_version >>
     steps:
+      - add_ssh_keys
       - checkout
-      - run: gem install bundler
-      - run: bundle install
-      - run: bundle exec rubocop
-
-  ruby27:
-    docker:
-      - image: 'ruby:2.7'
-    steps: *steps
-  ruby26:
-    docker:
-      - image: 'ruby:2.6'
-    steps: *steps
-  ruby25:
-    docker:
-      - image: 'ruby:2.5'
-    steps: *steps
+      - *restore_bundle
+      - *bundle_install
+      - *cache_bundle
+      - run:
+          name: Run specs
+          command: bundle exec rspec
+      - run:
+          name: "Rubocop"
+          command: bundle exec rubocop
 
 workflows:
   version: 2
   tests:
     jobs:
-      - rubocop
-      - ruby27
-      - ruby26
-      - ruby25
+      - rspec:
+          matrix:
+            parameters:
+              ruby_version: ["2.5", "2.6", "2.7", "3.0"]
