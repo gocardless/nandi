@@ -13,7 +13,7 @@ class MyAwesomeMigration < ActiveRecord::Migration[5.2]
     add_reference(
   :payments,
   :mandate,
-  {
+  **{
   index: false,
   type: :text
 }
@@ -27,7 +27,7 @@ class MyAwesomeMigration < ActiveRecord::Migration[5.2]
     remove_reference(
   :payments,
   :mandate,
-  {
+  **{
   
 }
 )

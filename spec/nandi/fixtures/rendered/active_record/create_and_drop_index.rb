@@ -13,7 +13,7 @@ class MyAwesomeMigration < ActiveRecord::Migration[5.2]
     add_index(
   :payments,
   [:foo, :bar],
-  {
+  **{
   name: :idx_payments_on_foo_bar,
   using: :btree,
   algorithm: :concurrently
@@ -27,7 +27,7 @@ class MyAwesomeMigration < ActiveRecord::Migration[5.2]
   
     remove_index(
   :payments,
-  {
+  **{
   column: [:foo, :bar],
   algorithm: :concurrently
 }

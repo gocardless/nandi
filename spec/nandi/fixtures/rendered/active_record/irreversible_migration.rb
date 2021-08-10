@@ -13,7 +13,9 @@ class MyAwesomeMigration < ActiveRecord::Migration[5.2]
     remove_column(
   :payments,
   :amount,
-  nil
+  **{
+  
+}
 )
 
   
