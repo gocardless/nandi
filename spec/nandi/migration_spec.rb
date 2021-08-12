@@ -851,7 +851,14 @@ RSpec.describe Nandi::Migration do
     end
 
     let(:extension) do
-      Struct.new(:foo, :bar) do
+      Class.new do
+        attr_reader :foo, :bar
+
+        def initialize(foo, bar, **_kwargs)
+          @foo = foo
+          @bar = bar
+        end
+
         def procedure
           :new_method
         end
