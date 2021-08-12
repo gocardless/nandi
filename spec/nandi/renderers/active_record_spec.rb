@@ -398,7 +398,14 @@ RSpec.describe Nandi::Renderers::ActiveRecord do
       end
 
       let(:extension) do
-        Struct.new(:foo, :bar) do
+        Class.new do
+          attr_reader :foo, :bar
+
+          def initialize(foo, bar, **_kwargs)
+            @foo = foo
+            @bar = bar
+          end
+
           def procedure
             :new_method
           end
@@ -449,7 +456,14 @@ RSpec.describe Nandi::Renderers::ActiveRecord do
         end
 
         let(:extension) do
-          Struct.new(:foo, :bar) do
+          Class.new do
+            attr_reader :foo, :bar
+
+            def initialize(foo, bar, **_kwargs)
+              @foo = foo
+              @bar = bar
+            end
+
             def procedure
               :new_method
             end
@@ -521,7 +535,7 @@ RSpec.describe Nandi::Renderers::ActiveRecord do
               :new_method
             end
 
-            def initialize
+            def initialize(**_kwargs)
               @block_result = yield
             end
 
