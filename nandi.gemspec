@@ -25,6 +25,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency "cells"
   spec.add_dependency "dry-monads"
   spec.add_dependency "tilt"
+  spec.add_dependency "prettier", "= 1.6.1"
 
   spec.add_development_dependency "bundler", "~> 2.0"
   spec.add_development_dependency "byebug", "~> 11.0"
