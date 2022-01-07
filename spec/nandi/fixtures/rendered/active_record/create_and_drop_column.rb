@@ -14,7 +14,7 @@ class MyAwesomeMigration < ActiveRecord::Migration[5.2]
   :payments,
   :foo,
   :text,
-  {
+  **{
   collate: :de_DE
 }
 )
@@ -27,7 +27,7 @@ class MyAwesomeMigration < ActiveRecord::Migration[5.2]
     remove_column(
   :payments,
   :foo,
-  {
+  **{
   cascade: true
 }
 )

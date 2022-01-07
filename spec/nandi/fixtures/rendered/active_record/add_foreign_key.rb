@@ -13,7 +13,7 @@ class MyAwesomeMigration < ActiveRecord::Migration[5.2]
     add_foreign_key(
   :payments,
   :mandates,
-  {
+  **{
   column: :zalgo_comes,
   name: :payments_mandates_fk,
   validate: false

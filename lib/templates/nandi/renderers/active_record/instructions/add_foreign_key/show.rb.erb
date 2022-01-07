@@ -1,5 +1,5 @@
 add_foreign_key(
   <%= table %>,
   <%= target %>,
-  <%= extra_args %>
+  **<%= extra_args || {} %>
 )

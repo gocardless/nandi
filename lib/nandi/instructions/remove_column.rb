@@ -8,7 +8,12 @@ module Nandi
       def initialize(table:, name:, **extra_args)
         @table = table
         @name = name
-        @extra_args = extra_args if extra_args.any?
+        @extra_args =
+          if extra_args.any?
+            extra_args
+          else
+            {}
+          end
       end
 
       def procedure
