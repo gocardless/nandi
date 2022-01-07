@@ -37,7 +37,7 @@ module Nandi
     end
 
     def ignored_filenames
-      ignored_files.map(&File.method(:basename))
+      ignored_files.map { |file| File.basename(file) }
     end
 
     def match_timestamp
