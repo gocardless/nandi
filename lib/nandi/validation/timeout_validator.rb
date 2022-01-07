@@ -24,7 +24,9 @@ module Nandi
       private
 
       def timeout_policies
-        instructions.map(&Nandi::TimeoutPolicies.method(:policy_for)).uniq
+        instructions.map do |instruction|
+          Nandi::TimeoutPolicies.policy_for(instruction)
+        end.uniq
       end
 
       def instructions

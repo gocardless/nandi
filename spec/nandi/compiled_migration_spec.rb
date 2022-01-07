@@ -31,7 +31,7 @@ RSpec.describe Nandi::CompiledMigration do
 
   let(:lockfile) do
     lockfile_contents = {
-      "20180104120000_my_migration.rb".to_sym => {
+      "20180104120000_my_migration.rb": {
         source_digest: expected_source_digest,
         compiled_digest: expected_compiled_digest,
       },

@@ -58,9 +58,9 @@ module Nandi
         # worse merge conflict problems (e.g. if we randomised the order on
         # writing the file, the whole thing would conflict pretty much every time
         # it was regenerated).
-        content = Hash[lockfile.to_h.deep_stringify_keys.sort_by do |k, _|
+        content = lockfile.to_h.deep_stringify_keys.sort_by do |k, _|
           Digest::SHA256.hexdigest(k)
-        end].to_yaml
+        end.to_h.to_yaml
 
         File.write(path, content)
       end
