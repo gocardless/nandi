@@ -356,16 +356,16 @@ db/safe_migrations/20190424123727_add_foreign_key_on_bars_to_foos.rb
 db/safe_migrations/20190424123728_validate_foreign_key_on_bars_to_foos.rb
 ```
 
-If you're adding the constraint to a column that already exists, you can use the `--no-column` flag to skip the first migration:
+If you're adding the constraint to a column that already exists, you can use the `--no-create-column` flag to skip the first migration:
 
 ```
-rails generate nandi:foreign_key foos bars --no-column
+rails generate nandi:foreign_key foos bars --no-create-column
 ```
 
 If your foreign key column is named differently, you can override it with the `--column` flag as seen in this example:
 
 ```
-rails generate nandi:foreign_key foos bar --no-column --column special_bar_ids
+rails generate nandi:foreign_key foos bar --no-create-column --column special_bar_ids
 ```
 
 We generate the name of your foreign key for you. If you want or need to override it (e.g. if it exceeds the max length of a constraint name in Postgres), you can use the `--name` flag:
