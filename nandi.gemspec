@@ -36,4 +36,6 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "rspec_junit_formatter", "~> 0.4"
   spec.add_development_dependency "rubocop", "~> 1.0"
   spec.add_development_dependency "yard", "~> 0.9"
+
+  spec.metadata["rubygems_mfa_required"] = "true"
 end

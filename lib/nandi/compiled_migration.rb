@@ -24,7 +24,7 @@ module Nandi
 
       unless validation.valid?
         raise InvalidMigrationError, "Migration #{source_file_path} " \
-          "is not valid:\n#{validation.error_list}"
+                                     "is not valid:\n#{validation.error_list}"
       end
 
       self
