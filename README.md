@@ -4,7 +4,7 @@ Friendly Postgres migrations for people who don't want to take down their databa
 
 ## Supported
 
-- Ruby 2.5 or above
+- Ruby 2.6 or above
 - Rails 5.2 or above
 - Postgres 11 or above
 
