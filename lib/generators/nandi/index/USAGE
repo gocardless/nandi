@@ -1,0 +1,31 @@
+Description:
+    Generates new database indices
+
+Example:
+    rails generate nandi:index table_name index_col
+
+    This will create:
+        db/safe_migrations/20190424123727_add_index_on_index_col_to_table_name.rb
+
+    or
+
+    rails generate nandi:index table_name_1,table_name_2 index_col
+
+    This will create:
+        db/safe_migrations/20190424123727_add_index_on_index_col_to_table_name_1.rb
+        db/safe_migrations/20190424123728_add_index_on_index_col_to_table_name_2.rb
+
+    or
+
+    rails generate nandi:index table_name index_col_1,index_col_2
+
+    This will create:
+        db/safe_migrations/20190424123727_add_index_on_index_col_1_index_col_2_to_table_name.rb
+
+    or
+
+    rails generate nandi:index table_name index_col --index_name bespoke_idx_name
+
+    This will create:
+        db/safe_migrations/20190424123727_add_index_on_index_col_to_table_name.rb
+    with the specified bespoke index name

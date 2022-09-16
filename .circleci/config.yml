@@ -49,4 +49,4 @@ workflows:
       - rspec:
           matrix:
             parameters:
-              ruby_version: ["2.5", "2.6", "2.7", "3.0", "3.1"]
+              ruby_version: ["2.6", "2.7", "3.0", "3.1"]
