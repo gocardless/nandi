@@ -480,3 +480,4 @@ bundle exec yard
 ```sh
 bundle exec rspec
 ```
+test
