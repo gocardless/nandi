@@ -147,8 +147,11 @@ RSpec.describe Nandi::Formatting do
       end
     end
 
+    # Define a custom class with the desired attributes
+    let(:my_hash) { Struct.new(:my_hash) }
+
     let(:model) do
-      ::Struct.new(:my_hash).new(:foo => { bar: 5 })
+      my_hash.new(foo: { bar: 5 })
     end
 
     it { is_expected.to eq("{\n  foo: {\n  bar: 5\n}\n}") }
