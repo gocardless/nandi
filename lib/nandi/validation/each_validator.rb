@@ -17,6 +17,8 @@ module Nandi
 
       def call
         case instruction.procedure
+        when :add_index
+          AddIndexValidator.call(instruction)
         when :remove_index
           RemoveIndexValidator.call(instruction)
         when :add_column
