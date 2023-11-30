@@ -1,0 +1,21 @@
+Description:
+    Generates two new database migrations which will safely add and index
+    a new foreign key reference.
+
+Example:
+    rails generate nandi:reference foos bar
+
+    Create a bar_id column on foos and index it.
+
+    This will create:
+        db/safe_migrations/20190424123727_add_reference_on_foos_to_bar.rb
+        db/safe_migrations/20190424123728_index_foos_on_bar_id.rb
+
+Example:
+    rails generate nandi:reference foos bar --polymorphic
+
+    Create a bar_id and bar_type column on foos and index them.
+
+    This will create:
+        db/safe_migrations/20190424123727_add_reference_bar_to_foos.rb
+        db/safe_migrations/20190424123728_index_foos_on_bar_id_bar_type.rb
