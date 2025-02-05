@@ -357,9 +357,9 @@ module Nandi
       end.uniq
     end
 
-    def method_missing(name, *args, **kwargs, &block)
+    def method_missing(name, ...)
       if Nandi.config.custom_methods.key?(name)
-        invoke_custom_method(name, *args, **kwargs, &block)
+        invoke_custom_method(name, ...)
       else
         super
       end
@@ -381,9 +381,9 @@ module Nandi
       Nandi.config.access_exclusive_lock_timeout
     end
 
-    def invoke_custom_method(name, *args, **kwargs, &block)
+    def invoke_custom_method(name, ...)
       klass = Nandi.config.custom_methods[name]
-      current_instructions << klass.new(*args, **kwargs, &block)
+      current_instructions << klass.new(...)
     end
   end
 end

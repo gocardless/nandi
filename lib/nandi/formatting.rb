@@ -73,7 +73,7 @@ module Nandi
     def symbol_key(key)
       canonical = key.inspect
 
-      "#{canonical[1..-1]}:"
+      "#{canonical[1..]}:"
     end
   end
 end

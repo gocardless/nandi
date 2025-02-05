@@ -20,10 +20,7 @@ RSpec.describe Nandi::Validation::TimeoutValidator do
   end
 
   before do
-    allow(migration).to receive(:disable_statement_timeout?).
-      and_return(false)
-    allow(migration).to receive(:disable_lock_timeout?).
-      and_return(false)
+    allow(migration).to receive_messages(disable_statement_timeout?: false, disable_lock_timeout?: false)
     allow(Nandi.config).to receive(:access_exclusive_lock_timeout_limit).
       and_return(750)
     allow(Nandi.config).to receive(:access_exclusive_statement_timeout_limit).
@@ -49,10 +46,7 @@ RSpec.describe Nandi::Validation::TimeoutValidator do
 
     context "with timeouts disabled" do
       before do
-        allow(migration).to receive(:disable_statement_timeout?).
-          and_return(true)
-        allow(migration).to receive(:disable_lock_timeout?).
-          and_return(true)
+        allow(migration).to receive_messages(disable_statement_timeout?: true, disable_lock_timeout?: true)
       end
 
       it { is_expected.to be_failure }
@@ -108,10 +102,7 @@ RSpec.describe Nandi::Validation::TimeoutValidator do
 
     context "with timeouts disabled" do
       before do
-        allow(migration).to receive(:disable_statement_timeout?).
-          and_return(true)
-        allow(migration).to receive(:disable_lock_timeout?).
-          and_return(true)
+        allow(migration).to receive_messages(disable_statement_timeout?: true, disable_lock_timeout?: true)
       end
 
       it { is_expected.to be_success }

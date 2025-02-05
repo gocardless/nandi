@@ -15,7 +15,7 @@ Nandi provides an alternative API to ActiveRecord's built-in Migration DSL for d
 ActiveRecord makes many changes easy. Unfortunately, that includes things that should be done with great care. Consider this migration, for example:
 
 ```rb
-class AddBarIDToFoos < ActiveRecord::Migration[5.2]
+class AddBarIDToFoos < ActiveRecord::Migration[8.0]
   def change
     add_reference :foos, :bars, foreign_key: true
   end
@@ -76,7 +76,7 @@ The result will sort of look like this:
 ```rb
 # db/migrate/20190606060606_add_widgets.rb
 
-class AddWidgets < ActiveRecord::Migration[5.2]
+class AddWidgets < ActiveRecord::Migration[8.0]
   set_lock_timeout(750)
   set_statement_timeout(1500)
 
@@ -121,7 +121,7 @@ end
 
 # db/migrate/20190606060606_add_widgets_index_on_name_and_price.rb
 
-class AddWidgetsIndexOnNameAndPrice < ActiveRecord::Migration[5.2]
+class AddWidgetsIndexOnNameAndPrice < ActiveRecord::Migration[8.0]
   set_lock_timeout(750)
   set_statement_timeout(1500)
 
@@ -197,7 +197,7 @@ Which, when compiled, takes care of things in the right order:
 ```rb
 # db/migrate/20190611124816_add_reference_on_foos_to_bars.rb
 
-class AddReferenceOnFoosToBars < ActiveRecord::Migration[5.2]
+class AddReferenceOnFoosToBars < ActiveRecord::Migration[8.0]
   set_lock_timeout(5_000)
   set_statement_timeout(1_500)
 
@@ -211,7 +211,7 @@ end
 
 # db/migrate/20190611124817_add_foreign_key_on_foos_to_bars.rb
 
-class AddForeignKeyOnFoosToBars < ActiveRecord::Migration[5.2]
+class AddForeignKeyOnFoosToBars < ActiveRecord::Migration[8.0]
   set_lock_timeout(750)
   set_statement_timeout(1500)
 
@@ -234,7 +234,7 @@ end
 
 # frozen_string_literal: true
 
-class ValidateForeignKeyOnFoosToBars < ActiveRecord::Migration[5.2]
+class ValidateForeignKeyOnFoosToBars < ActiveRecord::Migration[8.0]
   set_lock_timeout(750)
   set_statement_timeout(1500)
 

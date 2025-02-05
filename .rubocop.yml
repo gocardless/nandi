@@ -2,12 +2,14 @@
 
 inherit_gem:
   gc_ruboconfig: rubocop.yml
+
 require:
   - rubocop-rspec
 
 AllCops:
   DisplayCopNames: true
-  TargetRubyVersion: 2.5
+  NewCops: enable
+  TargetRubyVersion: 3.2
   Exclude:
     - .*/**/*
     - bin/**/*
@@ -22,42 +24,5 @@ Metrics/MethodLength:
 Metrics/AbcSize:
   Max: 20
 
-RSpec/NotToNot:
-  EnforcedStyle: to_not
-
-# TODO: Make this number smaller
-RSpec/NestedGroups:
-  Max: 8
-
-RSpec/MultipleExpectations:
-  Max: 5
-
-RSpec/ExampleLength:
-  Max: 7
-
-RSpec/ContextWording:
-  Enabled: false
-
-RSpec/AnyInstance:
-  Enabled: false
-
-RSpec/MultipleMemoizedHelpers:
-  Max: 20
-
 Gemspec/RequiredRubyVersion:
-  Exclude:
-    - 'nandi.gemspec'
-
-Naming/MethodParameterName:
-  AllowedNames:
-    # These are the default allowed names, set by Rubocop
-    - io
-    - id
-    # These are some custom names that we want to allow, since they aren't
-    # uncommunicative - they're actually rather meaningful!
-    - to
-    - x
-    - y
-    - of
-    # Useful as a placeholder for an unused argument
-    - _
+  Enabled: false

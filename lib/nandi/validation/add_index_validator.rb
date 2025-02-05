@@ -18,8 +18,8 @@ module Nandi
       def call
         assert(
           not_using_hash_index?,
-          "add_index: Nandi does not support hash indexes. Hash indexes typically have "\
-          "very specialized use cases. Please revert to using a btree index, or proceed "\
+          "add_index: Nandi does not support hash indexes. Hash indexes typically have " \
+          "very specialized use cases. Please revert to using a btree index, or proceed " \
           "with the creation of this index without using Nandi.",
         )
       end

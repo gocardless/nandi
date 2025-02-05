@@ -30,7 +30,7 @@ module Nandi
 
         def should_disable_ddl_transaction?
           [*up_instructions, *down_instructions].
-            select { |i| i.procedure.to_s.include?("index") }.any?
+            any? { |i| i.procedure.to_s.include?("index") }
         end
 
         def activerecord_version

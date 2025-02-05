@@ -65,7 +65,7 @@ module Nandi
     end
 
     def reference_name
-      "#{target.singularize}_id".to_sym
+      :"#{target.singularize}_id"
     end
 
     def base_path

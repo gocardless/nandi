@@ -31,7 +31,7 @@ module Nandi
       def validate_statement_timeout
         assert(
           migration.disable_statement_timeout? || statement_timeout_high_enough,
-          "statement timeout for concurrent operations "\
+          "statement timeout for concurrent operations " \
           "must be at least #{minimum_statement_timeout}",
         )
       end
@@ -39,7 +39,7 @@ module Nandi
       def validate_lock_timeout
         assert(
           migration.disable_lock_timeout? || lock_timeout_high_enough,
-          "lock timeout for concurrent operations "\
+          "lock timeout for concurrent operations " \
           "must be at least #{minimum_lock_timeout}",
         )
       end

@@ -16,14 +16,9 @@ RSpec.describe Nandi::TimeoutPolicies::AccessExclusive do
     end
 
     before do
-      allow(migration).to receive(:disable_statement_timeout?).
-        and_return(false)
-      allow(migration).to receive(:disable_lock_timeout?).
-        and_return(false)
-      allow(Nandi.config).to receive(:access_exclusive_statement_timeout_limit).
-        and_return(1500)
-      allow(Nandi.config).to receive(:access_exclusive_lock_timeout_limit).
-        and_return(750)
+      allow(migration).to receive_messages(disable_statement_timeout?: false, disable_lock_timeout?: false)
+      allow(Nandi.config).to receive_messages(access_exclusive_statement_timeout_limit: 1500,
+                                              access_exclusive_lock_timeout_limit: 750)
     end
 
     context "with valid timeouts" do
@@ -42,8 +37,8 @@ RSpec.describe Nandi::TimeoutPolicies::AccessExclusive do
       it "yields an informative message" do
         expect(validate.failure).
           to eq([
-            "statement timeout must be at most 1500ms" \
-            " as it takes an ACCESS EXCLUSIVE lock",
+            "statement timeout must be at most 1500ms " \
+            "as it takes an ACCESS EXCLUSIVE lock",
           ])
       end
     end
@@ -62,8 +57,8 @@ RSpec.describe Nandi::TimeoutPolicies::AccessExclusive do
       it "yields an informative message" do
         expect(validate.failure).
           to eq([
-            "statement timeout must be at most 1500ms" \
-            " as it takes an ACCESS EXCLUSIVE lock",
+            "statement timeout must be at most 1500ms " \
+            "as it takes an ACCESS EXCLUSIVE lock",
           ])
       end
     end
