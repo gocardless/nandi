@@ -130,7 +130,7 @@ RSpec.describe Nandi::SafeMigrationEnforcer do
       }
     end
 
-    StringIO.new(lockfile_contents.deep_stringify_keys.to_yaml)
+    lockfile_contents.with_indifferent_access
   end
 
   before do
@@ -144,11 +144,9 @@ RSpec.describe Nandi::SafeMigrationEnforcer do
       with(ar_migration_dir).
       and_return(ar_migrations)
 
-    Nandi::Lockfile.lockfile = nil
+    Nandi::Lockfile.lockfile = lockfile
 
-    allow(File).to receive(:read).with(Nandi::Lockfile.path).and_return(lockfile)
-    allow(File).to receive(:write).with(Nandi::Lockfile.path, kind_of(String)).
-      and_return(lockfile)
+    allow(Nandi::Lockfile).to receive(:persist)
 
     allow(File).to receive(:read).with(Regexp.new(safe_migration_dir)).
       and_return("generated_content")

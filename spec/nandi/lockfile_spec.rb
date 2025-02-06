@@ -1,26 +1,31 @@
 # frozen_string_literal: true
 
+require "tempfile"
+
 RSpec.describe Nandi::Lockfile do
   before do
-    allow(Nandi.config).to receive(:lockfile_directory).and_return("db")
-    allow(File).to receive(:read).
-      with("db/.nandilock.yml").and_return("")
-
+    allow(Nandi.config).to receive(:lockfile_directory).and_return(temp_dir)
     described_class.lockfile = nil
+  end
+
+  let(:temp_dir) { Dir.mktmpdir }
+  let(:lockfile_contents) { "--- {}\n" }
+
+  def write_lockfile!
+    allow(File).to receive(:write).with("#{temp_dir}/.nandilock.yml", anything).and_call_original
+    File.write("#{temp_dir}/.nandilock.yml", lockfile_contents)
   end
 
   describe ".file_present" do
     subject(:file_present) { described_class.file_present? }
 
     context "lockfile exists" do
-      before { allow(File).to receive(:exist?).and_return(true) }
+      before { write_lockfile! }
 
       it { expect(file_present).to eq(true) }
     end
 
     context "doesn't exist" do
-      before { allow(File).to receive(:exist?).and_return(false) }
-
       it { expect(file_present).to eq(false) }
     end
   end
@@ -28,11 +33,10 @@ RSpec.describe Nandi::Lockfile do
   describe ".create" do
     subject(:create!) { described_class.create! }
 
-    before { allow(File).to receive(:exist?).and_return(false) }
-
     it "creates a file" do
       expect(File).to receive(:write).
-        with("db/.nandilock.yml", "--- {}\n")
+        with("#{temp_dir}/.nandilock.yml", "--- {}\n").
+        and_call_original
 
       create!
     end
@@ -47,13 +51,9 @@ RSpec.describe Nandi::Lockfile do
       )
     end
 
-    let(:lockfile) { "--- {}\n" }
+    let(:lockfile_contents) { "--- {}\n" }
 
-    before do
-      allow(File).to receive(:write).with("db/.nandilock.yml", kind_of(String))
-      allow(File).to receive(:read).with("db/.nandilock.yml").
-        and_return(lockfile)
-    end
+    before { write_lockfile! }
 
     it "adds the digests to the instance" do
       add
@@ -66,7 +66,7 @@ RSpec.describe Nandi::Lockfile do
   end
 
   describe ".get(file_name)" do
-    let(:lockfile) do
+    let(:lockfile_contents) do
       <<~YAML
         ---
         migration1:
@@ -75,11 +75,7 @@ RSpec.describe Nandi::Lockfile do
       YAML
     end
 
-    before do
-      allow(File).to receive(:write).with("db/.nandilock.yml", kind_of(String))
-      allow(File).to receive(:read).with("db/.nandilock.yml").
-        and_return(lockfile)
-    end
+    before { write_lockfile! }
 
     it "retrieves the digests" do
       expect(described_class.get("migration1")).to eq(
@@ -110,7 +106,7 @@ RSpec.describe Nandi::Lockfile do
 
     it "writes the existing file" do
       expect(File).to receive(:write).with(
-        "db/.nandilock.yml",
+        "#{temp_dir}/.nandilock.yml",
         expected_yaml,
       )
 
@@ -141,7 +137,7 @@ RSpec.describe Nandi::Lockfile do
 
       it "sorts the keys by their SHA-256 hash" do
         expect(File).to receive(:write).with(
-          "db/.nandilock.yml",
+          "#{temp_dir}/.nandilock.yml",
           expected_yaml,
         )
 

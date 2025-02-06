@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
-require "ostruct"
-
 module Nandi
   module Instructions
     class CreateTable
+      Column = Struct.new(:name, :type, :args, keyword_init: true)
+
       attr_reader :table, :columns, :timestamps_args, :extra_args
 
       def initialize(table:, columns_block:, **kwargs)
@@ -65,7 +65,7 @@ module Nandi
         end
 
         def column(name, type, **args)
-          @columns << OpenStruct.new(name: name, type: type, args: args)
+          @columns << Column.new(name: name, type: type, args: args)
         end
 
         def timestamps(**args)
