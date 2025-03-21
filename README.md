@@ -4,8 +4,8 @@ Friendly Postgres migrations for people who don't want to take down their databa
 
 ## Supported
 
-- Ruby 2.6 or above
-- Rails 5.2 or above
+- Ruby 3.2 or above
+- Rails 7.1 or above
 - Postgres 11 or above
 
 ## What does it do?
@@ -40,6 +40,7 @@ gem 'activerecord-safer_migrations' # Also required
 ```
 
 Generate a new migration:
+
 ```sh
 rails generate nandi:migration add_widgets
 ```
@@ -260,21 +261,26 @@ Override the default statement timeout for the duration of the migration. For mi
 ## Migration methods
 
 ### `#add_column(table, name, type, **kwargs)`
+
 Adds a new column. Nandi will explicitly set the column to be NULL, as validating a new NOT NULL constraint can be very expensive on large tables and cause availability issues.
 
 ### `#add_foreign_key(table, target, column: nil, name: nil)`
+
 Add a foreign key constraint. The generated SQL will include the NOT VALID parameter, which will prevent immediate validation of the constraint, which locks the target table for writes potentially for a long time. Use the separate #validate_constraint method, in a separate migration; this only takes a row-level lock as it scans through.
 
 ### `#add_index(table, fields, **kwargs)`
+
 Adds a new index to the database.
 
 Nandi will
+
 - add the `CONCURRENTLY` option, which means the change takes a less restrictive lock at the cost of not running in a DDL transaction
 - default to the `BTREE` index type, as it is commonly a good fit.
 
 Because index creation is particularly failure-prone, and because we cannot run in a transaction and therefore risk partially applied migrations that (in a Rails environment) require manual intervention, Nandi Validates that, if there is a add_index statement in the migration, it must be the only statement.
 
 ### `#create_table(table) {|columns_reader| ... }`
+
 Creates a new table. Yields a ColumnsReader object as a block, to allow adding columns.
 
 Examples:
@@ -286,33 +292,42 @@ end
 ```
 
 ### `#add_reference(table, ref_name, **extra_args)`
+
 Adds a new reference column. Nandi will validate that the foreign key flag is not set to true; use `add_foreign_key` and `validate_foreign_key` instead! Nandi will also set the `index: false` flag, as index creation is unsafe unless done concurrently in a separate migration.
 
 ### `#remove_reference(table, ref_name, **extra_args)`
+
 Removes a reference column.
 
 ### `#remove_column(table, name, **extra_args)`
+
 Remove an existing column.
 
 ### `#drop_constraint(table, name)`
+
 Drops an existing constraint.
 
 ### `#remove_not_null_constraint(table, column)`
+
 Drops an existing NOT NULL constraint. Please not that this migration is not safely reversible; to enforce NOT NULL like behaviour, use a CHECK constraint and validate it in a separate migration.
 
 ### `#change_column_default(table, column, value)`
+
 Changes the default value for this column when new rows are inserted into the table.
 
 ### `#remove_index(table, target)`
+
 Drop an index from the database.
 
 Nandi will add the `CONCURRENTLY` option, which means the change takes a less restrictive lock at the cost of not running in a DDL transaction.
 Because we cannot run in a transaction and therefore risk partially applied migrations that (in a Rails environment) require manual intervention, Nandi Validates that, if there is a remove_index statement in the migration, it must be the only statement.
 
 ### `#drop_table(table)`
+
 Drops an existing table.
 
 ### `#irreversible_migration`
+
 Raises `ActiveRecord::IrreversibleMigration` error.
 
 ## Generators
@@ -370,7 +385,6 @@ rails generate nandi:foreign_key foos bar --no-create-column --column special_ba
 
 We generate the name of your foreign key for you. If you want or need to override it (e.g. if it exceeds the max length of a constraint name in Postgres), you can use the `--name` flag:
 
-
 ```
 rails generate nandi:foreign_key foos bar --name my_fk
 ```
@@ -424,15 +438,18 @@ The default statement timeout for migrations that take permissive locks. Can be 
 The default statement timeout for migrations that take ACCESS EXCLUSIVE locks. Can be overridden by way of the `set_statement_timeout` class method in a given migration. Default: 1500ms.
 
 ### `compile_files` (String)
+
 The files to compile when the compile generator is run. Default: `all`
 
 May be one of the following:
+
 - 'all' compiles all files
 - 'git-diff' only files changed since last commit
 - a full or partial version timestamp, eg '20190101010101', '20190101'
 - a timestamp range , eg '>=20190101010101'
 
 ### `lockfile_directory` (String)
+
 The directory where .nandilock.yml will be stored. Default: `db/` in working directory.
 
 #post_process {|migration| ... }
