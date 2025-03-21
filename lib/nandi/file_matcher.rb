@@ -2,7 +2,7 @@
 
 module Nandi
   class FileMatcher
-    TIMESTAMP_REGEX = /\A(?<operator>>|>=)?(?<timestamp>\d+)\z/.freeze
+    TIMESTAMP_REGEX = /\A(?<operator>>|>=)?(?<timestamp>\d+)\z/
 
     def self.call(*args, **kwargs)
       new(*args, **kwargs).call

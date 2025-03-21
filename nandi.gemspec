@@ -19,23 +19,12 @@ Gem::Specification.new do |spec|
   spec.bindir        = "exe"
   spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
   spec.require_paths = ["lib"]
-  spec.required_ruby_version = Gem::Requirement.new(">= 2.6.0")
+  spec.required_ruby_version = ">= 3.2"
 
   spec.add_dependency "activesupport"
   spec.add_dependency "cells"
   spec.add_dependency "dry-monads"
   spec.add_dependency "tilt"
-
-  spec.add_development_dependency "bundler", "~> 2.0"
-  spec.add_development_dependency "byebug", "~> 11.0"
-  spec.add_development_dependency "gc_ruboconfig", "~> 3.3.0"
-  spec.add_development_dependency "pry-byebug", "~> 3.9.0"
-  spec.add_development_dependency "rails", "~> 5.2.3"
-  spec.add_development_dependency "rake", ">= 12.3.3", "~> 13.0"
-  spec.add_development_dependency "rspec", "~> 3.0"
-  spec.add_development_dependency "rspec_junit_formatter", "~> 0.4"
-  spec.add_development_dependency "rubocop", "~> 1.0"
-  spec.add_development_dependency "yard", "~> 0.9"
 
   spec.metadata["rubygems_mfa_required"] = "true"
 end

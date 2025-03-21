@@ -39,7 +39,7 @@ module Nandi
 
         Nandi::Lockfile.create! unless Nandi::Lockfile.file_present?
 
-        @lockfile = YAML.safe_load(File.read(path)).with_indifferent_access
+        @lockfile = YAML.safe_load_file(path).with_indifferent_access
       end
 
       def persist!

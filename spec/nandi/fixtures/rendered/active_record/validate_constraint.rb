@@ -1,4 +1,4 @@
-class MyAwesomeMigration < ActiveRecord::Migration[5.2]
+class MyAwesomeMigration < ActiveRecord::Migration[8.0]
   
   
   disable_lock_timeout!

@@ -3,7 +3,6 @@
 require "cells"
 require "tilt"
 require "nandi/formatting"
-require "ostruct"
 
 module Nandi
   module Renderers
@@ -61,7 +60,7 @@ module Nandi
 
           def columns
             model.columns.map do |c|
-              OpenStruct.new(
+              ::Nandi::Instructions::CreateTable::Column.new(
                 name: format_value(c.name),
                 type: format_value(c.type),
               ).tap do |col|
