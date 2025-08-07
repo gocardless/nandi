@@ -42,7 +42,7 @@ module Nandi
     end
 
     class << self
-      attr_reader :lock_timeout, :statement_timeout
+      attr_reader :lock_timeout, :statement_timeout, :target_database
 
       # For sake both of correspondence with Postgres syntax and familiarity
       # with activerecord-safe_migrations's identically named macros, we
@@ -64,6 +64,12 @@ module Nandi
       # @param timeout [Integer] New lock timeout in ms
       def set_statement_timeout(timeout)
         @statement_timeout = timeout
+      end
+
+      # Set the target database for this migration
+      # @param db_name [Symbol] Database identifier
+      def database(db_name)
+        @target_database = db_name
       end
       # rubocop:enable Naming/AccessorMethodName
     end
@@ -345,6 +351,12 @@ module Nandi
 
     def name
       self.class.name
+    end
+
+    # Get the target database for this migration
+    # @return [Symbol, nil] Database identifier
+    def target_database
+      self.class.target_database
     end
 
     def respond_to_missing?(name)

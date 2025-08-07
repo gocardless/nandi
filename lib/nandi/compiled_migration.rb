@@ -40,7 +40,9 @@ module Nandi
     end
 
     def output_path
-      "#{Nandi.compiled_output_directory}/#{file_name}"
+      target_db = migration.target_database
+      output_dir = Nandi.config.output_directory_for(target_db)
+      "#{output_dir}/#{file_name}"
     end
 
     def migration
@@ -55,17 +57,24 @@ module Nandi
       Digest::SHA256.hexdigest(File.read(source_file_path))
     end
 
+    def target_database
+      migration.target_database
+    end
+
     def migration_unchanged?
       return false unless File.exist?(output_path)
 
+      target_db = migration.target_database
+      lockfile_entry = Nandi::Lockfile.get(file_name, database: target_db)
+
       source_migration_diff = Nandi::FileDiff.new(
         file_path: source_file_path,
-        known_digest: Nandi::Lockfile.get(file_name).fetch(:source_digest),
+        known_digest: lockfile_entry[:source_digest],
       )
 
       compiled_migration_diff = Nandi::FileDiff.new(
         file_path: output_path,
-        known_digest: Nandi::Lockfile.get(file_name).fetch(:compiled_digest),
+        known_digest: lockfile_entry[:compiled_digest],
       )
 
       source_migration_diff.unchanged? && compiled_migration_diff.unchanged?

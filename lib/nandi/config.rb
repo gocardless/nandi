@@ -57,8 +57,13 @@ module Nandi
     attr_accessor :concurrent_lock_timeout_limit
 
     # The directory for Nandi migrations. Default: `db/safe_migrations`
-    # @return [String]
+    # For multi-database support, this can be a Hash of database_name => directory
+    # @return [String, Hash]
     attr_accessor :migration_directory
+
+    # Database configurations for multi-database support
+    # @return [Hash]
+    attr_accessor :databases
 
     # The directory for output files. Default: `db/migrate`
     # @return [String]
@@ -97,6 +102,8 @@ module Nandi
       @access_exclusive_lock_timeout_limit = DEFAULT_ACCESS_EXCLUSIVE_LOCK_TIMEOUT_LIMIT
       @compile_files = DEFAULT_COMPILE_FILES
       @lockfile_directory = DEFAULT_LOCKFILE_DIRECTORY
+      @migration_directory = "db/safe_migrations"
+      @databases = {}
     end
 
     # Register a block to be called on output, for example a code formatter. Whatever is
@@ -121,6 +128,58 @@ module Nandi
 
     def lockfile_directory
       @lockfile_directory ||= Pathname.new(@lockfile_directory)
+    end
+
+    # Get migration directory for specific database or default
+    # @param database_name [Symbol, nil] Database identifier
+    # @return [String] Directory path
+    def migration_directory_for(database_name = nil)
+      return @migration_directory if database_name.nil?
+      return @migration_directory if @databases.empty?
+      
+      db_config = @databases[database_name]
+      return db_config[:migration_directory] if db_config
+
+      @migration_directory
+    end
+
+    # Get output directory for specific database or default
+    # @param database_name [Symbol, nil] Database identifier  
+    # @return [String] Directory path
+    def output_directory_for(database_name = nil)
+      return @output_directory if database_name.nil?
+      return @output_directory if @databases.empty?
+      
+      db_config = @databases[database_name]
+      return db_config[:output_directory] if db_config && db_config[:output_directory]
+
+      @output_directory
+    end
+
+    # Check if multi-database mode is enabled
+    # @return [Boolean]
+    def multi_database?
+      !@databases.empty?
+    end
+
+    # Get list of configured database names
+    # @return [Array<Symbol>]
+    def database_names
+      @databases.keys
+    end
+
+    # Validate database configuration
+    # @raise [ArgumentError] if configuration is invalid
+    def validate_databases!
+      @databases.each do |name, config|
+        unless config.is_a?(Hash)
+          raise ArgumentError, "Database config for #{name} must be a Hash"
+        end
+        
+        unless config[:migration_directory]
+          raise ArgumentError, "Database config for #{name} must specify :migration_directory"
+        end
+      end
     end
   end
 end

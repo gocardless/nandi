@@ -6,6 +6,10 @@ module Nandi
   class MigrationGenerator < Rails::Generators::NamedBase
     source_root File.expand_path("templates", __dir__)
 
+    class_option :database,
+                 type: :string,
+                 desc: "Database to create migration for (multi-database support)"
+
     def create_migration_file
       timestamp = Time.now.utc.strftime("%Y%m%d%H%M%S")
 
@@ -18,7 +22,16 @@ module Nandi
     private
 
     def base_path
-      Nandi.config.migration_directory || "db/safe_migrations"
+      if options[:database]
+        database_sym = options[:database].to_sym
+        Nandi.config.migration_directory_for(database_sym)
+      else
+        Nandi.config.migration_directory || "db/safe_migrations"
+      end
+    end
+
+    def target_database
+      options[:database]&.to_sym
     end
   end
 end
