@@ -55,22 +55,25 @@ module Nandi
     end
 
     def files
-      migration_dirs = if Nandi.config.multi_database?
-        # Collect all migration directories from database configurations
+      migration_dirs = collect_migration_directories
+
+      migration_dirs.flat_map do |dir|
+        next [] unless Dir.exist?(dir)
+
+        safe_migration_files = Dir.chdir(dir) { Dir["*.rb"] }
+        FileMatcher.call(files: safe_migration_files, spec: options["files"]).
+          map { |file| File.join(dir, file) }
+      end.compact
+    end
+
+    def collect_migration_directories
+      if Nandi.config.multi_database?
         Nandi.config.database_names.map do |db_name|
           Nandi.config.migration_directory_for(db_name)
         end.uniq
       else
         [safe_migrations_dir]
       end
-
-      migration_dirs.flat_map do |dir|
-        next [] unless Dir.exist?(dir)
-        
-        safe_migration_files = Dir.chdir(dir) { Dir["*.rb"] }
-        FileMatcher.call(files: safe_migration_files, spec: options["files"]).
-          map { |file| File.join(dir, file) }
-      end.compact
     end
   end
 end

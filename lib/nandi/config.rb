@@ -136,7 +136,7 @@ module Nandi
     def migration_directory_for(database_name = nil)
       return @migration_directory if database_name.nil?
       return @migration_directory if @databases.empty?
-      
+
       db_config = @databases[database_name]
       return db_config[:migration_directory] if db_config
 
@@ -144,16 +144,19 @@ module Nandi
     end
 
     # Get output directory for specific database or default
-    # @param database_name [Symbol, nil] Database identifier  
+    # @param database_name [Symbol, nil] Database identifier
     # @return [String] Directory path
     def output_directory_for(database_name = nil)
-      return @output_directory if database_name.nil?
-      return @output_directory if @databases.empty?
-      
+      if database_name.nil?
+        return @output_directory || "db/migrate"
+      end
+
+      return @output_directory || "db/migrate" if @databases.empty?
+
       db_config = @databases[database_name]
       return db_config[:output_directory] if db_config && db_config[:output_directory]
 
-      @output_directory
+      @output_directory || "db/migrate"
     end
 
     # Check if multi-database mode is enabled
@@ -175,7 +178,7 @@ module Nandi
         unless config.is_a?(Hash)
           raise ArgumentError, "Database config for #{name} must be a Hash"
         end
-        
+
         unless config[:migration_directory]
           raise ArgumentError, "Database config for #{name} must specify :migration_directory"
         end

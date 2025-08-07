@@ -20,31 +20,40 @@ module Nandi
         load!
 
         entry_key = database ? "#{database}/#{file_name}" : file_name
-        
-        lockfile[entry_key] = {
+
+        entry = {
           source_digest: source_digest,
           compiled_digest: compiled_digest,
         }
-        
+
         # Add database metadata if specified
-        if database && Nandi.config.multi_database?
-          lockfile[entry_key][:database] = database
+        if database
+          entry[:database] = database
         end
+
+        lockfile[entry_key] = entry
       end
 
       def get(file_name, database: nil)
         load!
 
-        entry_key = database ? "#{database}/#{file_name}" : file_name
-        
-        # Try database-specific entry first, fallback to non-prefixed
-        entry = lockfile[entry_key] || (database ? lockfile[file_name] : nil)
-        
-        {
-          source_digest: entry&.dig(:source_digest),
-          compiled_digest: entry&.dig(:compiled_digest),
-          database: entry&.dig(:database),
-        }
+        if database
+          # Multi-database mode: try database-specific entry first, fallback to non-prefixed
+          entry_key = "#{database}/#{file_name}"
+          entry = lockfile[entry_key] || lockfile[file_name]
+
+          {
+            source_digest: entry&.dig(:source_digest),
+            compiled_digest: entry&.dig(:compiled_digest),
+            database: entry&.dig(:database),
+          }
+        else
+          # Legacy mode: exactly the same as original implementation
+          {
+            source_digest: lockfile.dig(file_name, :source_digest),
+            compiled_digest: lockfile.dig(file_name, :compiled_digest),
+          }
+        end
       end
 
       def load!
