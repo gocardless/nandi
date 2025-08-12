@@ -46,8 +46,13 @@ RSpec.describe Nandi::CompiledMigration do
     allow(File).to receive(:read).with(Nandi::Lockfile.path).and_return(lockfile)
     allow(File).to receive(:write).with(Nandi::Lockfile.path).and_return(lockfile)
 
+    # Reset config to ensure clean state
+    Nandi.instance_variable_set(:@config, nil)
+
     Nandi.configure do |config|
       config.renderer = renderer
+      # Ensure default relative path for output directory
+      config.output_directory = "db/migrate"
     end
   end
 

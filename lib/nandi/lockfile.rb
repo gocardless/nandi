@@ -16,22 +16,44 @@ module Nandi
         File.write(path, {}.to_yaml)
       end
 
-      def add(file_name:, source_digest:, compiled_digest:)
+      def add(file_name:, source_digest:, compiled_digest:, database: nil)
         load!
 
-        lockfile[file_name] = {
+        entry_key = database ? "#{database}/#{file_name}" : file_name
+
+        entry = {
           source_digest: source_digest,
           compiled_digest: compiled_digest,
         }
+
+        # Add database metadata if specified
+        if database
+          entry[:database] = database
+        end
+
+        lockfile[entry_key] = entry
       end
 
-      def get(file_name)
+      def get(file_name, database: nil)
         load!
 
-        {
-          source_digest: lockfile.dig(file_name, :source_digest),
-          compiled_digest: lockfile.dig(file_name, :compiled_digest),
-        }
+        if database
+          # Multi-database mode: try database-specific entry first, fallback to non-prefixed
+          entry_key = "#{database}/#{file_name}"
+          entry = lockfile[entry_key] || lockfile[file_name]
+
+          {
+            source_digest: entry&.dig(:source_digest),
+            compiled_digest: entry&.dig(:compiled_digest),
+            database: entry&.dig(:database),
+          }
+        else
+          # Legacy mode: exactly the same as original implementation
+          {
+            source_digest: lockfile.dig(file_name, :source_digest),
+            compiled_digest: lockfile.dig(file_name, :compiled_digest),
+          }
+        end
       end
 
       def load!

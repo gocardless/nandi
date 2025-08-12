@@ -28,6 +28,7 @@ module Nandi
             file_name: result.file_name,
             source_digest: result.source_digest,
             compiled_digest: result.compiled_digest,
+            database: result.target_database,
           )
 
           unless result.migration_unchanged?
@@ -54,9 +55,25 @@ module Nandi
     end
 
     def files
-      safe_migration_files = Dir.chdir(safe_migrations_dir) { Dir["*.rb"] }
-      FileMatcher.call(files: safe_migration_files, spec: options["files"]).
-        map { |file| File.join(safe_migrations_dir, file) }
+      migration_dirs = collect_migration_directories
+
+      migration_dirs.flat_map do |dir|
+        next [] unless Dir.exist?(dir)
+
+        safe_migration_files = Dir.chdir(dir) { Dir["*.rb"] }
+        FileMatcher.call(files: safe_migration_files, spec: options["files"]).
+          map { |file| File.join(dir, file) }
+      end.compact
+    end
+
+    def collect_migration_directories
+      if Nandi.config.multi_database?
+        Nandi.config.database_names.map do |db_name|
+          Nandi.config.migration_directory_for(db_name)
+        end.uniq
+      else
+        [safe_migrations_dir]
+      end
     end
   end
 end

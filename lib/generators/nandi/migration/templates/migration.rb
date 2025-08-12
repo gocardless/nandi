@@ -1,6 +1,10 @@
 # frozen_string_literal: true
 
 class <%= class_name %> < Nandi::Migration
+<% if target_database -%>
+  database :<%= target_database %>
+
+<% end -%>
   def up
     # Migration instructions go here, eg:
     # add_column :widgets, :size, :integer
