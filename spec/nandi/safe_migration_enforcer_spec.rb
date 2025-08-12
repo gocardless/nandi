@@ -157,7 +157,7 @@ RSpec.describe Nandi::SafeMigrationEnforcer do
 
   describe "#run" do
     context "with the default migration directories" do
-      include_examples "linting"
+      it_behaves_like "linting"
     end
 
     context "with custom migration directories" do
@@ -171,7 +171,7 @@ RSpec.describe Nandi::SafeMigrationEnforcer do
       let(:safe_migration_dir) { "custom/safe/migration/dir" }
       let(:ar_migration_dir) { "custom/ar/migration/dir" }
 
-      include_examples "linting"
+      it_behaves_like "linting"
     end
   end
 end
