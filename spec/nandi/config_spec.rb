@@ -26,8 +26,8 @@ RSpec.describe Nandi::Config do
       expect(config.multi_database_enabled?).to be true
     end
 
-    it "delegates names to multi_database" do
-      expect(config.multi_database_names).to eq(%i[primary analytics])
+    it "gets the correct list of names" do
+      expect(config.database_names).to eq(%i[primary analytics])
     end
 
     it "throws an error if database does not exist" do
@@ -55,6 +55,10 @@ RSpec.describe Nandi::Config do
 
     it "reports as single database" do
       expect(config.multi_database_enabled?).to be false
+    end
+
+    it "returns nil for the database name" do
+      expect(config.database_names).to be_nil
     end
 
     it "returns default directory if name not specified" do

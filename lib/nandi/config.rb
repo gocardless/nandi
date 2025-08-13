@@ -129,6 +129,10 @@ module Nandi
       @multi_database.register(name, config)
     end
 
+    def database_names
+      @multi_database.names if @multi_database.enabled?
+    end
+
     def lockfile_path(database_name = nil)
       File.join(lockfile_directory, lockfile_name(database_name))
     end
@@ -150,7 +154,6 @@ module Nandi
       @multi_database.validate!
     end
 
-    delegate :names, to: :multi_database, prefix: true
     delegate :enabled?, to: :multi_database, prefix: true
 
     private
@@ -168,7 +171,7 @@ module Nandi
     def enforce_exclusive_mode!
       # We should only be either registering databases (multi-database mode) or overriding
       # the default configuration (single-database mode), not both.
-      if multi_database.enabled? && (@migration_directory.present? || @output_directory.present?)
+      if multi_database_enabled? && (@migration_directory.present? || @output_directory.present?)
         raise ArgumentError, "Cannot specify both `databases` and `migration_directory`/`output_directory`"
       end
     end
