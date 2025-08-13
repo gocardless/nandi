@@ -2,10 +2,12 @@
 
 require "rails/generators"
 require "nandi/formatting"
+require "nandi/multi_db_generator"
 
 module Nandi
   class IndexGenerator < Rails::Generators::Base
     include Nandi::Formatting
+    include MultiDbGenerator
 
     argument :tables, type: :string
     argument :columns, type: :string
@@ -40,10 +42,6 @@ module Nandi
 
     def timestamp(offset = 0)
       (Time.now.utc + offset).strftime("%Y%m%d%H%M%S")
-    end
-
-    def base_path
-      Nandi.config.migration_directory || "db/safe_migrations"
     end
 
     def override_index_name
