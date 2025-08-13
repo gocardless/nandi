@@ -6,13 +6,14 @@ module Nandi
   class CompiledMigration
     class InvalidMigrationError < StandardError; end
 
-    attr_reader :file_name, :source_file_path, :class_name
+    attr_reader :database, :file_name, :source_file_path, :class_name
 
-    def self.build(source_file_path)
-      new(source_file_path)
+    def self.build(source_file_path, database: nil)
+      new(source_file_path, database:)
     end
 
-    def initialize(source_file_path)
+    def initialize(source_file_path, database: nil)
+      @database = database
       @source_file_path = source_file_path
       require source_file_path
 
@@ -40,7 +41,7 @@ module Nandi
     end
 
     def output_path
-      "#{Nandi.compiled_output_directory}/#{file_name}"
+      "#{Nandi.config.output_directory(database)}/#{file_name}"
     end
 
     def migration
