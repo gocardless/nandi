@@ -154,7 +154,7 @@ module Nandi
       @multi_database.validate!
     end
 
-    delegate :enabled?, to: :multi_database, prefix: true
+    delegate :enabled?, to: :@multi_database, prefix: :multi_database
 
     private
 
