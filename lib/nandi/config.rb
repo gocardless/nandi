@@ -2,6 +2,7 @@
 
 require "nandi/renderers"
 require "nandi/lockfile"
+require "nandi/multi_database"
 
 module Nandi
   class Config
@@ -18,6 +19,10 @@ module Nandi
     DEFAULT_LOCKFILE_DIRECTORY = File.join(Dir.pwd, "db")
     DEFAULT_CONCURRENT_TIMEOUT_LIMIT = 3_600_000
     DEFAULT_COMPILE_FILES = "all"
+
+    DEFAULT_MIGRATION_DIRECTORY = "db/safe_migrations"
+    DEFAULT_OUTPUT_DIRECTORY = "db/migrate"
+
     # The rendering backend used to produce output. The only supported option
     # at current is Nandi::Renderers::ActiveRecord, which produces ActiveRecord
     # migrations.
@@ -56,13 +61,13 @@ module Nandi
     # @return [Integer]
     attr_accessor :concurrent_lock_timeout_limit
 
-    # The directory for Nandi migrations. Default: `db/safe_migrations`
+    # The directory for Nandi migrations. Default: `db/safe_migrations`.
     # @return [String]
-    attr_accessor :migration_directory
+    attr_writer :migration_directory
 
     # The directory for output files. Default: `db/migrate`
     # @return [String]
-    attr_accessor :output_directory
+    attr_writer :output_directory
 
     # The files to compile when the compile generator is run. Default: `all`
     # May be one of the following:
@@ -97,6 +102,7 @@ module Nandi
       @access_exclusive_lock_timeout_limit = DEFAULT_ACCESS_EXCLUSIVE_LOCK_TIMEOUT_LIMIT
       @compile_files = DEFAULT_COMPILE_FILES
       @lockfile_directory = DEFAULT_LOCKFILE_DIRECTORY
+      @multi_database = Nandi::MultiDatabase.new
     end
 
     # Register a block to be called on output, for example a code formatter. Whatever is
@@ -119,8 +125,55 @@ module Nandi
       custom_methods[name] = klass
     end
 
+    def register_database(name, config)
+      @multi_database.register(name, config)
+    end
+
+    def database_names
+      @multi_database.names if @multi_database.enabled?
+    end
+
+    def lockfile_path(database_name = nil)
+      File.join(lockfile_directory, lockfile_name(database_name))
+    end
+
+    def migration_directory(database_name = nil)
+      return @migration_directory || DEFAULT_MIGRATION_DIRECTORY if !@multi_database.enabled?
+
+      @multi_database.config(database_name).migration_directory
+    end
+
+    def output_directory(database_name = nil)
+      return @output_directory || DEFAULT_OUTPUT_DIRECTORY if !@multi_database.enabled?
+
+      @multi_database.config(database_name).output_directory
+    end
+
+    def validate!
+      enforce_exclusive_mode!
+      @multi_database.validate!
+    end
+
+    delegate :enabled?, to: :@multi_database, prefix: :multi_database
+
+    private
+
     def lockfile_directory
       @lockfile_directory ||= Pathname.new(@lockfile_directory)
+    end
+
+    def lockfile_name(database_name)
+      return ".nandilock.yml" if !@multi_database.enabled?
+
+      @multi_database.config(database_name).lockfile_name
+    end
+
+    def enforce_exclusive_mode!
+      # We should only be either registering databases (multi-database mode) or overriding
+      # the default configuration (single-database mode), not both.
+      if multi_database_enabled? && (@migration_directory.present? || @output_directory.present?)
+        raise ArgumentError, "Cannot specify both `databases` and `migration_directory`/`output_directory`"
+      end
     end
   end
 end
