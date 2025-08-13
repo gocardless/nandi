@@ -69,10 +69,6 @@ module Nandi
     # @return [String]
     attr_writer :output_directory
 
-    # Multi database configuration, if specified.
-    # @return Nandi::Config::MultiDatabase
-    attr_reader :multi_database
-
     # The files to compile when the compile generator is run. Default: `all`
     # May be one of the following:
     # - 'all' compiles all files
@@ -153,6 +149,9 @@ module Nandi
       enforce_exclusive_mode!
       @multi_database.validate!
     end
+
+    delegate :names, to: :multi_database, prefix: true
+    delegate :enabled?, to: :multi_database, prefix: true
 
     private
 

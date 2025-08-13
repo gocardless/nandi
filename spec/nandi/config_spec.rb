@@ -23,11 +23,11 @@ RSpec.describe Nandi::Config do
     end
 
     it "delegates enabled? to multi_database" do
-      expect(config.multi_database.enabled?).to be true
+      expect(config.multi_database_enabled?).to be true
     end
 
     it "delegates names to multi_database" do
-      expect(config.multi_database.names).to eq(%i[primary analytics])
+      expect(config.multi_database_names).to eq(%i[primary analytics])
     end
 
     it "throws an error if database does not exist" do
@@ -48,18 +48,13 @@ RSpec.describe Nandi::Config do
       config.register_database(:new, lockfile_name: ".my_nandilock.yml")
       expect(config.lockfile_path(:new)).to eq("db/.my_nandilock.yml")
     end
-
-    it "properly delegates registration to multi_database" do
-      expect(config.multi_database).to receive(:register).with(:test, { migration_directory: "db/test" })
-      config.register_database(:test, migration_directory: "db/test")
-    end
   end
 
   context "with single database configuration" do
     subject(:config) { described_class.new }
 
     it "reports as single database" do
-      expect(config.multi_database.enabled?).to be false
+      expect(config.multi_database_enabled?).to be false
     end
 
     it "returns default directory if name not specified" do
@@ -103,9 +98,9 @@ RSpec.describe Nandi::Config do
     end
 
     it "delegates multi-database validation to multi_database" do
+      expect_any_instance_of(Nandi::MultiDatabase).to receive(:validate!)
       config.register_database(:primary, migration_directory: "db/primary")
 
-      expect(config.multi_database).to receive(:validate!)
       config.validate!
     end
 
