@@ -7,10 +7,6 @@ RSpec.describe Nandi::MultiDatabase do
   subject(:multi_db) { described_class.new }
 
   context "when no databases are registered" do
-    it "is not enabled" do
-      expect(multi_db.enabled?).to be false
-    end
-
     it "returns empty names array" do
       expect(multi_db.names).to eq([])
     end
@@ -22,7 +18,7 @@ RSpec.describe Nandi::MultiDatabase do
     end
 
     it "returns nil for default database" do
-      expect(multi_db.default_database).to be_nil
+      expect(multi_db.default).to be_nil
     end
   end
 
@@ -30,10 +26,6 @@ RSpec.describe Nandi::MultiDatabase do
     before do
       multi_db.register(:primary, migration_directory: "db/safe_migrations", output_directory: "db/migrate")
       multi_db.register(:analytics, migration_directory: "db/analytics", output_directory: "db/migrate/analytics")
-    end
-
-    it "is enabled" do
-      expect(multi_db.enabled?).to be true
     end
 
     it "returns correct database names" do
@@ -55,12 +47,11 @@ RSpec.describe Nandi::MultiDatabase do
     end
 
     it "returns primary database as default when no database name specified" do
-      default_db = multi_db.config(nil)
-      expect(default_db.name).to eq(:primary)
+      expect(multi_db.config(nil).name).to eq(:primary)
     end
 
     it "identifies default database correctly" do
-      expect(multi_db.default_database.name).to eq(:primary)
+      expect(multi_db.default.name).to eq(:primary)
     end
 
     it "raises error for duplicate database registration" do
@@ -76,12 +67,6 @@ RSpec.describe Nandi::MultiDatabase do
   end
 
   context "validation" do
-    context "when no databases are registered" do
-      it "does not validate anything" do
-        expect { multi_db.validate! }.to_not raise_error
-      end
-    end
-
     context "when databases are registered" do
       it "raises error when no default database is specified" do
         multi_db.register(:db1, migration_directory: "db/db1")
@@ -211,17 +196,6 @@ RSpec.describe Nandi::MultiDatabase do
 
       it "respects explicit default setting" do
         expect(database.default).to be true
-      end
-    end
-
-    context "with nil name" do
-      let(:name) { nil }
-      let(:config) { {} }
-
-      it "raises error for missing name" do
-        expect do
-          database
-        end.to raise_error(ArgumentError, "Missing database name")
       end
     end
 

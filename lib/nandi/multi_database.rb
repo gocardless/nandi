@@ -2,18 +2,86 @@
 
 module Nandi
   class MultiDatabase
+
     class Database
-      attr_reader :name, :default, :migration_directory, :output_directory, :lockfile_name
+      # Most DDL changes take a very strict lock, but execute very quickly. For these
+      # the statement timeout should be very tight, so that if there's an unexpected
+      # delay the query queue does not back up.
+      DEFAULT_ACCESS_EXCLUSIVE_STATEMENT_TIMEOUT = 1_500
+      DEFAULT_ACCESS_EXCLUSIVE_LOCK_TIMEOUT = 5_000
+
+      DEFAULT_ACCESS_EXCLUSIVE_STATEMENT_TIMEOUT_LIMIT =
+        DEFAULT_ACCESS_EXCLUSIVE_STATEMENT_TIMEOUT
+      DEFAULT_ACCESS_EXCLUSIVE_LOCK_TIMEOUT_LIMIT =
+        DEFAULT_ACCESS_EXCLUSIVE_LOCK_TIMEOUT
+      DEFAULT_CONCURRENT_TIMEOUT_LIMIT = 3_600_000
+
+      DEFAULT_MIGRATION_DIRECTORY = "db/safe_migrations"
+      DEFAULT_OUTPUT_DIRECTORY = "db/migrate"
+
+      # The default lock timeout for migrations that take ACCESS EXCLUSIVE
+      # locks. Can be overridden by way of the `set_lock_timeout` class
+      # method in a given migration. Default: 1500ms.
+      # @return [Integer]
+      attr_accessor :access_exclusive_lock_timeout
+
+      # The default statement timeout for migrations that take ACCESS EXCLUSIVE
+      # locks. Can be overridden by way of the `set_statement_timeout` class
+      # method in a given migration. Default: 1500ms.
+      # @return [Integer]
+      attr_accessor :access_exclusive_statement_timeout
+
+      # The maximum lock timeout for migrations that take an ACCESS EXCLUSIVE
+      # lock and therefore block all reads and writes. Default: 5,000ms.
+      # @return [Integer]
+      attr_accessor :access_exclusive_statement_timeout_limit
+
+      # The maximum statement timeout for migrations that take an ACCESS
+      # EXCLUSIVE lock and therefore block all reads and writes. Default: 1500ms.
+      # @return [Integer]
+      attr_accessor :access_exclusive_lock_timeout_limit
+
+      # The minimum statement timeout for migrations that take place concurrently.
+      # Default: 3,600,000ms (ie, 3 hours).
+      # @return [Integer]
+      attr_accessor :concurrent_statement_timeout_limit
+
+      # The minimum lock timeout for migrations that take place concurrently.
+      # Default: 3,600,000ms (ie, 3 hours).
+      # @return [Integer]
+      attr_accessor :concurrent_lock_timeout_limit
+
+      # The directory for output files. Default: `db/migrate`
+      # @return [String]
+      attr_accessor :output_directory
+
+      attr_reader :name, :default
+
+      attr_accessor :migration_directory,
+                    :lockfile_name
 
       def initialize(name:, config:)
         @name = name
-        @config = config
-        @migration_directory = config[:migration_directory] || "db/#{name}_safe_migrations"
-        @output_directory = config[:output_directory] || "db/#{name}_migrate"
-        @lockfile_name = config[:lockfile_name] || ".#{name}_nandilock.yml"
         @default = (true if @name == :primary) || config[:default]
 
-        raise ArgumentError, "Missing database name" if @name.nil?
+        # Paths and files
+        @migration_directory = config[:migration_directory] || "db/#{prefixed_path(name, default)}safe_migrations"
+        @output_directory = config[:output_directory] || "db/#{prefixed_path(name, default)}migrate"
+        @lockfile_name = config[:lockfile_name] || ".#{prefixed_path(name, default)}nandilock.yml"
+
+        # Timeout limits
+        @access_exclusive_lock_timeout = config[:access_exclusive_lock_timeout] || DEFAULT_ACCESS_EXCLUSIVE_LOCK_TIMEOUT
+        @access_exclusive_statement_timeout = config[:access_exclusive_statement_timeout] || DEFAULT_ACCESS_EXCLUSIVE_STATEMENT_TIMEOUT
+        @access_exclusive_lock_timeout_limit = config[:access_exclusive_lock_timeout_limit] || DEFAULT_ACCESS_EXCLUSIVE_LOCK_TIMEOUT_LIMIT
+        @access_exclusive_statement_timeout_limit = config[:access_exclusive_statement_timeout_limit] || DEFAULT_ACCESS_EXCLUSIVE_STATEMENT_TIMEOUT_LIMIT
+        @concurrent_lock_timeout_limit = config[:concurrent_lock_timeout_limit] || DEFAULT_CONCURRENT_TIMEOUT_LIMIT
+        @concurrent_statement_timeout_limit = config[:concurrent_statement_timeout_limit] || DEFAULT_CONCURRENT_TIMEOUT_LIMIT
+      end
+
+      private
+
+      def prefixed_path(name, default)
+        name.nil? || default ? "" : "#{name}_"
       end
     end
 
@@ -24,7 +92,7 @@ module Nandi
     def config(name)
       # If name isnt specified, return config for the default database. This mimics behavior
       # of the rails migration commands.
-      return default_database if name.nil?
+      return default if name.nil?
 
       name = name.to_sym
       db_config = @databases[name]
@@ -33,7 +101,7 @@ module Nandi
       db_config
     end
 
-    def default_database
+    def default
       @databases.values.find(&:default)
     end
 
@@ -44,17 +112,11 @@ module Nandi
       @databases[name] = Database.new(name: name, config: config)
     end
 
-    def enabled?
-      @databases.present?
-    end
-
     def names
       @databases.keys
     end
 
     def validate!
-      return if !enabled?
-
       enforce_default_db_for_multi_database!
       validate_unique_migration_directories!
       validate_unique_output_directories!
