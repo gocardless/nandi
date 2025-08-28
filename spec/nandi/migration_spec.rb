@@ -750,7 +750,7 @@ RSpec.describe Nandi::Migration do
 
     it "has a low lock weight" do
       expect(instructions.first.lock).to eq(
-        described_class::LockWeights::SHARE,
+        SHARE,
       )
     end
   end
@@ -832,7 +832,7 @@ RSpec.describe Nandi::Migration do
 
     it "has a low lock weight" do
       expect(instructions.first.lock).to eq(
-        described_class::LockWeights::SHARE,
+        SHARE,
       )
     end
   end

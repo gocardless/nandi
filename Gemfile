@@ -14,5 +14,7 @@ group :test, :development do
   gem "rspec", "~> 3.0"
   gem "rspec-github", "~> 3.0"
   gem "rspec_junit_formatter", "~> 0.4"
+  gem "sorbet", require: false
+  gem "tapioca", require: false
   gem "yard", "~> 0.9"
 end

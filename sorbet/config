@@ -1,0 +1,6 @@
+--dir
+.
+--ignore=tmp/
+--ignore=vendor/
+--ignore=lib/generators/nandi
+--ignore=spec/nandi/fixtures
