@@ -18,6 +18,7 @@ module Nandi
 
     def configure
       yield config
+      config.validate!
     end
 
     def validator
