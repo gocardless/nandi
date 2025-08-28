@@ -66,6 +66,60 @@ RSpec.describe Nandi::MultiDatabase do
     end
   end
 
+  context "default database behavior" do
+    context "when primary database is registered" do
+      before do
+        multi_db.register(:primary, migration_directory: "db/primary")
+        multi_db.register(:analytics, migration_directory: "db/analytics")
+      end
+
+      it "automatically treats primary as default" do
+        expect(multi_db.default.name).to eq(:primary)
+        expect(multi_db.default.default).to be true
+      end
+
+      it "returns primary database when no database name specified" do
+        expect(multi_db.config(nil).name).to eq(:primary)
+        expect(multi_db.config.name).to eq(:primary)
+      end
+    end
+
+    context "when explicit default: true is used" do
+      before do
+        multi_db.register(:main, migration_directory: "db/main", default: true)
+        multi_db.register(:analytics, migration_directory: "db/analytics")
+      end
+
+      it "treats explicitly marked database as default" do
+        expect(multi_db.default.name).to eq(:main)
+        expect(multi_db.default.default).to be true
+      end
+
+      it "returns explicit default database when no database name specified" do
+        expect(multi_db.config(nil).name).to eq(:main)
+        expect(multi_db.config.name).to eq(:main)
+      end
+
+      it "other databases are not default" do
+        analytics_db = multi_db.config(:analytics)
+        expect(analytics_db.default).to be false
+      end
+    end
+
+    context "when both primary and explicit default: true are used" do
+      before do
+        multi_db.register(:primary, migration_directory: "db/primary")
+        multi_db.register(:main, migration_directory: "db/main", default: true)
+      end
+
+      it "raises error during validation due to multiple defaults" do
+        expect { multi_db.validate! }.to raise_error(
+          ArgumentError, "Multiple default databases specified: primary, main"
+        )
+      end
+    end
+  end
+
   context "validation" do
     context "when databases are registered" do
       it "raises error when no default database is specified" do
@@ -89,15 +143,6 @@ RSpec.describe Nandi::MultiDatabase do
         multi_db.register(:analytics, migration_directory: "db/analytics")
 
         expect { multi_db.validate! }.to_not raise_error
-      end
-
-      it "raises error when multiple default databases are specified" do
-        multi_db.register(:db1, migration_directory: "db/db1", default: true)
-        multi_db.register(:db2, migration_directory: "db/db2", default: true)
-
-        expect { multi_db.validate! }.to raise_error(
-          ArgumentError, "Multiple default databases specified: db1, db2"
-        )
       end
 
       it "raises error for duplicate migration directories" do

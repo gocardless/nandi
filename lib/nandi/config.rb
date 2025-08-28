@@ -60,7 +60,7 @@ module Nandi
     end
 
     # Register a database to compile migrations for.
-    def register_database(name, config={})
+    def register_database(name, config = {})
       multi_db_config.register(name, config)
     end
 
@@ -68,27 +68,28 @@ module Nandi
       File.join(lockfile_directory, databases.config(database_name).lockfile_name)
     end
 
-    # Delegate all database-specific methods to the appropriate database config
-    %i[migration_directory output_directory
-      access_exclusive_lock_timeout access_exclusive_lock_timeout_limit
-      access_exclusive_statement_timeout access_exclusive_statement_timeout_limit
-      concurrent_lock_timeout_limit concurrent_statement_timeout_limit].each do |method|
-      define_method(method) do |database_name = nil|
-        databases.config(database_name).public_send(method)
-      end
-    end
+    # Explicitly define getters for backwards compatibility when the database isnt specified.
+    # rubocop:disable Layout/LineLength
+    def migration_directory(database_name = nil) = config(database_name).migration_directory
+    def output_directory(database_name = nil) = config(database_name).output_directory
+    def access_exclusive_lock_timeout(database_name = nil) = config(database_name).access_exclusive_lock_timeout
+    def access_exclusive_lock_timeout_limit(database_name = nil) = config(database_name).access_exclusive_lock_timeout_limit
+    def access_exclusive_statement_timeout(database_name = nil) = config(database_name).access_exclusive_statement_timeout
+    def access_exclusive_statement_timeout_limit(database_name = nil) = config(database_name).access_exclusive_statement_timeout_limit
+    def concurrent_lock_timeout_limit(database_name = nil) = config(database_name).concurrent_lock_timeout_limit
+    def concurrent_statement_timeout_limit(database_name = nil) = config(database_name).concurrent_statement_timeout_limit
+    # rubocop:enable Layout/LineLength
 
-    # We are keeping the old interface for backwards compatibility.
-    # Using these setters will create the primary database config by default.
+    # Delegate setter methods to the default database for backwards compatibility
     delegate :migration_directory=,
-            :output_directory=,
-            :access_exclusive_lock_timeout=,
-            :access_exclusive_lock_timeout_limit=,
-            :access_exclusive_statement_timeout=,
-            :access_exclusive_statement_timeout_limit=,
-            :concurrent_lock_timeout_limit=,
-            :concurrent_statement_timeout_limit=,
-            to: :default
+             :output_directory=,
+             :access_exclusive_lock_timeout=,
+             :access_exclusive_lock_timeout_limit=,
+             :access_exclusive_statement_timeout=,
+             :access_exclusive_statement_timeout_limit=,
+             :concurrent_lock_timeout_limit=,
+             :concurrent_statement_timeout_limit=,
+             to: :default
 
     delegate :validate!, :default, :config, to: :databases
 
@@ -100,8 +101,8 @@ module Nandi
 
     def validate!
       if @single_db_config && @multi_db_config
-        raise ArgumentError, "Cannot use multi and single database config. Config setters are now deprecated, "\
-          "use only `register_database(name, config)` to configure Nandi."
+        raise ArgumentError, "Cannot use multi and single database config. Config setters are now deprecated, " \
+                             "use only `register_database(name, config)` to configure Nandi."
       end
       databases.validate!
     end

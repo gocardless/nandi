@@ -2,7 +2,6 @@
 
 module Nandi
   class MultiDatabase
-
     class Database
       # Most DDL changes take a very strict lock, but execute very quickly. For these
       # the statement timeout should be very tight, so that if there's an unexpected
@@ -62,26 +61,35 @@ module Nandi
 
       def initialize(name:, config:)
         @name = name
-        @default = (true if @name == :primary) || config[:default]
+        @default = @name == :primary || config[:default] == true
 
         # Paths and files
-        @migration_directory = config[:migration_directory] || "db/#{prefixed_path(name, default)}safe_migrations"
-        @output_directory = config[:output_directory] || "db/#{prefixed_path(name, default)}migrate"
-        @lockfile_name = config[:lockfile_name] || ".#{prefixed_path(name, default)}nandilock.yml"
+        @migration_directory = config[:migration_directory] || "db/#{path_prefix(name, default)}safe_migrations"
+        @output_directory = config[:output_directory] || "db/#{path_prefix(name, default)}migrate"
+        @lockfile_name = config[:lockfile_name] || ".#{path_prefix(name, default)}nandilock.yml"
 
-        # Timeout limits
-        @access_exclusive_lock_timeout = config[:access_exclusive_lock_timeout] || DEFAULT_ACCESS_EXCLUSIVE_LOCK_TIMEOUT
-        @access_exclusive_statement_timeout = config[:access_exclusive_statement_timeout] || DEFAULT_ACCESS_EXCLUSIVE_STATEMENT_TIMEOUT
-        @access_exclusive_lock_timeout_limit = config[:access_exclusive_lock_timeout_limit] || DEFAULT_ACCESS_EXCLUSIVE_LOCK_TIMEOUT_LIMIT
-        @access_exclusive_statement_timeout_limit = config[:access_exclusive_statement_timeout_limit] || DEFAULT_ACCESS_EXCLUSIVE_STATEMENT_TIMEOUT_LIMIT
-        @concurrent_lock_timeout_limit = config[:concurrent_lock_timeout_limit] || DEFAULT_CONCURRENT_TIMEOUT_LIMIT
-        @concurrent_statement_timeout_limit = config[:concurrent_statement_timeout_limit] || DEFAULT_CONCURRENT_TIMEOUT_LIMIT
+        timeout_limits(config)
       end
 
       private
 
-      def prefixed_path(name, default)
-        name.nil? || default ? "" : "#{name}_"
+      def timeout_limits(config)
+        @access_exclusive_lock_timeout =
+          config[:access_exclusive_lock_timeout] || DEFAULT_ACCESS_EXCLUSIVE_LOCK_TIMEOUT
+        @access_exclusive_statement_timeout =
+          config[:access_exclusive_statement_timeout] || DEFAULT_ACCESS_EXCLUSIVE_STATEMENT_TIMEOUT
+        @access_exclusive_lock_timeout_limit =
+          config[:access_exclusive_lock_timeout_limit] || DEFAULT_ACCESS_EXCLUSIVE_LOCK_TIMEOUT_LIMIT
+        @access_exclusive_statement_timeout_limit =
+          config[:access_exclusive_statement_timeout_limit] || DEFAULT_ACCESS_EXCLUSIVE_STATEMENT_TIMEOUT_LIMIT
+        @concurrent_lock_timeout_limit =
+          config[:concurrent_lock_timeout_limit] || DEFAULT_CONCURRENT_TIMEOUT_LIMIT
+        @concurrent_statement_timeout_limit =
+          config[:concurrent_statement_timeout_limit] || DEFAULT_CONCURRENT_TIMEOUT_LIMIT
+      end
+
+      def path_prefix(name, default)
+        default ? "" : "#{name}_"
       end
     end
 
@@ -89,7 +97,7 @@ module Nandi
       @databases = {}
     end
 
-    def config(name)
+    def config(name = nil)
       # If name isnt specified, return config for the default database. This mimics behavior
       # of the rails migration commands.
       return default if name.nil?
@@ -118,6 +126,7 @@ module Nandi
 
     def validate!
       enforce_default_db_for_multi_database!
+      enforce_names_for_multi_database!
       validate_unique_migration_directories!
       validate_unique_output_directories!
     end
@@ -151,6 +160,16 @@ module Nandi
       if paths.length != @databases.values.length
         raise ArgumentError,
               "Unique output directories must be specified for each database"
+      end
+    end
+
+    def enforce_names_for_multi_database!
+      # If we're in multi-db mode, enforce that all databases have a name
+      return if @databases.count <= 1
+
+      unknown_names = @databases.keys.select(&:nil?)
+      if unknown_names.any?
+        raise ArgumentError, "Databases must have a name in multi-db mode"
       end
     end
   end

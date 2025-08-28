@@ -25,8 +25,8 @@ RSpec.describe Nandi::Config do
       )
     end
 
-    let(:primary_migration_directory) { "db/primary_migrations" }
-    let(:primary_output_directory) { "db/primary_migrate" }
+    let(:primary_migration_directory) { "db/migration_directory" }
+    let(:primary_output_directory) { "db/output_directory" }
     let(:analytics_migration_directory) { "db/analytics_migrations" }
     let(:analytics_output_directory) { "db/migrate/analytics" }
 
@@ -107,6 +107,25 @@ RSpec.describe Nandi::Config do
 
     it "returns default lockfile path in single-database mode" do
       expect(config.lockfile_path).to eq("db/.nandilock.yml")
+    end
+  end
+
+  context "delegation to MultiDatabase" do
+    it "delegates default database behavior to MultiDatabase" do
+      config.register_database(:main, migration_directory: "db/main", default: true)
+      config.register_database(:analytics, migration_directory: "db/analytics")
+
+      # Config should delegate to MultiDatabase for default behavior
+      expect(config.default.name).to eq(:main)
+      expect(config.migration_directory).to eq("db/main") # Uses default when no name specified
+    end
+
+    it "delegates validation to MultiDatabase" do
+      config.register_database(:db1, migration_directory: "db/db1")
+      config.register_database(:db2, migration_directory: "db/db2")
+
+      # Should raise error from MultiDatabase validation
+      expect { config.validate! }.to raise_error(ArgumentError, /Missing default database/)
     end
   end
 
