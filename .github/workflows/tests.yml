@@ -21,6 +21,17 @@ jobs:
       - name: Run rubocop
         run: bundle exec rubocop --parallel --extra-details --display-style-guide
 
+  sorbet:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          bundler-cache: true
+      - name: Run Sorbet type checking
+        run: bundle exec srb tc
+
   tests:
     strategy:
       fail-fast: false
