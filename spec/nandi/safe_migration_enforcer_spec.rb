@@ -3,6 +3,8 @@
 require "nandi/safe_migration_enforcer"
 
 RSpec.shared_examples "linting" do
+  let(:db_name) { nil } # Test default single-database behavior
+
   context "when there are no files" do
     let(:safe_migrations) { [] }
     let(:ar_migrations) { [] }
@@ -53,8 +55,8 @@ RSpec.shared_examples "linting" do
       allow(File).to receive(:read).
         with(Regexp.new("#{safe_migration_dir}/#{altered_migration}")).
         and_return("newer_content")
-      allow(File).to receive(:read).with(Nandi::Lockfile.path).and_return(lockfile)
-      allow(File).to receive(:write).with(Nandi::Lockfile.path, kind_of(String)).
+      allow(File).to receive(:read).with(Nandi::Lockfile.path(db_name)).and_return(lockfile)
+      allow(File).to receive(:write).with(Nandi::Lockfile.path(db_name), kind_of(String)).
         and_return(lockfile)
     end
 
@@ -81,8 +83,8 @@ RSpec.shared_examples "linting" do
       allow(File).to receive(:read).
         with(Regexp.new("#{ar_migration_dir}/#{altered_migration}")).
         and_return("hand_edited_content")
-      allow(File).to receive(:read).with(Nandi::Lockfile.path).and_return(lockfile)
-      allow(File).to receive(:write).with(Nandi::Lockfile.path, kind_of(String)).
+      allow(File).to receive(:read).with(Nandi::Lockfile.path(db_name)).and_return(lockfile)
+      allow(File).to receive(:write).with(Nandi::Lockfile.path(db_name), kind_of(String)).
         and_return(lockfile)
     end
 
@@ -144,7 +146,7 @@ RSpec.describe Nandi::SafeMigrationEnforcer do
       with(ar_migration_dir).
       and_return(ar_migrations)
 
-    Nandi::Lockfile.lockfile = lockfile
+    Nandi::Lockfile.lockfiles[:primary] = lockfile # Test default single-database behavior
 
     allow(Nandi::Lockfile).to receive(:persist)
 

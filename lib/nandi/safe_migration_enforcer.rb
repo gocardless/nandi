@@ -89,7 +89,7 @@ module Nandi
 
     def enforce_no_out_of_date_migrations!(safe_migrations)
       out_of_date_migrations = safe_migrations.
-        map { |m| [m, Nandi::Lockfile.get(m)] }.
+        map { |m| [m, Nandi::Lockfile.get(file_name: m)] }.
         select do |filename, digests|
           Nandi::FileDiff.new(
             file_path: File.join(@safe_migration_dir, filename),
@@ -113,7 +113,7 @@ module Nandi
 
     def enforce_no_hand_edited_migrations!(ar_migrations)
       hand_altered_migrations = ar_migrations.
-        map { |m| [m, Nandi::Lockfile.get(m)] }.
+        map { |m| [m, Nandi::Lockfile.get(file_name: m)] }.
         select do |filename, digests|
           Nandi::FileDiff.new(
             file_path: File.join(@ar_migration_dir, filename),

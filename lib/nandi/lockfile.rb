@@ -6,40 +6,44 @@ require "digest"
 module Nandi
   class Lockfile
     class << self
-      def file_present?
-        File.exist?(path)
+      def file_present?(db_name)
+        File.exist?(path(db_name))
       end
 
-      def create!
-        return if file_present?
+      def create!(db_name: nil)
+        db_name ||= Nandi.config.default.name
+        return if file_present?(db_name)
 
-        File.write(path, {}.to_yaml)
+        File.write(path(db_name), {}.to_yaml)
       end
 
-      def add(file_name:, source_digest:, compiled_digest:)
-        load!
+      def add(file_name:, source_digest:, compiled_digest:, db_name: nil)
+        db_name ||= Nandi.config.default.name
+        load!(db_name)
 
-        lockfile[file_name] = {
+        lockfiles[db_name][file_name] = {
           source_digest: source_digest,
           compiled_digest: compiled_digest,
         }
       end
 
-      def get(file_name)
-        load!
+      def get(file_name:, db_name: nil)
+        db_name ||= Nandi.config.default.name
+        load!(db_name)
 
         {
-          source_digest: lockfile.dig(file_name, :source_digest),
-          compiled_digest: lockfile.dig(file_name, :compiled_digest),
+          source_digest: lockfiles[db_name].dig(file_name, :source_digest),
+          compiled_digest: lockfiles[db_name].dig(file_name, :compiled_digest),
         }
       end
 
-      def load!
-        return lockfile if lockfile
+      def load!(db_name)
+        return lockfiles[db_name] if lockfiles[db_name]
 
-        Nandi::Lockfile.create! unless Nandi::Lockfile.file_present?
+        lockfile_path = path(db_name)
+        create!(db_name: db_name) unless File.exist?(lockfile_path)
 
-        @lockfile = YAML.safe_load_file(path).with_indifferent_access
+        lockfiles[db_name] = YAML.safe_load_file(lockfile_path).with_indifferent_access
       end
 
       def persist!
@@ -58,18 +62,24 @@ module Nandi
         # worse merge conflict problems (e.g. if we randomised the order on
         # writing the file, the whole thing would conflict pretty much every time
         # it was regenerated).
-        content = lockfile.to_h.deep_stringify_keys.sort_by do |k, _|
-          Digest::SHA256.hexdigest(k)
-        end.to_h.to_yaml
+        lockfiles.each do |db_name, lockfile|
+          content = lockfile.to_h.deep_stringify_keys.sort_by do |k, _|
+            Digest::SHA256.hexdigest(k)
+          end.to_h.to_yaml
 
-        File.write(path, content)
+          File.write(path(db_name), content)
+        end
       end
 
-      def path
-        Nandi.config.lockfile_path
+      def path(db_name)
+        Nandi.config.lockfile_path(db_name)
       end
 
-      attr_accessor :lockfile
+      def lockfiles
+        @lockfiles ||= {}
+      end
+
+      attr_writer :lockfiles
     end
   end
 end
