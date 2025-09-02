@@ -1,9 +1,12 @@
 # frozen_string_literal: true
 
 require "rails/generators"
+require "nandi/multi_db_generator"
 
 module Nandi
   class MigrationGenerator < Rails::Generators::NamedBase
+    include MultiDbGenerator
+
     source_root File.expand_path("templates", __dir__)
 
     def create_migration_file
@@ -13,12 +16,6 @@ module Nandi
         "migration.rb",
         "#{base_path}/#{timestamp}_#{file_name.underscore}.rb",
       )
-    end
-
-    private
-
-    def base_path
-      Nandi.config.migration_directory || "db/safe_migrations"
     end
   end
 end

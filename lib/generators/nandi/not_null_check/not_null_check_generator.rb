@@ -2,10 +2,12 @@
 
 require "rails/generators"
 require "nandi/formatting"
+require "nandi/multi_db_generator"
 
 module Nandi
   class NotNullCheckGenerator < Rails::Generators::Base
     include Nandi::Formatting
+    include MultiDbGenerator
 
     argument :table, type: :string
     argument :column, type: :string
@@ -40,10 +42,6 @@ module Nandi
     end
 
     private
-
-    def base_path
-      Nandi.config.migration_directory || "db/safe_migrations"
-    end
 
     def timestamp(offset = 0)
       (Time.now.utc + offset).strftime("%Y%m%d%H%M%S")
