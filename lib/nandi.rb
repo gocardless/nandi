@@ -9,9 +9,9 @@ module Nandi
   class Error < StandardError; end
 
   class << self
-    def compile(files:)
+    def compile(files:, db_name: nil)
       compiled = files.
-        map { |f| CompiledMigration.build(f) }
+        map { |f| CompiledMigration.build(file_name: f, db_name: db_name) }
 
       yield compiled
     end
@@ -27,10 +27,6 @@ module Nandi
 
     def config
       @config ||= Config.new
-    end
-
-    def compiled_output_directory
-      Nandi.config.output_directory || "db/migrate"
     end
   end
 end
