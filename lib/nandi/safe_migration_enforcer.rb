@@ -53,7 +53,7 @@ module Nandi
         @ungenerated_violations,
         @hand_written_violations,
         @out_of_date_violations,
-        @hand_edited_violations
+        @hand_edited_violations,
       ].select(&:any?)
 
       if all_violations.any?
@@ -71,8 +71,8 @@ module Nandi
 
       return if safe_migrations.none? && ar_migrations.none?
 
-      @ungenerated_violations.add_violations(safe_migrations:, ar_migrations:, database_config:)
-      @hand_written_violations.add_violations(safe_migrations:, ar_migrations:, database_config:)
+      @ungenerated_violations.add_violations(safe_migrations:, ar_migrations:)
+      @hand_written_violations.add_violations(safe_migrations:, ar_migrations:)
       @hand_edited_violations.add_violations(ar_migrations:, database_config:)
       @out_of_date_violations.add_violations(safe_migrations:, database_config:)
     end

@@ -22,14 +22,14 @@ module Nandi
         generate_message
       end
 
-      def add_violations(database_config:, **kwargs)
-        violations = check_files(database_config:, **kwargs)
+      def add_violations(**kwargs)
+        violations = check_files(**kwargs)
         @files.concat(violations)
       end
 
       private
 
-      def check_files(database_config:, **kwargs)
+      def check_files(**kwargs)
         raise NotImplementedError, "Subclasses must implement #check_files"
       end
 
@@ -39,13 +39,9 @@ module Nandi
     end
 
     class UngeneratedMigrationViolations < BaseViolations
-      def initialize(**kwargs)
-        super(**kwargs)
-      end
-
       private
 
-      def check_files(database_config:, safe_migrations:, ar_migrations:, **kwargs)
+      def check_files(safe_migrations:, ar_migrations:, **_kwargs)
         safe_migrations - ar_migrations
       end
 
@@ -61,13 +57,9 @@ module Nandi
     end
 
     class HandWrittenMigrationViolations < BaseViolations
-      def initialize(**kwargs)
-        super(**kwargs)
-      end
-
       private
 
-      def check_files(database_config:, ar_migrations:, safe_migrations:)
+      def check_files(ar_migrations:, safe_migrations:)
         ar_migrations - safe_migrations
       end
 
@@ -85,13 +77,9 @@ module Nandi
     end
 
     class OutOfDateMigrationViolations < BaseViolations
-      def initialize(**kwargs)
-        super(**kwargs)
-      end
-
       private
 
-      def check_files(database_config:, safe_migrations:, **kwargs)
+      def check_files(database_config:, safe_migrations:, **_kwargs)
         out_of_date_migrations = safe_migrations.
           map { |m| [m, Nandi::Lockfile.for(database_config.name).get(file_name: m)] }.
           select do |filename, digests|
@@ -117,13 +105,9 @@ module Nandi
     end
 
     class HandEditedMigrationViolations < BaseViolations
-      def initialize(**kwargs)
-        super(**kwargs)
-      end
-
       private
 
-      def check_files(database_config:, ar_migrations:, **kwargs)
+      def check_files(database_config:, ar_migrations:, **_kwargs)
         hand_altered_migrations = ar_migrations.
           map { |m| [m, Nandi::Lockfile.for(database_config.name).get(file_name: m)] }.
           select do |filename, digests|

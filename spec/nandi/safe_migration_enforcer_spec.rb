@@ -3,7 +3,6 @@
 require "nandi/safe_migration_enforcer"
 
 RSpec.shared_examples "linting behavior" do
-
   context "when there are no files" do
     let(:safe_migrations) { [] }
     let(:ar_migrations) { [] }
@@ -56,6 +55,7 @@ RSpec.shared_examples "linting behavior" do
         and_return("newer_content")
     end
 
+    # rubocop:disable RSpec/ExampleLength
     it "raises an error with an appropriate message" do
       expect { subject.run }.to raise_error do |err|
         expect(err.class).to eq(Nandi::SafeMigrationEnforcer::MigrationLintingFailed)
@@ -66,6 +66,7 @@ RSpec.shared_examples "linting behavior" do
         expect(err.message).to_not match(/20190513163423_add_beachballs.rb/)
       end
     end
+    # rubocop:enable RSpec/ExampleLength
   end
 
   context "when a generated migration has had its content altered" do
@@ -211,12 +212,12 @@ RSpec.describe Nandi::SafeMigrationEnforcer do
         config.register_database(
           :primary,
           migration_directory: "#{temp_dir}/db/safe_migrations",
-          output_directory: "#{temp_dir}/db/migrate"
+          output_directory: "#{temp_dir}/db/migrate",
         )
         config.register_database(
           :analytics,
           migration_directory: "#{temp_dir}/db/analytics_safe_migrations",
-          output_directory: "#{temp_dir}/db/analytics_migrate"
+          output_directory: "#{temp_dir}/db/analytics_migrate",
         )
       end
 
@@ -225,16 +226,16 @@ RSpec.describe Nandi::SafeMigrationEnforcer do
 
       # Mock migration file discovery
       allow(Dir).to receive(:glob).with("#{temp_dir}/db/safe_migrations/*.rb").and_return(
-        primary_migrations.map { |f| "#{temp_dir}/db/safe_migrations/#{f}" }
+        primary_migrations.map { |f| "#{temp_dir}/db/safe_migrations/#{f}" },
       )
       allow(Dir).to receive(:glob).with("#{temp_dir}/db/migrate/*.rb").and_return(
-        primary_migrations.map { |f| "#{temp_dir}/db/migrate/#{f}" }
+        primary_migrations.map { |f| "#{temp_dir}/db/migrate/#{f}" },
       )
       allow(Dir).to receive(:glob).with("#{temp_dir}/db/analytics_safe_migrations/*.rb").and_return(
-        analytics_migrations.map { |f| "#{temp_dir}/db/analytics_safe_migrations/#{f}" }
+        analytics_migrations.map { |f| "#{temp_dir}/db/analytics_safe_migrations/#{f}" },
       )
       allow(Dir).to receive(:glob).with("#{temp_dir}/db/analytics_migrate/*.rb").and_return(
-        analytics_migrations.map { |f| "#{temp_dir}/db/analytics_migrate/#{f}" }
+        analytics_migrations.map { |f| "#{temp_dir}/db/analytics_migrate/#{f}" },
       )
 
       # Mock FileMatcher to return files as-is
@@ -255,9 +256,11 @@ RSpec.describe Nandi::SafeMigrationEnforcer do
     end
 
     context "when all databases are properly configured" do
+      # rubocop:disable RSpec/NamedSubject
       it "validates all databases successfully" do
         expect(subject.run).to eq(true)
       end
+      # rubocop:enable RSpec/NamedSubject
     end
 
     context "when there are violations in multiple databases" do
@@ -267,14 +270,16 @@ RSpec.describe Nandi::SafeMigrationEnforcer do
         allow(Dir).to receive(:glob).with("#{temp_dir}/db/analytics_migrate/*.rb").and_return([])
       end
 
+      # rubocop:disable RSpec/NamedSubject
       it "reports violations from all databases" do
         expect { subject.run }.to raise_error(
-          Nandi::SafeMigrationEnforcer::MigrationLintingFailed
+          Nandi::SafeMigrationEnforcer::MigrationLintingFailed,
         ) do |error|
           expect(error.message).to include("20240101000000_primary_migration.rb")
           expect(error.message).to include("20240102000000_analytics_migration.rb")
         end
       end
+      # rubocop:enable RSpec/NamedSubject
     end
 
     context "when there are violations in only one database" do
@@ -283,14 +288,16 @@ RSpec.describe Nandi::SafeMigrationEnforcer do
         allow(Dir).to receive(:glob).with("#{temp_dir}/db/migrate/*.rb").and_return([])
       end
 
+      # rubocop:disable RSpec/NamedSubject
       it "reports violations from the affected database only" do
         expect { subject.run }.to raise_error(
-          Nandi::SafeMigrationEnforcer::MigrationLintingFailed
+          Nandi::SafeMigrationEnforcer::MigrationLintingFailed,
         ) do |error|
           expect(error.message).to include("20240101000000_primary_migration.rb")
           expect(error.message).to_not include("20240102000000_analytics_migration.rb")
         end
       end
+      # rubocop:enable RSpec/NamedSubject
     end
   end
 end
