@@ -131,6 +131,14 @@ module Nandi
       validate_unique_output_directories!
     end
 
+    def each(&block)
+      @databases.values.each(&block)
+    end
+
+    def map(&block)
+      @databases.values.map(&block)
+    end
+
     private
 
     def enforce_default_db_for_multi_database!
