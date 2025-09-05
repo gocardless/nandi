@@ -45,8 +45,8 @@ RSpec.describe Nandi::CompiledMigration do
   let(:db_name) { :primary }
 
   before do
-    allow(File).to receive(:read).with(Nandi::Lockfile.path(db_name)).and_return(lockfile)
-    allow(File).to receive(:write).with(Nandi::Lockfile.path(db_name)).and_return(lockfile)
+    allow(File).to receive(:read).with(Nandi.config.lockfile_path(db_name)).and_return(lockfile)
+    allow(File).to receive(:write).with(Nandi.config.lockfile_path(db_name)).and_return(lockfile)
 
     Nandi.configure do |config|
       config.renderer = renderer

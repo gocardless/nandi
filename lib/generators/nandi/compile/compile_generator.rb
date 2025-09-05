@@ -22,9 +22,11 @@ module Nandi
                  DESC
 
     def compile_migration_files
+      lockfile = Nandi::Lockfile.new
+
       Nandi.compile(files: files) do |results|
         results.each do |result|
-          Nandi::Lockfile.add(
+          lockfile.add(
             file_name: result.file_name,
             source_digest: result.source_digest,
             compiled_digest: result.compiled_digest,
@@ -36,7 +38,7 @@ module Nandi
         end
       end
 
-      Nandi::Lockfile.persist!
+      lockfile.persist!
     end
 
     private

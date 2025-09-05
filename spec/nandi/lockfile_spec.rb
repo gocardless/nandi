@@ -6,7 +6,6 @@ RSpec.describe Nandi::Lockfile do
   before do
     allow(File).to receive(:write).and_call_original
     allow(Nandi.config).to receive(:lockfile_directory).and_return(temp_dir)
-    described_class.lockfiles[database] = nil
   end
 
   let(:database) { :primary }
@@ -19,57 +18,56 @@ RSpec.describe Nandi::Lockfile do
     File.write("#{temp_dir}/.nandilock.yml", lockfile_contents)
   end
 
-  describe ".file_present" do
-    subject(:file_present) { described_class.file_present?(database) }
+  describe "#file_present?" do
+    let(:lockfile) { described_class.new(database) }
 
     context "lockfile exists" do
       before { write_lockfile! }
 
-      it { expect(file_present).to eq(true) }
+      it { expect(lockfile.file_present?).to eq(true) }
     end
 
     context "doesn't exist" do
-      it { expect(file_present).to eq(false) }
+      it { expect(lockfile.file_present?).to eq(false) }
     end
   end
 
-  describe ".create" do
-    subject(:create!) { described_class.create! }
+  describe "#create!" do
+    let(:lockfile) { described_class.new(database) }
 
     it "creates a file" do
       expect(File).to receive(:write).
         with("#{temp_dir}/.nandilock.yml", "--- {}\n").
         and_call_original
 
-      create!
+      lockfile.create!
     end
   end
 
-  describe ".add" do
-    subject(:add) do
-      described_class.add(
-        file_name: "file_name",
-        source_digest: "source_digest",
-        compiled_digest: "compiled_digest",
-        db_name: database,
-      )
-    end
-
+  describe "#add" do
+    let(:lockfile) { described_class.new(database) }
     let(:lockfile_contents) { "--- {}\n" }
 
     before { write_lockfile! }
 
+    # rubocop:disable RSpec/ExampleLength
     it "adds the digests to the instance" do
-      add
+      lockfile.add(
+        file_name: "file_name",
+        source_digest: "source_digest",
+        compiled_digest: "compiled_digest",
+      )
 
-      expect(described_class.lockfiles[database]["file_name"][:source_digest]).
-        to eq("source_digest")
-      expect(described_class.lockfiles[database]["file_name"][:compiled_digest]).
-        to eq("compiled_digest")
+      result = lockfile.get(file_name: "file_name")
+      expect(result[:source_digest]).to eq("source_digest")
+      expect(result[:compiled_digest]).to eq("compiled_digest")
     end
+    # rubocop:enable RSpec/ExampleLength
   end
 
-  describe ".get(file_name)" do
+  describe "#get" do
+    let(:lockfile) { described_class.new(database) }
+
     let(:lockfile_contents) do
       <<~YAML
         ---
@@ -82,30 +80,28 @@ RSpec.describe Nandi::Lockfile do
     before { write_lockfile! }
 
     it "retrieves the digests" do
-      expect(described_class.get(file_name: "migration1", db_name: database)).to eq(
+      expect(lockfile.get(file_name: "migration1")).to eq(
         source_digest: "deadbeef1234",
         compiled_digest: "deadbeef5678",
       )
     end
   end
 
-  describe ".persist!" do
-    subject(:persist!) { described_class.persist! }
+  describe "#persist!" do
+    let(:lockfile) { described_class.new(database) }
 
     let(:expected_yaml) do
       <<~YAML
         ---
         foo:
-          bar: 5
+          source_digest: bar
+          compiled_digest: '5'
       YAML
     end
 
     before do
-      described_class.lockfiles[database] = {
-        foo: {
-          bar: 5,
-        },
-      }
+      write_lockfile!
+      lockfile.add(file_name: "foo", source_digest: "bar", compiled_digest: "5")
     end
 
     it "writes the existing file" do
@@ -114,7 +110,7 @@ RSpec.describe Nandi::Lockfile do
         expected_yaml,
       )
 
-      persist!
+      lockfile.persist!
     end
 
     context "with multiple keys, not sorted by their SHA-256 hash" do
@@ -122,21 +118,20 @@ RSpec.describe Nandi::Lockfile do
         <<~YAML
           ---
           lower_hash:
-            foo: 5
+            source_digest: foo
+            compiled_digest: '5'
           higher_hash:
-            foo: 5
+            source_digest: foo
+            compiled_digest: '5'
         YAML
       end
 
+      let(:test_lockfile) { described_class.new(database) }
+
       before do
-        described_class.lockfiles[database] = {
-          higher_hash: {
-            foo: 5,
-          },
-          lower_hash: {
-            foo: 5,
-          },
-        }
+        File.write("#{temp_dir}/.nandilock.yml", "--- {}\n")
+        test_lockfile.add(file_name: "higher_hash", source_digest: "foo", compiled_digest: "5")
+        test_lockfile.add(file_name: "lower_hash", source_digest: "foo", compiled_digest: "5")
       end
 
       it "sorts the keys by their SHA-256 hash" do
@@ -145,7 +140,7 @@ RSpec.describe Nandi::Lockfile do
           expected_yaml,
         )
 
-        persist!
+        test_lockfile.persist!
       end
     end
   end
@@ -155,9 +150,6 @@ RSpec.describe Nandi::Lockfile do
     let(:analytics_db) { :analytics }
 
     before do
-      # Clear all lockfiles for multi-db tests
-      described_class.lockfiles.clear
-
       # Mock different lockfile paths for different databases
       allow(Nandi.config).to receive(:lockfile_path).with(primary_db).
         and_return("#{temp_dir}/.nandilock.yml")
@@ -165,23 +157,23 @@ RSpec.describe Nandi::Lockfile do
         and_return("#{temp_dir}/.analytics_nandilock.yml")
     end
 
-    describe ".file_present? with multiple databases" do
+    describe "#file_present? with multiple databases" do
       it "checks correct file for each database" do
         # Create only primary lockfile
         File.write("#{temp_dir}/.nandilock.yml", "--- {}\n")
 
-        expect(described_class.file_present?(primary_db)).to be true
-        expect(described_class.file_present?(analytics_db)).to be false
+        expect(described_class.new(primary_db).file_present?).to be true
+        expect(described_class.new(analytics_db).file_present?).to be false
       end
     end
 
-    describe ".create! with multiple databases" do
+    describe "#create! with multiple databases" do
       it "creates separate lockfiles for different databases" do
         expect(File).to receive(:write).with("#{temp_dir}/.nandilock.yml", "--- {}\n")
         expect(File).to receive(:write).with("#{temp_dir}/.analytics_nandilock.yml", "--- {}\n")
 
-        described_class.create!(db_name: primary_db)
-        described_class.create!(db_name: analytics_db)
+        described_class.new(primary_db).create!
+        described_class.new(analytics_db).create!
       end
 
       it "does not re-create existing lockfiles" do
@@ -189,47 +181,52 @@ RSpec.describe Nandi::Lockfile do
 
         expect(File).to_not receive(:write).with("#{temp_dir}/.nandilock.yml", anything)
 
-        described_class.create!(db_name: primary_db)
+        described_class.new(primary_db).create!
       end
     end
 
-    describe ".add with multiple databases" do
+    describe "#add with multiple databases" do
       before do
         File.write("#{temp_dir}/.nandilock.yml", "--- {}\n")
         File.write("#{temp_dir}/.analytics_nandilock.yml", "--- {}\n")
       end
 
       let(:add_migrations_to_databases) do
-        described_class.add(
+        primary_lockfile = described_class.new(primary_db)
+        primary_lockfile.add(
           file_name: "primary_migration",
           source_digest: "primary_source",
           compiled_digest: "primary_compiled",
-          db_name: primary_db,
         )
+        primary_lockfile.persist!
 
-        described_class.add(
+        analytics_lockfile = described_class.new(analytics_db)
+        analytics_lockfile.add(
           file_name: "analytics_migration",
           source_digest: "analytics_source",
           compiled_digest: "analytics_compiled",
-          db_name: analytics_db,
         )
+        analytics_lockfile.persist!
       end
 
       # rubocop: disable RSpec/ExampleLength
       it "adds migrations to correct database lockfile" do
         add_migrations_to_databases
 
-        expect(described_class.lockfiles[primary_db]["primary_migration"][:source_digest]).
+        primary_lockfile = described_class.new(primary_db)
+        analytics_lockfile = described_class.new(analytics_db)
+
+        expect(primary_lockfile.get(file_name: "primary_migration")[:source_digest]).
           to eq("primary_source")
-        expect(described_class.lockfiles[analytics_db]["analytics_migration"][:source_digest]).
+        expect(analytics_lockfile.get(file_name: "analytics_migration")[:source_digest]).
           to eq("analytics_source")
-        expect(described_class.lockfiles[primary_db]["analytics_migration"]).to be_nil
-        expect(described_class.lockfiles[analytics_db]["primary_migration"]).to be_nil
+        expect(primary_lockfile.get(file_name: "analytics_migration")[:source_digest]).to be_nil
+        expect(analytics_lockfile.get(file_name: "primary_migration")[:source_digest]).to be_nil
       end
       # rubocop: enable RSpec/ExampleLength
     end
 
-    describe ".get with multiple databases" do
+    describe "#get with multiple databases" do
       before do
         primary_content = <<~YAML
           ---
@@ -250,23 +247,25 @@ RSpec.describe Nandi::Lockfile do
       end
 
       it "retrieves migration from correct database" do
-        primary_result = described_class.get(file_name: "shared_name", db_name: primary_db)
-        analytics_result = described_class.get(file_name: "shared_name", db_name: analytics_db)
+        primary_result = described_class.new(primary_db).get(file_name: "shared_name")
+        analytics_result = described_class.new(analytics_db).get(file_name: "shared_name")
 
         expect(primary_result[:source_digest]).to eq("primary_digest")
         expect(analytics_result[:source_digest]).to eq("analytics_digest")
       end
     end
 
-    describe ".persist! with multiple databases" do
-      it "writes all database lockfiles" do
-        described_class.lockfiles[primary_db] = { migration1: { foo: "bar" } }
-        described_class.lockfiles[analytics_db] = { migration2: { baz: "qux" } }
+    describe "#persist! with multiple databases" do
+      it "writes only the specific database lockfile" do
+        # Setup data in primary lockfile
+        primary_lockfile = described_class.new(primary_db)
+        File.write("#{temp_dir}/.nandilock.yml", "--- {}\n")
+        primary_lockfile.add(file_name: "migration1", source_digest: "foo", compiled_digest: "bar")
 
         expect(File).to receive(:write).with("#{temp_dir}/.nandilock.yml", anything)
-        expect(File).to receive(:write).with("#{temp_dir}/.analytics_nandilock.yml", anything)
+        expect(File).to_not receive(:write).with("#{temp_dir}/.analytics_nandilock.yml", anything)
 
-        described_class.persist!
+        primary_lockfile.persist!
       end
     end
   end
@@ -278,7 +277,7 @@ RSpec.describe Nandi::Lockfile do
       end
 
       it "propagates configuration errors" do
-        expect { described_class.file_present?(:invalid_db) }.
+        expect { described_class.new(:invalid_db).file_present? }.
           to raise_error(ArgumentError, "Missing database configuration for invalid_db")
       end
     end
@@ -292,11 +291,11 @@ RSpec.describe Nandi::Lockfile do
       end
 
       it "handles missing directory gracefully on file_present?" do
-        expect(described_class.file_present?(:test_db)).to be false
+        expect(described_class.new(:test_db).file_present?).to be false
       end
 
       it "raises error on create! with missing directory" do
-        expect { described_class.create!(db_name: :test_db) }.
+        expect { described_class.new(:test_db).create! }.
           to raise_error(Errno::ENOENT)
       end
     end
@@ -304,8 +303,9 @@ RSpec.describe Nandi::Lockfile do
 
   describe "default database behavior" do
     let(:default_db_name) { :primary }
+    let(:lockfile) { described_class.new }
     let(:add_test_migration) do
-      described_class.add(
+      lockfile.add(
         file_name: "test_migration",
         source_digest: "test_source",
         compiled_digest: "test_compiled",
@@ -323,10 +323,10 @@ RSpec.describe Nandi::Lockfile do
       File.write("#{temp_dir}/.nandilock.yml", "--- {}\n")
 
       add_test_migration
-      result = described_class.get(file_name: "test_migration")
+      result = lockfile.get(file_name: "test_migration")
 
       expect(result[:source_digest]).to eq("test_source")
-      expect(described_class.lockfiles[default_db_name]).to_not be_nil
+      expect(lockfile.db_name).to eq(default_db_name)
     end
   end
 end

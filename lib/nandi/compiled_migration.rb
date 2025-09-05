@@ -58,14 +58,16 @@ module Nandi
     def migration_unchanged?
       return false unless File.exist?(output_path)
 
+      lockfile = Nandi::Lockfile.new
+
       source_migration_diff = Nandi::FileDiff.new(
         file_path: source_file_path,
-        known_digest: Nandi::Lockfile.get(file_name: file_name).fetch(:source_digest),
+        known_digest: lockfile.get(file_name: file_name).fetch(:source_digest),
       )
 
       compiled_migration_diff = Nandi::FileDiff.new(
         file_path: output_path,
-        known_digest: Nandi::Lockfile.get(file_name: file_name).fetch(:compiled_digest),
+        known_digest: lockfile.get(file_name: file_name).fetch(:compiled_digest),
       )
 
       source_migration_diff.unchanged? && compiled_migration_diff.unchanged?
