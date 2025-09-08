@@ -12,10 +12,9 @@ module Nandi
   class SafeMigrationEnforcer
     class MigrationLintingFailed < StandardError; end
 
-    DEFAULT_FILE_SPEC = "all"
-    DEFAULT_DB_NAME = :primary
     DEFAULT_SAFE_MIGRATION_DIR = "db/safe_migrations"
     DEFAULT_AR_MIGRATION_DIR = "db/migrate"
+    DEFAULT_FILE_SPEC = "all"
 
     def initialize(require_path: nil,
                    safe_migration_dir: DEFAULT_SAFE_MIGRATION_DIR,
