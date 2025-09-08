@@ -5,7 +5,6 @@ require "tempfile"
 RSpec.describe Nandi::Lockfile do
   before do
     described_class.clear_instances!
-    allow(File).to receive(:write).and_call_original
     allow(Nandi.config).to receive(:lockfile_directory).and_return(temp_dir)
   end
 
@@ -15,7 +14,6 @@ RSpec.describe Nandi::Lockfile do
   let(:lockfile_contents) { "--- {}\n" }
 
   def write_lockfile!
-    allow(File).to receive(:write).with("#{temp_dir}/.nandilock.yml", anything).and_call_original
     File.write("#{temp_dir}/.nandilock.yml", lockfile_contents)
   end
 
