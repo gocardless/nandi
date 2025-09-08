@@ -13,7 +13,7 @@ module Nandi
       # always work with the same instance, maintaining consistency.
       def for(db_name)
         @instances ||= {}
-        @instances[db_name] ||= new(db_name)
+        @instances[db_name.to_sym] ||= new(db_name.to_sym)
       end
 
       def clear_instances!

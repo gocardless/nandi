@@ -12,7 +12,7 @@ RSpec.describe Nandi::CompileGenerator do
     Nandi.instance_variable_set(:@config, nil)
 
     # Clear existing lockfiles
-    Nandi::Lockfile.lockfiles.clear
+    Nandi::Lockfile.clear_instances!
 
     # Mock file operations only - no filesystem access
     allow(File).to receive(:write)
@@ -52,8 +52,8 @@ RSpec.describe Nandi::CompileGenerator do
       ])
 
       # Mock lockfile operations
-      allow(Nandi::Lockfile).to receive(:add)
-      allow(Nandi::Lockfile).to receive(:persist!)
+      allow_any_instance_of(Nandi::Lockfile).to receive(:add)
+      allow_any_instance_of(Nandi::Lockfile).to receive(:persist!)
     end
 
     it "calls Nandi.compile with correct parameters" do
@@ -66,8 +66,8 @@ RSpec.describe Nandi::CompileGenerator do
     end
 
     it "adds entries to lockfile with database context" do
-      expect(Nandi::Lockfile).to receive(:add).with(
-        hash_including(file_name: "test_migration.rb", db_name: :primary),
+      expect(Nandi::Lockfile.for(:primary)).to receive(:add).with(
+        hash_including(file_name: "test_migration.rb"),
       )
 
       generator.compile_migration_files
@@ -103,7 +103,7 @@ RSpec.describe Nandi::CompileGenerator do
     end
 
     it "persists lockfile after processing" do
-      expect(Nandi::Lockfile).to receive(:persist!).once
+      expect(Nandi::Lockfile.for(:primary)).to receive(:persist!).once
 
       generator.compile_migration_files
     end
@@ -154,8 +154,10 @@ RSpec.describe Nandi::CompileGenerator do
       ).and_return(["analytics_migration.rb"])
 
       # Mock lockfile operations
-      allow(Nandi::Lockfile).to receive(:add)
-      allow(Nandi::Lockfile).to receive(:persist!)
+      allow(Nandi::Lockfile.for(:primary)).to receive(:add)
+      allow(Nandi::Lockfile.for(:primary)).to receive(:persist!)
+      allow(Nandi::Lockfile.for(:analytics)).to receive(:add)
+      allow(Nandi::Lockfile.for(:analytics)).to receive(:persist!)
     end
 
     context "when compiling all databases" do
@@ -198,7 +200,8 @@ RSpec.describe Nandi::CompileGenerator do
       end
 
       it "adds migrations to lockfile with correct database context" do
-        expect(Nandi::Lockfile).to receive(:add).twice
+        expect(Nandi::Lockfile.for(:primary)).to receive(:add).once
+        expect(Nandi::Lockfile.for(:analytics)).to receive(:add).once
         generator.compile_migration_files
       end
 
@@ -210,7 +213,7 @@ RSpec.describe Nandi::CompileGenerator do
 
     context "when compiling specific database" do
       before do
-        allow(generator).to receive(:options).and_return({ database: "analytics" })
+        allow(generator).to receive(:options).and_return({ database: :analytics })
 
         # Override Dir calls for single database
         allow(Dir).to receive(:chdir).with("#{temp_dir}/db/analytics_safe_migrations").and_yield
@@ -224,7 +227,7 @@ RSpec.describe Nandi::CompileGenerator do
 
         allow(Nandi).to receive(:compile).with(
           files: ["analytics_migration.rb"],
-          db_name: "analytics",
+          db_name: :analytics,
         ).and_yield([
           instance_double(
             Nandi::CompiledMigration,
@@ -261,8 +264,8 @@ RSpec.describe Nandi::CompileGenerator do
       ])
 
       allow(Nandi).to receive(:compile).and_yield([])
-      allow(Nandi::Lockfile).to receive(:add)
-      allow(Nandi::Lockfile).to receive(:persist!)
+      allow(Nandi::Lockfile.for(:primary)).to receive(:add)
+      allow(Nandi::Lockfile.for(:primary)).to receive(:persist!)
     end
 
     it "uses FileMatcher to filter files" do
