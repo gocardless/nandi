@@ -10,8 +10,8 @@ RSpec.describe Nandi do
   end
 
   before do
-    Nandi::Lockfile.lockfile = {}
-    allow(Nandi::Lockfile).to receive(:persist!)
+    # Test default single-database behavior
+    allow_any_instance_of(Nandi::Lockfile).to receive(:persist!)
   end
 
   describe "::compile" do

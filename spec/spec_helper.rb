@@ -15,10 +15,5 @@ RSpec.configure do |config|
     c.syntax = :expect
   end
 
-  config.before do
-    # Do not leave lockfiles lying around after test runs
-    allow(File).to receive(:write).with(Pathname.new(".nandilock.yml"), anything)
-  end
-
   Tilt.prefer Tilt::ERBTemplate
 end
