@@ -91,7 +91,7 @@ module Nandi
       lockfile = Nandi::Lockfile.for(Nandi.config.default.name)
 
       out_of_date_migrations = safe_migrations.
-        map { |m| [m, lockfile.get(file_name: m)] }.
+        map { |m| [m, lockfile.get(m)] }.
         select do |filename, digests|
           Nandi::FileDiff.new(
             file_path: File.join(@safe_migration_dir, filename),
@@ -117,7 +117,7 @@ module Nandi
       lockfile = Nandi::Lockfile.for(Nandi.config.default.name)
 
       hand_altered_migrations = ar_migrations.
-        map { |m| [m, lockfile.get(file_name: m)] }.
+        map { |m| [m, lockfile.get(m)] }.
         select do |filename, digests|
           Nandi::FileDiff.new(
             file_path: File.join(@ar_migration_dir, filename),

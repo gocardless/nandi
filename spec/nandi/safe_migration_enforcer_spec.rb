@@ -147,7 +147,7 @@ RSpec.describe Nandi::SafeMigrationEnforcer do
       and_return(ar_migrations)
 
     # Test default single-database behavior - mock lockfile instance methods
-    allow_any_instance_of(Nandi::Lockfile).to receive(:get) do |_instance, file_name:|
+    allow_any_instance_of(Nandi::Lockfile).to receive(:get) do |_instance, file_name|
       if lockfile.key?(file_name)
         lockfile.fetch(file_name)
       else

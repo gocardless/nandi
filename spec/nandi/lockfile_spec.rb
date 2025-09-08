@@ -79,7 +79,7 @@ RSpec.describe Nandi::Lockfile do
         compiled_digest: "compiled_digest",
       )
 
-      result = lockfile.get(file_name: "file_name")
+      result = lockfile.get("file_name")
       expect(result[:source_digest]).to eq("source_digest")
       expect(result[:compiled_digest]).to eq("compiled_digest")
     end
@@ -101,7 +101,7 @@ RSpec.describe Nandi::Lockfile do
     before { write_lockfile! }
 
     it "retrieves the digests" do
-      expect(lockfile.get(file_name: "migration1")).to eq(
+      expect(lockfile.get("migration1")).to eq(
         source_digest: "deadbeef1234",
         compiled_digest: "deadbeef5678",
       )
@@ -239,12 +239,12 @@ RSpec.describe Nandi::Lockfile do
         primary_lockfile = described_class.for(primary_db)
         analytics_lockfile = described_class.for(analytics_db)
 
-        expect(primary_lockfile.get(file_name: "primary_migration")[:source_digest]).
+        expect(primary_lockfile.get("primary_migration")[:source_digest]).
           to eq("primary_source")
-        expect(analytics_lockfile.get(file_name: "analytics_migration")[:source_digest]).
+        expect(analytics_lockfile.get("analytics_migration")[:source_digest]).
           to eq("analytics_source")
-        expect(primary_lockfile.get(file_name: "analytics_migration")[:source_digest]).to be_nil
-        expect(analytics_lockfile.get(file_name: "primary_migration")[:source_digest]).to be_nil
+        expect(primary_lockfile.get("analytics_migration")[:source_digest]).to be_nil
+        expect(analytics_lockfile.get("primary_migration")[:source_digest]).to be_nil
       end
       # rubocop: enable RSpec/ExampleLength
     end
@@ -270,8 +270,8 @@ RSpec.describe Nandi::Lockfile do
       end
 
       it "retrieves migration from correct database" do
-        primary_result = described_class.for(primary_db).get(file_name: "shared_name")
-        analytics_result = described_class.for(analytics_db).get(file_name: "shared_name")
+        primary_result = described_class.for(primary_db).get("shared_name")
+        analytics_result = described_class.for(analytics_db).get("shared_name")
 
         expect(primary_result[:source_digest]).to eq("primary_digest")
         expect(analytics_result[:source_digest]).to eq("analytics_digest")

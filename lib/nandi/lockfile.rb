@@ -46,7 +46,7 @@ module Nandi
       }
     end
 
-    def get(file_name:)
+    def get(file_name)
       load!
 
       {
