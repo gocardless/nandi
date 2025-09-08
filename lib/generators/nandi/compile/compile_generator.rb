@@ -47,7 +47,7 @@ module Nandi
     private
 
     def databases
-      return [options[:database]] if options[:database]
+      return [options[:database].to_sym] if options[:database]
 
       Nandi.config.databases.names
     end

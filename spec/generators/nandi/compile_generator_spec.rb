@@ -213,7 +213,7 @@ RSpec.describe Nandi::CompileGenerator do
 
     context "when compiling specific database" do
       before do
-        allow(generator).to receive(:options).and_return({ database: :analytics })
+        allow(generator).to receive(:options).and_return({ database: "analytics" })
 
         # Override Dir calls for single database
         allow(Dir).to receive(:chdir).with("#{temp_dir}/db/analytics_safe_migrations").and_yield
