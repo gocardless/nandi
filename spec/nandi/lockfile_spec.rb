@@ -4,6 +4,7 @@ require "tempfile"
 
 RSpec.describe Nandi::Lockfile do
   before do
+    described_class.clear_instances!
     allow(File).to receive(:write).and_call_original
     allow(Nandi.config).to receive(:lockfile_directory).and_return(temp_dir)
   end
@@ -18,8 +19,30 @@ RSpec.describe Nandi::Lockfile do
     File.write("#{temp_dir}/.nandilock.yml", lockfile_contents)
   end
 
+  describe ".for" do
+    it "returns same instance for same database" do
+      lockfile1 = described_class.for(:primary)
+      lockfile2 = described_class.for(:primary)
+
+      expect(lockfile1).to be(lockfile2)
+    end
+
+    it "returns different instances for different databases" do
+      primary = described_class.for(:primary)
+      analytics = described_class.for(:analytics)
+
+      expect(primary).to_not be(analytics)
+      expect(primary.db_name).to eq(:primary)
+      expect(analytics.db_name).to eq(:analytics)
+    end
+
+    it "requires explicit db_name parameter" do
+      expect { described_class.for }.to raise_error(ArgumentError)
+    end
+  end
+
   describe "#file_present?" do
-    let(:lockfile) { described_class.new(database) }
+    let(:lockfile) { described_class.for(database) }
 
     context "lockfile exists" do
       before { write_lockfile! }
@@ -33,7 +56,7 @@ RSpec.describe Nandi::Lockfile do
   end
 
   describe "#create!" do
-    let(:lockfile) { described_class.new(database) }
+    let(:lockfile) { described_class.for(database) }
 
     it "creates a file" do
       expect(File).to receive(:write).
@@ -45,7 +68,7 @@ RSpec.describe Nandi::Lockfile do
   end
 
   describe "#add" do
-    let(:lockfile) { described_class.new(database) }
+    let(:lockfile) { described_class.for(database) }
     let(:lockfile_contents) { "--- {}\n" }
 
     before { write_lockfile! }
@@ -66,7 +89,7 @@ RSpec.describe Nandi::Lockfile do
   end
 
   describe "#get" do
-    let(:lockfile) { described_class.new(database) }
+    let(:lockfile) { described_class.for(database) }
 
     let(:lockfile_contents) do
       <<~YAML
@@ -88,7 +111,7 @@ RSpec.describe Nandi::Lockfile do
   end
 
   describe "#persist!" do
-    let(:lockfile) { described_class.new(database) }
+    let(:lockfile) { described_class.for(database) }
 
     let(:expected_yaml) do
       <<~YAML
@@ -126,17 +149,19 @@ RSpec.describe Nandi::Lockfile do
         YAML
       end
 
-      let(:test_lockfile) { described_class.new(database) }
+      let(:test_lockfile) { described_class.for(:isolated_test_db) }
 
       before do
-        File.write("#{temp_dir}/.nandilock.yml", "--- {}\n")
+        allow(Nandi.config).to receive(:lockfile_path).with(:isolated_test_db).
+          and_return("#{temp_dir}/.isolated_nandilock.yml")
+        File.write("#{temp_dir}/.isolated_nandilock.yml", "--- {}\n")
         test_lockfile.add(file_name: "higher_hash", source_digest: "foo", compiled_digest: "5")
         test_lockfile.add(file_name: "lower_hash", source_digest: "foo", compiled_digest: "5")
       end
 
       it "sorts the keys by their SHA-256 hash" do
         expect(File).to receive(:write).with(
-          "#{temp_dir}/.nandilock.yml",
+          "#{temp_dir}/.isolated_nandilock.yml",
           expected_yaml,
         )
 
@@ -162,8 +187,8 @@ RSpec.describe Nandi::Lockfile do
         # Create only primary lockfile
         File.write("#{temp_dir}/.nandilock.yml", "--- {}\n")
 
-        expect(described_class.new(primary_db).file_present?).to be true
-        expect(described_class.new(analytics_db).file_present?).to be false
+        expect(described_class.for(primary_db).file_present?).to be true
+        expect(described_class.for(analytics_db).file_present?).to be false
       end
     end
 
@@ -172,8 +197,8 @@ RSpec.describe Nandi::Lockfile do
         expect(File).to receive(:write).with("#{temp_dir}/.nandilock.yml", "--- {}\n")
         expect(File).to receive(:write).with("#{temp_dir}/.analytics_nandilock.yml", "--- {}\n")
 
-        described_class.new(primary_db).create!
-        described_class.new(analytics_db).create!
+        described_class.for(primary_db).create!
+        described_class.for(analytics_db).create!
       end
 
       it "does not re-create existing lockfiles" do
@@ -181,7 +206,7 @@ RSpec.describe Nandi::Lockfile do
 
         expect(File).to_not receive(:write).with("#{temp_dir}/.nandilock.yml", anything)
 
-        described_class.new(primary_db).create!
+        described_class.for(primary_db).create!
       end
     end
 
@@ -192,7 +217,7 @@ RSpec.describe Nandi::Lockfile do
       end
 
       let(:add_migrations_to_databases) do
-        primary_lockfile = described_class.new(primary_db)
+        primary_lockfile = described_class.for(primary_db)
         primary_lockfile.add(
           file_name: "primary_migration",
           source_digest: "primary_source",
@@ -200,7 +225,7 @@ RSpec.describe Nandi::Lockfile do
         )
         primary_lockfile.persist!
 
-        analytics_lockfile = described_class.new(analytics_db)
+        analytics_lockfile = described_class.for(analytics_db)
         analytics_lockfile.add(
           file_name: "analytics_migration",
           source_digest: "analytics_source",
@@ -213,8 +238,8 @@ RSpec.describe Nandi::Lockfile do
       it "adds migrations to correct database lockfile" do
         add_migrations_to_databases
 
-        primary_lockfile = described_class.new(primary_db)
-        analytics_lockfile = described_class.new(analytics_db)
+        primary_lockfile = described_class.for(primary_db)
+        analytics_lockfile = described_class.for(analytics_db)
 
         expect(primary_lockfile.get(file_name: "primary_migration")[:source_digest]).
           to eq("primary_source")
@@ -247,8 +272,8 @@ RSpec.describe Nandi::Lockfile do
       end
 
       it "retrieves migration from correct database" do
-        primary_result = described_class.new(primary_db).get(file_name: "shared_name")
-        analytics_result = described_class.new(analytics_db).get(file_name: "shared_name")
+        primary_result = described_class.for(primary_db).get(file_name: "shared_name")
+        analytics_result = described_class.for(analytics_db).get(file_name: "shared_name")
 
         expect(primary_result[:source_digest]).to eq("primary_digest")
         expect(analytics_result[:source_digest]).to eq("analytics_digest")
@@ -258,7 +283,7 @@ RSpec.describe Nandi::Lockfile do
     describe "#persist! with multiple databases" do
       it "writes only the specific database lockfile" do
         # Setup data in primary lockfile
-        primary_lockfile = described_class.new(primary_db)
+        primary_lockfile = described_class.for(primary_db)
         File.write("#{temp_dir}/.nandilock.yml", "--- {}\n")
         primary_lockfile.add(file_name: "migration1", source_digest: "foo", compiled_digest: "bar")
 
@@ -277,7 +302,7 @@ RSpec.describe Nandi::Lockfile do
       end
 
       it "propagates configuration errors" do
-        expect { described_class.new(:invalid_db).file_present? }.
+        expect { described_class.for(:invalid_db).file_present? }.
           to raise_error(ArgumentError, "Missing database configuration for invalid_db")
       end
     end
@@ -291,42 +316,13 @@ RSpec.describe Nandi::Lockfile do
       end
 
       it "handles missing directory gracefully on file_present?" do
-        expect(described_class.new(:test_db).file_present?).to be false
+        expect(described_class.for(:test_db).file_present?).to be false
       end
 
       it "raises error on create! with missing directory" do
-        expect { described_class.new(:test_db).create! }.
+        expect { described_class.for(:test_db).create! }.
           to raise_error(Errno::ENOENT)
       end
-    end
-  end
-
-  describe "default database behavior" do
-    let(:default_db_name) { :primary }
-    let(:lockfile) { described_class.new }
-    let(:add_test_migration) do
-      lockfile.add(
-        file_name: "test_migration",
-        source_digest: "test_source",
-        compiled_digest: "test_compiled",
-      )
-    end
-
-    before do
-      allow(Nandi.config).to receive(:default).
-        and_return(instance_double(Nandi::MultiDatabase::Database, name: default_db_name))
-      allow(Nandi.config).to receive(:lockfile_path).with(default_db_name).
-        and_return("#{temp_dir}/.nandilock.yml")
-    end
-
-    it "uses default database when db_name not specified" do
-      File.write("#{temp_dir}/.nandilock.yml", "--- {}\n")
-
-      add_test_migration
-      result = lockfile.get(file_name: "test_migration")
-
-      expect(result[:source_digest]).to eq("test_source")
-      expect(lockfile.db_name).to eq(default_db_name)
     end
   end
 end

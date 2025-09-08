@@ -7,10 +7,21 @@ module Nandi
   class Lockfile
     attr_reader :db_name
 
-    def initialize(db_name = nil)
-      @db_name = db_name || Nandi.config.default.name
-      @data = nil
-      @loaded = false
+    class << self
+      def for(db_name)
+        @instances ||= {}
+        @instances[db_name] ||= new(db_name)
+      end
+
+      def clear_instances!
+        @instances = {}
+      end
+
+      private_class_method :new
+    end
+
+    def initialize(db_name)
+      @db_name = db_name
     end
 
     def file_present?
@@ -24,25 +35,33 @@ module Nandi
     end
 
     def add(file_name:, source_digest:, compiled_digest:)
-      ensure_loaded!
+      load!
 
-      @data[file_name] = {
+      @lockfile[file_name] = {
         source_digest: source_digest,
         compiled_digest: compiled_digest,
       }
     end
 
     def get(file_name:)
-      ensure_loaded!
+      load!
 
       {
-        source_digest: @data.dig(file_name, :source_digest),
-        compiled_digest: @data.dig(file_name, :compiled_digest),
+        source_digest: @lockfile.dig(file_name, :source_digest),
+        compiled_digest: @lockfile.dig(file_name, :compiled_digest),
       }
     end
 
+    def load!
+      return @lockfile if @lockfile
+
+      create! unless file_present?
+
+      @lockfile = YAML.safe_load_file(path).with_indifferent_access
+    end
+
     def persist!
-      ensure_loaded!
+      load!
       # This is a somewhat ridiculous trick to avoid merge conflicts in git.
       #
       # Normally, new migrations are added to the bottom of the Nandi lockfile.
@@ -58,7 +77,7 @@ module Nandi
       # worse merge conflict problems (e.g. if we randomised the order on
       # writing the file, the whole thing would conflict pretty much every time
       # it was regenerated).
-      content = @data.to_h.deep_stringify_keys.sort_by do |k, _|
+      content = @lockfile.to_h.deep_stringify_keys.sort_by do |k, _|
         Digest::SHA256.hexdigest(k)
       end.to_h.to_yaml
 
@@ -66,22 +85,6 @@ module Nandi
     end
 
     private
-
-    def ensure_loaded!
-      return if @loaded
-
-      load!
-      @loaded = true
-    end
-
-    def load!
-      if File.exist?(path)
-        @data = YAML.safe_load_file(path).with_indifferent_access
-      else
-        create!
-        @data = {}.with_indifferent_access
-      end
-    end
 
     def path
       Nandi.config.lockfile_path(@db_name)

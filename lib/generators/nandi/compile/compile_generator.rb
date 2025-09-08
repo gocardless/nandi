@@ -22,7 +22,7 @@ module Nandi
                  DESC
 
     def compile_migration_files
-      lockfile = Nandi::Lockfile.new
+      lockfile = Nandi::Lockfile.for(Nandi.config.default.name)
 
       Nandi.compile(files: files) do |results|
         results.each do |result|

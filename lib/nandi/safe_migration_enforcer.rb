@@ -88,7 +88,7 @@ module Nandi
     end
 
     def enforce_no_out_of_date_migrations!(safe_migrations)
-      lockfile = Nandi::Lockfile.new
+      lockfile = Nandi::Lockfile.for(Nandi.config.default.name)
 
       out_of_date_migrations = safe_migrations.
         map { |m| [m, lockfile.get(file_name: m)] }.
@@ -114,7 +114,7 @@ module Nandi
     end
 
     def enforce_no_hand_edited_migrations!(ar_migrations)
-      lockfile = Nandi::Lockfile.new
+      lockfile = Nandi::Lockfile.for(Nandi.config.default.name)
 
       hand_altered_migrations = ar_migrations.
         map { |m| [m, lockfile.get(file_name: m)] }.
