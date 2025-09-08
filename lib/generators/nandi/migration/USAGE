@@ -1,9 +1,19 @@
 Description:
     Generates a new database migration which uses the
-    nandi DSL in db/nandi
+    nandi DSL. Supports both single and multi-database
+    configurations.
 
-Example:
+Examples:
     rails generate nandi:migration add_stuff_to_things
 
     This will create:
         db/safe_migrations/20190424123727_add_stuff_to_things.rb
+
+    If no --database option is specified, uses the default database.
+
+Multi-database examples:
+    rails generate nandi:migration add_stuff_to_things --database primary
+        creates migration in primary database directory
+
+    rails generate nandi:migration add_analytics_table --database analytics
+        creates migration in analytics database directory

@@ -17,3 +17,10 @@ Example:
         db/safe_migrations/20190424123728_validate_not_null_check_on_bar_to_foos.rb
 
     The statement timeout in the second migration will be set to 20,000ms.
+
+Multi-database examples:
+    rails generate nandi:not_null_check users email --database primary
+        creates not null check migrations in primary database directory
+
+    rails generate nandi:not_null_check events user_id --database analytics
+        creates not null check migrations in analytics database directory

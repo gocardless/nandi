@@ -5,7 +5,7 @@ require "nandi/multi_db_generator"
 
 module Nandi
   class MigrationGenerator < Rails::Generators::NamedBase
-    include MultiDbGenerator
+    include Nandi::MultiDbGenerator
 
     source_root File.expand_path("templates", __dir__)
 

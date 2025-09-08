@@ -14,6 +14,8 @@ Example:
     new foreign key constraint on that column against the id column of bars, and
     validate that constraint separately.
 
+    If no --database option is specified, uses the default database.
+
 Example:
     rails generate nandi:foreign_key foos bars --type text
 
@@ -45,3 +47,10 @@ Example:
 
     Assumes that there is a column on table foos called special_bar_id that points to
     bars. Will create an FK constraint called my_fk
+
+Multi-database examples:
+    rails generate nandi:foreign_key posts users --database primary
+        creates foreign key migrations in primary database directory
+
+    rails generate nandi:foreign_key events sessions --database analytics
+        creates foreign key migrations in analytics database directory

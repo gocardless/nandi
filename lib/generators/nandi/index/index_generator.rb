@@ -7,7 +7,7 @@ require "nandi/multi_db_generator"
 module Nandi
   class IndexGenerator < Rails::Generators::Base
     include Nandi::Formatting
-    include MultiDbGenerator
+    include Nandi::MultiDbGenerator
 
     argument :tables, type: :string
     argument :columns, type: :string

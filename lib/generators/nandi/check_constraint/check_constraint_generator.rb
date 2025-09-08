@@ -7,7 +7,7 @@ require "nandi/multi_db_generator"
 module Nandi
   class CheckConstraintGenerator < Rails::Generators::Base
     include Nandi::Formatting
-    include MultiDbGenerator
+    include Nandi::MultiDbGenerator
 
     argument :table, type: :string
     argument :name, type: :string
