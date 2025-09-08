@@ -12,36 +12,47 @@ module Nandi
   class SafeMigrationEnforcer
     class MigrationLintingFailed < StandardError; end
 
+    DEFAULT_FILE_SPEC = "all"
+    DEFAULT_DB_NAME = :primary
     DEFAULT_SAFE_MIGRATION_DIR = "db/safe_migrations"
     DEFAULT_AR_MIGRATION_DIR = "db/migrate"
-    DEFAULT_FILE_SPEC = "all"
 
     def initialize(require_path: nil,
                    safe_migration_dir: DEFAULT_SAFE_MIGRATION_DIR,
                    ar_migration_dir: DEFAULT_AR_MIGRATION_DIR,
                    files: DEFAULT_FILE_SPEC)
-      @safe_migration_dir = safe_migration_dir
-      @ar_migration_dir = ar_migration_dir
       @files = files
 
       require require_path unless require_path.nil?
 
-      Nandi.configure do |c|
-        c.migration_directory = @safe_migration_dir
-        c.output_directory = @ar_migration_dir
+      legacy_mode = safe_migration_dir != DEFAULT_SAFE_MIGRATION_DIR ||
+        ar_migration_dir != DEFAULT_AR_MIGRATION_DIR
+
+      # Configure for backward compatibility in legacy mode
+      if legacy_mode
+        Nandi.configure do |c|
+          c.migration_directory = safe_migration_dir
+          c.output_directory = ar_migration_dir
+        end
       end
     end
 
     def run
-      safe_migrations = matching_migrations(@safe_migration_dir)
-      ar_migrations = matching_migrations(@ar_migration_dir)
+      Nandi.config.databases.map do |db_name, _|
+        enforce_for_database!(db_name)
+      end.all?
+    end
+
+    def enforce_for_database!(db_name)
+      safe_migrations = matching_migrations(Nandi.config.config(db_name).migration_directory)
+      ar_migrations = matching_migrations(Nandi.config.config(db_name).output_directory)
 
       return true if safe_migrations.none? && ar_migrations.none?
 
       enforce_no_ungenerated_migrations!(safe_migrations, ar_migrations)
       enforce_no_hand_written_migrations!(safe_migrations, ar_migrations)
-      enforce_no_hand_edited_migrations!(ar_migrations)
-      enforce_no_out_of_date_migrations!(safe_migrations)
+      enforce_no_hand_edited_migrations!(ar_migrations, db_name)
+      enforce_no_out_of_date_migrations!(safe_migrations, db_name)
 
       true
     end
@@ -70,13 +81,12 @@ module Nandi
 
     def enforce_no_hand_written_migrations!(safe_migrations, ar_migrations)
       handwritten_migrations = ar_migrations - safe_migrations
-      handwritten_migration_paths = names_to_paths(handwritten_migrations)
 
-      if handwritten_migration_paths.any?
+      if handwritten_migrations.any?
         error = <<~ERROR
           The following migrations have been written by hand, not generated:
 
-            - #{handwritten_migration_paths.sort.join("\n  - ")}
+            - #{handwritten_migrations.sort.join("\n  - ")}
 
           Please use Nandi to generate your migrations. In exeptional cases, hand-written
           ActiveRecord migrations can be added to the .nandiignore file. Doing so will
@@ -87,14 +97,12 @@ module Nandi
       end
     end
 
-    def enforce_no_out_of_date_migrations!(safe_migrations)
-      lockfile = Nandi::Lockfile.for(Nandi.config.default.name)
-
+    def enforce_no_out_of_date_migrations!(safe_migrations, db_name)
       out_of_date_migrations = safe_migrations.
-        map { |m| [m, lockfile.get(m)] }.
+        map { |m| [m, Nandi::Lockfile.for(db_name).get(m)] }.
         select do |filename, digests|
           Nandi::FileDiff.new(
-            file_path: File.join(@safe_migration_dir, filename),
+            file_path: File.join(Nandi.config.config(db_name).migration_directory, filename),
             known_digest: digests[:source_digest],
           ).changed?
         end
@@ -113,14 +121,12 @@ module Nandi
       end
     end
 
-    def enforce_no_hand_edited_migrations!(ar_migrations)
-      lockfile = Nandi::Lockfile.for(Nandi.config.default.name)
-
+    def enforce_no_hand_edited_migrations!(ar_migrations, db_name)
       hand_altered_migrations = ar_migrations.
-        map { |m| [m, lockfile.get(m)] }.
+        map { |m| [m, Nandi::Lockfile.for(db_name).get(m)] }.
         select do |filename, digests|
           Nandi::FileDiff.new(
-            file_path: File.join(@ar_migration_dir, filename),
+            file_path: File.join(Nandi.config.config(db_name).output_directory, filename),
             known_digest: digests[:compiled_digest],
           ).changed?
         end
@@ -138,10 +144,6 @@ module Nandi
 
         raise MigrationLintingFailed, error
       end
-    end
-
-    def names_to_paths(names)
-      names.map { |name| File.join(@ar_migration_dir, name) }
     end
   end
 end
