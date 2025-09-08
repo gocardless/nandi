@@ -22,6 +22,7 @@ module Nandi
                  DESC
 
     def compile_migration_files
+      # Use the default database (defaults to :primary in single-database setups)
       lockfile = Nandi::Lockfile.for(Nandi.config.default.name)
 
       Nandi.compile(files: files) do |results|

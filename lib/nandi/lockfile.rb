@@ -8,6 +8,9 @@ module Nandi
     attr_reader :db_name
 
     class << self
+      # Registry pattern using class variables to maintain singleton instances
+      # per database. This ensures that lockfile operations for the same database
+      # always work with the same instance, maintaining consistency.
       def for(db_name)
         @instances ||= {}
         @instances[db_name] ||= new(db_name)
@@ -20,8 +23,8 @@ module Nandi
       private_class_method :new
     end
 
-    def initialize(db_name)
-      @db_name = db_name
+    def initialize(db_name = nil)
+      @db_name = db_name || Nandi.config.default.name
     end
 
     def file_present?
