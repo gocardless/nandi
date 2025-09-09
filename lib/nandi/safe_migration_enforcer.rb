@@ -7,6 +7,7 @@ require "rails/generators"
 require "nandi/file_diff"
 require "nandi/file_matcher"
 require "nandi/lockfile"
+require "nandi/migration_violations"
 
 module Nandi
   class SafeMigrationEnforcer
@@ -16,6 +17,8 @@ module Nandi
     DEFAULT_AR_MIGRATION_DIR = "db/migrate"
     DEFAULT_FILE_SPEC = "all"
 
+    attr_reader :violations
+
     def initialize(require_path: nil,
                    safe_migration_dir: DEFAULT_SAFE_MIGRATION_DIR,
                    ar_migration_dir: DEFAULT_AR_MIGRATION_DIR,
@@ -24,145 +27,96 @@ module Nandi
 
       require require_path unless require_path.nil?
 
-      legacy_mode = safe_migration_dir != DEFAULT_SAFE_MIGRATION_DIR ||
-        ar_migration_dir != DEFAULT_AR_MIGRATION_DIR
-
-      # Configure for backward compatibility in legacy mode
-      if legacy_mode
-        Nandi.configure do |c|
-          c.migration_directory = safe_migration_dir
-          c.output_directory = ar_migration_dir
-        end
-      end
+      configure_legacy_mode_if_needed(safe_migration_dir, ar_migration_dir)
+      @violations = MigrationViolations.new
     end
 
     def run
-      enforce_no_ungenerated_migrations!
-      enforce_no_hand_written_migrations!
-      enforce_no_hand_edited_migrations!
-      enforce_no_out_of_date_migrations!
+      collect_violations
+
+      if violations.any?
+        raise MigrationLintingFailed, violations.to_error_message
+      end
 
       true
     end
 
     private
 
-    def matching_migrations(dir)
-      names = Dir.glob(File.join(dir, "*.rb")).map { |path| File.basename(path) }
-      FileMatcher.call(files: names, spec: @files)
-    end
+    def configure_legacy_mode_if_needed(safe_dir, ar_dir)
+      legacy_mode = safe_dir != DEFAULT_SAFE_MIGRATION_DIR ||
+        ar_dir != DEFAULT_AR_MIGRATION_DIR
 
-    def safe_migrations(db_name)
-      matching_migrations(Nandi.config.config(db_name).migration_directory)
-    end
+      return unless legacy_mode
 
-    def ar_migrations(db_name)
-      matching_migrations(Nandi.config.config(db_name).output_directory)
-    end
-
-    def ungenerated_migrations
-      Nandi.config.databases.map do |db_name, database_config|
-        missing_files = safe_migrations(db_name) - ar_migrations(db_name)
-        missing_files.map { |file| File.join(database_config.migration_directory, file) }
-      end.flatten
-    end
-
-    def enforce_no_ungenerated_migrations!
-      if ungenerated_migrations.any?
-        error = <<~ERROR
-          The following migrations are pending generation:
-
-            - #{ungenerated_migrations.sort.join("\n  - ")}
-
-          Please run `rails generate nandi:compile` to generate your migrations.
-        ERROR
-
-        raise MigrationLintingFailed, error
+      Nandi.configure do |c|
+        c.migration_directory = safe_dir
+        c.output_directory = ar_dir
       end
     end
 
-    def handwritten_migrations
-      Nandi.config.databases.map do |db_name, database_config|
-        handwritten_files = ar_migrations(db_name) - safe_migrations(db_name)
-        handwritten_files.map { |file| File.join(database_config.output_directory, file) }
-      end.flatten
-    end
-
-    def enforce_no_hand_written_migrations!
-      if handwritten_migrations.any?
-        error = <<~ERROR
-          The following migrations have been written by hand, not generated:
-
-            - #{handwritten_migrations.sort.join("\n  - ")}
-
-          Please use Nandi to generate your migrations. In exeptional cases, hand-written
-          ActiveRecord migrations can be added to the .nandiignore file. Doing so will
-          require additional review that will slow your PR down.
-        ERROR
-
-        raise MigrationLintingFailed, error
+    def collect_violations
+      Nandi.config.databases.each do |_, database|
+        check_database_violations(database)
       end
     end
 
-    def out_of_date_migrations
-      Nandi.config.databases.map do |db_name, database_config|
-        safe_migrations(db_name).filter_map do |filename|
-          full_path = File.join(database_config.migration_directory, filename)
-          if migration_changed?(filename, db_name, :source_digest, full_path)
-            full_path
-          end
-        end
-      end.flatten
+    def check_database_violations(database)
+      safe_migrations = matching_migrations(database.migration_directory)
+      ar_migrations = matching_migrations(database.output_directory)
+
+      check_ungenerated_migrations(safe_migrations, ar_migrations, database)
+      check_handwritten_migrations(safe_migrations, ar_migrations, database)
+      check_out_of_date_migrations(safe_migrations, database)
+      check_hand_edited_migrations(ar_migrations, database)
     end
 
-    def enforce_no_out_of_date_migrations!
-      if out_of_date_migrations.any?
-        error = <<~ERROR
-          The following migrations have changed but not been recompiled:
+    def check_ungenerated_migrations(safe_migrations, ar_migrations, database)
+      missing_files = (safe_migrations - ar_migrations)
+      violations.add_ungenerated(missing_files, database.migration_directory)
+    end
 
-            - #{out_of_date_migrations.sort.join("\n  - ")}
+    def check_handwritten_migrations(safe_migrations, ar_migrations, database)
+      handwritten_files = (ar_migrations - safe_migrations)
+      violations.add_handwritten(handwritten_files, database.output_directory)
+    end
 
-          Please recompile your migrations to make sure that the changes you expect are
-          applied.
-        ERROR
+    def check_out_of_date_migrations(safe_migrations, database)
+      out_of_date_files = find_changed_files(
+        safe_migrations,
+        database,
+        :source_digest,
+        database.migration_directory,
+      )
+      violations.add_out_of_date(out_of_date_files, database.migration_directory)
+    end
 
-        raise MigrationLintingFailed, error
+    def check_hand_edited_migrations(ar_migrations, database)
+      hand_edited_files = find_changed_files(
+        ar_migrations,
+        database,
+        :compiled_digest,
+        database.output_directory,
+      )
+      violations.add_hand_edited(hand_edited_files, database.output_directory)
+    end
+
+    def find_changed_files(filenames, database, digest_key, directory)
+      filenames.filter_map do |filename|
+        digests = Nandi::Lockfile.for(database.name).get(filename)
+        file_diff = Nandi::FileDiff.new(
+          file_path: File.join(directory, filename),
+          known_digest: digests[digest_key],
+        )
+        filename if file_diff.changed?
       end
     end
 
-    def hand_edited_migrations
-      Nandi.config.databases.map do |db_name, database_config|
-        ar_migrations(db_name).filter_map do |filename|
-          full_path = File.join(database_config.output_directory, filename)
-          if migration_changed?(filename, db_name, :compiled_digest, full_path)
-            full_path
-          end
-        end
-      end.flatten
-    end
+    def matching_migrations(directory)
+      return [] unless Dir.exist?(directory)
 
-    def enforce_no_hand_edited_migrations!
-      if hand_edited_migrations.any?
-        error = <<~ERROR
-          The following migrations have had their generated content altered:
-
-            - #{hand_edited_migrations.sort.join("\n  - ")}
-
-          Please don't hand-edit generated migrations. If you want to write a regular
-          ActiveRecord::Migration, please do so and add it to .nandiignore. Note that
-          this will require additional review that will slow your PR down.
-        ERROR
-
-        raise MigrationLintingFailed, error
-      end
-    end
-
-    def migration_changed?(filename, db_name, digest_key, file_path)
-      digests = Nandi::Lockfile.for(db_name).get(filename)
-      Nandi::FileDiff.new(
-        file_path: file_path,
-        known_digest: digests[digest_key],
-      ).changed?
+      filenames = Dir.glob(File.join(directory, "*.rb")).map { |path| File.basename(path) }
+      FileMatcher.call(files: filenames, spec: @files)
     end
   end
 end
