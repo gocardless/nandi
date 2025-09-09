@@ -37,21 +37,10 @@ module Nandi
     end
 
     def run
-      Nandi.config.databases.map do |db_name, _|
-        enforce_for_database!(db_name)
-      end.all?
-    end
-
-    def enforce_for_database!(db_name)
-      safe_migrations = matching_migrations(Nandi.config.config(db_name).migration_directory)
-      ar_migrations = matching_migrations(Nandi.config.config(db_name).output_directory)
-
-      return true if safe_migrations.none? && ar_migrations.none?
-
-      enforce_no_ungenerated_migrations!(safe_migrations, ar_migrations)
-      enforce_no_hand_written_migrations!(safe_migrations, ar_migrations)
-      enforce_no_hand_edited_migrations!(ar_migrations, db_name)
-      enforce_no_out_of_date_migrations!(safe_migrations, db_name)
+      enforce_no_ungenerated_migrations!
+      enforce_no_hand_written_migrations!
+      enforce_no_hand_edited_migrations!
+      enforce_no_out_of_date_migrations!
 
       true
     end
@@ -63,8 +52,22 @@ module Nandi
       FileMatcher.call(files: names, spec: @files)
     end
 
-    def enforce_no_ungenerated_migrations!(safe_migrations, ar_migrations)
-      ungenerated_migrations = safe_migrations - ar_migrations
+    def safe_migrations(db_name)
+      matching_migrations(Nandi.config.config(db_name).migration_directory)
+    end
+
+    def ar_migrations(db_name)
+      matching_migrations(Nandi.config.config(db_name).output_directory)
+    end
+
+    def ungenerated_migrations
+      Nandi.config.databases.map do |db_name, database_config|
+        missing_files = safe_migrations(db_name) - ar_migrations(db_name)
+        missing_files.map { |file| File.join(database_config.migration_directory, file) }
+      end.flatten
+    end
+
+    def enforce_no_ungenerated_migrations!
       if ungenerated_migrations.any?
         error = <<~ERROR
           The following migrations are pending generation:
@@ -78,9 +81,14 @@ module Nandi
       end
     end
 
-    def enforce_no_hand_written_migrations!(safe_migrations, ar_migrations)
-      handwritten_migrations = ar_migrations - safe_migrations
+    def handwritten_migrations
+      Nandi.config.databases.map do |db_name, database_config|
+        handwritten_files = ar_migrations(db_name) - safe_migrations(db_name)
+        handwritten_files.map { |file| File.join(database_config.output_directory, file) }
+      end.flatten
+    end
 
+    def enforce_no_hand_written_migrations!
       if handwritten_migrations.any?
         error = <<~ERROR
           The following migrations have been written by hand, not generated:
@@ -96,16 +104,18 @@ module Nandi
       end
     end
 
-    def enforce_no_out_of_date_migrations!(safe_migrations, db_name)
-      out_of_date_migrations = safe_migrations.
-        map { |m| [m, Nandi::Lockfile.for(db_name).get(m)] }.
-        select do |filename, digests|
-          Nandi::FileDiff.new(
-            file_path: File.join(Nandi.config.config(db_name).migration_directory, filename),
-            known_digest: digests[:source_digest],
-          ).changed?
+    def out_of_date_migrations
+      Nandi.config.databases.map do |db_name, database_config|
+        safe_migrations(db_name).filter_map do |filename|
+          full_path = File.join(database_config.migration_directory, filename)
+          if migration_changed?(filename, db_name, :source_digest, full_path)
+            full_path
+          end
         end
+      end.flatten
+    end
 
+    def enforce_no_out_of_date_migrations!
       if out_of_date_migrations.any?
         error = <<~ERROR
           The following migrations have changed but not been recompiled:
@@ -120,21 +130,23 @@ module Nandi
       end
     end
 
-    def enforce_no_hand_edited_migrations!(ar_migrations, db_name)
-      hand_altered_migrations = ar_migrations.
-        map { |m| [m, Nandi::Lockfile.for(db_name).get(m)] }.
-        select do |filename, digests|
-          Nandi::FileDiff.new(
-            file_path: File.join(Nandi.config.config(db_name).output_directory, filename),
-            known_digest: digests[:compiled_digest],
-          ).changed?
+    def hand_edited_migrations
+      Nandi.config.databases.map do |db_name, database_config|
+        ar_migrations(db_name).filter_map do |filename|
+          full_path = File.join(database_config.output_directory, filename)
+          if migration_changed?(filename, db_name, :compiled_digest, full_path)
+            full_path
+          end
         end
+      end.flatten
+    end
 
-      if hand_altered_migrations.any?
+    def enforce_no_hand_edited_migrations!
+      if hand_edited_migrations.any?
         error = <<~ERROR
           The following migrations have had their generated content altered:
 
-            - #{hand_altered_migrations.sort.join("\n  - ")}
+            - #{hand_edited_migrations.sort.join("\n  - ")}
 
           Please don't hand-edit generated migrations. If you want to write a regular
           ActiveRecord::Migration, please do so and add it to .nandiignore. Note that
@@ -143,6 +155,14 @@ module Nandi
 
         raise MigrationLintingFailed, error
       end
+    end
+
+    def migration_changed?(filename, db_name, digest_key, file_path)
+      digests = Nandi::Lockfile.for(db_name).get(filename)
+      Nandi::FileDiff.new(
+        file_path: file_path,
+        known_digest: digests[digest_key],
+      ).changed?
     end
   end
 end
