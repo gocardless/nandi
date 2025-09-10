@@ -3,13 +3,13 @@ Description:
     nandi DSL. Supports both single and multi-database
     configurations.
 
+    If no --database option is specified, uses the default database.
+
 Examples:
     rails generate nandi:migration add_stuff_to_things
 
     This will create:
         db/safe_migrations/20190424123727_add_stuff_to_things.rb
-
-    If no --database option is specified, uses the default database.
 
 Multi-database examples:
     rails generate nandi:migration add_stuff_to_things --database primary

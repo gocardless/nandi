@@ -2,6 +2,8 @@ Description:
     Generates two new database migrations which will safely add a check that
     a column is not null, and validate it separately.
 
+    If no --database option is specified, uses the default database.
+
 Example:
     rails generate nandi:not_null_check foos bar
 

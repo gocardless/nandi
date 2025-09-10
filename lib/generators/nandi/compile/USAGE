@@ -3,13 +3,13 @@ Description:
     them into ActiveRecord migration files. Supports both single
     and multi-database configurations.
 
+    If no --database option is specified, compiles for all configured databases
+    (or the default database in single-database configurations).
+
 Examples:
     rails generate nandi:compile
         compiles all migrations that have changed since last git commit
         (for all configured databases in multi-database setups)
-
-    If no --database option is specified, compiles for all configured databases
-    (or the default database in single-database configurations).
 
     rails generate nandi:compile --files all
         compiles all migrations ever
