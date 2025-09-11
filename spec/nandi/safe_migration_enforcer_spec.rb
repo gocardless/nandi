@@ -181,4 +181,194 @@ RSpec.describe Nandi::SafeMigrationEnforcer do
       it_behaves_like "linting"
     end
   end
+
+  describe "multi-database support" do
+    subject(:enforcer) { described_class.new }
+
+    let(:temp_dir) { "/tmp/nandi_test" }
+    let(:primary_migrations) { ["20240101000000_primary_migration.rb"] }
+    let(:analytics_migrations) { ["20240102000000_analytics_migration.rb"] }
+
+    before do
+      # Reset Nandi configuration
+      Nandi.instance_variable_set(:@config, nil)
+
+      # Configure multi-database setup
+      Nandi.configure do |config|
+        config.lockfile_directory = temp_dir
+        config.register_database(
+          :primary,
+          migration_directory: "#{temp_dir}/db/safe_migrations",
+          output_directory: "#{temp_dir}/db/migrate",
+        )
+        config.register_database(
+          :analytics,
+          migration_directory: "#{temp_dir}/db/analytics_safe_migrations",
+          output_directory: "#{temp_dir}/db/analytics_migrate",
+        )
+      end
+
+      # Mock directory existence
+      allow(Dir).to receive(:exist?).and_return(true)
+
+      # Mock migration file discovery for primary database
+      allow_any_instance_of(described_class).to receive(:matching_migrations).
+        with("#{temp_dir}/db/safe_migrations").and_return(primary_migrations)
+      allow_any_instance_of(described_class).to receive(:matching_migrations).
+        with("#{temp_dir}/db/migrate").and_return(primary_migrations)
+
+      # Mock migration file discovery for analytics database
+      allow_any_instance_of(described_class).to receive(:matching_migrations).
+        with("#{temp_dir}/db/analytics_safe_migrations").and_return(analytics_migrations)
+      allow_any_instance_of(described_class).to receive(:matching_migrations).
+        with("#{temp_dir}/db/analytics_migrate").and_return(analytics_migrations)
+
+      # Mock lockfile instances for each database
+      primary_lockfile = instance_double(Nandi::Lockfile)
+      analytics_lockfile = instance_double(Nandi::Lockfile)
+
+      allow(Nandi::Lockfile).to receive(:for).with(:primary).and_return(primary_lockfile)
+      allow(Nandi::Lockfile).to receive(:for).with(:analytics).and_return(analytics_lockfile)
+
+      # Mock lockfile data
+      allow(primary_lockfile).to receive(:get) do |filename|
+        if filename == "20240101000000_primary_migration.rb"
+          { source_digest: "primary_source", compiled_digest: "primary_compiled" }
+        else
+          { source_digest: nil, compiled_digest: nil }
+        end
+      end
+
+      allow(analytics_lockfile).to receive(:get) do |filename|
+        if filename == "20240102000000_analytics_migration.rb"
+          { source_digest: "analytics_source", compiled_digest: "analytics_compiled" }
+        else
+          { source_digest: nil, compiled_digest: nil }
+        end
+      end
+
+      # Mock file reading for FileDiff to return unchanged content by default
+      allow(File).to receive(:read).and_return("migration_content")
+
+      # Mock FileDiff to return false (no changes) by default
+      allow_any_instance_of(Nandi::FileDiff).to receive(:changed?).and_return(false)
+    end
+
+    after do
+      # Reset Nandi configuration after each test
+      Nandi.instance_variable_set(:@config, nil)
+    end
+
+    context "when all databases are properly configured" do
+      it "validates all databases successfully" do
+        expect(enforcer.run).to eq(true)
+      end
+    end
+
+    context "when there are ungenerated migrations in multiple databases" do
+      before do
+        # Remove AR migrations to simulate ungenerated state
+        allow_any_instance_of(described_class).to receive(:matching_migrations).
+          with("#{temp_dir}/db/migrate").and_return([])
+        allow_any_instance_of(described_class).to receive(:matching_migrations).
+          with("#{temp_dir}/db/analytics_migrate").and_return([])
+      end
+
+      # rubocop:disable RSpec/ExampleLength
+      it "reports violations from all databases with full paths" do
+        expect { enforcer.run }.to raise_error(
+          Nandi::SafeMigrationEnforcer::MigrationLintingFailed,
+        ) do |error|
+          expect(error.message).to include("#{temp_dir}/db/safe_migrations/20240101000000_primary_migration.rb")
+          expect(error.message).to include(
+            "#{temp_dir}/db/analytics_safe_migrations/20240102000000_analytics_migration.rb",
+          )
+          expect(error.message).to include("pending generation")
+        end
+      end
+      # rubocop:enable RSpec/ExampleLength
+    end
+
+    context "when there are handwritten migrations in multiple databases" do
+      before do
+        # Remove safe migrations to simulate handwritten state
+        allow_any_instance_of(described_class).to receive(:matching_migrations).
+          with("#{temp_dir}/db/safe_migrations").and_return([])
+        allow_any_instance_of(described_class).to receive(:matching_migrations).
+          with("#{temp_dir}/db/analytics_safe_migrations").and_return([])
+      end
+
+      # rubocop:disable RSpec/ExampleLength
+      it "reports violations from all databases with full paths" do
+        expect { enforcer.run }.to raise_error(
+          Nandi::SafeMigrationEnforcer::MigrationLintingFailed,
+        ) do |error|
+          expect(error.message).to include("#{temp_dir}/db/migrate/20240101000000_primary_migration.rb")
+          expect(error.message).to include("#{temp_dir}/db/analytics_migrate/20240102000000_analytics_migration.rb")
+          expect(error.message).to include("written by hand")
+        end
+      end
+      # rubocop:enable RSpec/ExampleLength
+    end
+
+    context "when there are out of date migrations" do
+      before do
+        # Mock FileDiff to return true (changed) only for safe migrations directory
+        allow_any_instance_of(Nandi::FileDiff).to receive(:changed?) do |instance|
+          file_path = instance.instance_variable_get(:@file_path)
+          file_path.include?("safe_migrations") && file_path.include?("20240101000000_primary_migration.rb")
+        end
+      end
+
+      # rubocop:disable RSpec/ExampleLength
+      it "reports out of date migrations with full paths" do
+        expect { enforcer.run }.to raise_error(
+          Nandi::SafeMigrationEnforcer::MigrationLintingFailed,
+        ) do |error|
+          expect(error.message).to include("#{temp_dir}/db/safe_migrations/20240101000000_primary_migration.rb")
+          expect(error.message).to include("changed but not been recompiled")
+          expect(error.message).to_not include("analytics_migration")
+        end
+      end
+      # rubocop:enable RSpec/ExampleLength
+    end
+
+    context "when there are hand edited migrations" do
+      before do
+        # Mock FileDiff to return true (changed) for specific output migrations
+        allow_any_instance_of(Nandi::FileDiff).to receive(:changed?) do |instance|
+          instance.instance_variable_get(:@file_path).include?("analytics_migrate")
+        end
+      end
+
+      # rubocop:disable RSpec/ExampleLength
+      it "reports hand edited migrations with full paths" do
+        expect { enforcer.run }.to raise_error(
+          Nandi::SafeMigrationEnforcer::MigrationLintingFailed,
+        ) do |error|
+          expect(error.message).to include("#{temp_dir}/db/analytics_migrate/20240102000000_analytics_migration.rb")
+          expect(error.message).to include("generated content altered")
+          expect(error.message).to_not include("primary_migration")
+        end
+      end
+      # rubocop:enable RSpec/ExampleLength
+    end
+
+    context "when there are violations in only one database" do
+      before do
+        # Only primary database has missing migration
+        allow_any_instance_of(described_class).to receive(:matching_migrations).
+          with("#{temp_dir}/db/migrate").and_return([])
+      end
+
+      it "reports violations from the affected database only" do
+        expect { enforcer.run }.to raise_error(
+          Nandi::SafeMigrationEnforcer::MigrationLintingFailed,
+        ) do |error|
+          expect(error.message).to include("20240101000000_primary_migration.rb")
+          expect(error.message).to_not include("20240102000000_analytics_migration.rb")
+        end
+      end
+    end
+  end
 end

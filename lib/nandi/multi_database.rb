@@ -131,6 +131,8 @@ module Nandi
       validate_unique_output_directories!
     end
 
+    delegate :each, :map, to: :@databases
+
     private
 
     def enforce_default_db_for_multi_database!
