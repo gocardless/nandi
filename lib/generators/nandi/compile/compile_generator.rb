@@ -12,6 +12,7 @@ module Nandi
 
     class_option :database,
                  type: :string,
+                 default: nil,
                  desc: "Database to compile. " \
                        "If not specified, compiles for all databases"
 
