@@ -17,10 +17,10 @@ RSpec.describe Nandi::CompiledMigration do
     )
   end
 
-  let(:valid_migration) { "#{base_path}/20180104120000_my_migration.rb" }
-  let(:invalid_migration) { "#{base_path}/20180104120000_my_invalid_migration.rb" }
+  let(:valid_migration) { "20180104120000_my_migration.rb" }
+  let(:invalid_migration) { "20180104120000_my_invalid_migration.rb" }
   let(:invalid_index_migration) do
-    "#{base_path}/20180104120000_my_invalid_index_migration.rb"
+    "20180104120000_my_invalid_index_migration.rb"
   end
 
   let(:source_contents) { "source_migration" }
@@ -42,19 +42,23 @@ RSpec.describe Nandi::CompiledMigration do
 
   let(:file) { valid_migration }
 
-  let(:db_name) { :primary }
+  let(:db_name) { nil }
+
+  let(:compiled_migration) { described_class.new(file_name: file, db_name: db_name) }
 
   before do
+    Nandi.instance_variable_set(:@config, nil) # Reset config
     allow(File).to receive(:read).with(Nandi.config.lockfile_path(db_name)).and_return(lockfile)
     allow(File).to receive(:write).with(Nandi.config.lockfile_path(db_name)).and_return(lockfile)
 
     Nandi.configure do |config|
       config.renderer = renderer
+      config.migration_directory = base_path
     end
   end
 
   describe "#body" do
-    subject(:body) { described_class.new(file).body }
+    subject(:body) { compiled_migration.body }
 
     context "when the migration has changed" do
       let(:file) { valid_migration }
@@ -91,7 +95,7 @@ RSpec.describe Nandi::CompiledMigration do
   end
 
   describe "#output_path" do
-    subject(:output_path) { described_class.new(file).output_path }
+    subject(:output_path) { compiled_migration.output_path }
 
     it "has an output path" do
       expect(output_path).to eq("db/migrate/#{File.basename(file)}")
@@ -99,7 +103,7 @@ RSpec.describe Nandi::CompiledMigration do
   end
 
   describe "#compiled_digest" do
-    subject(:compiled_digest) { described_class.new(file).compiled_digest }
+    subject(:compiled_digest) { compiled_migration.compiled_digest }
 
     it "returns the digest of the compiled migration" do
       allow_any_instance_of(described_class).to receive(:body).
@@ -110,7 +114,7 @@ RSpec.describe Nandi::CompiledMigration do
   end
 
   describe "#source_digest" do
-    subject(:source_digest) { described_class.new(file).source_digest }
+    subject(:source_digest) { compiled_migration.source_digest }
 
     it "returns the digest of the source migration" do
       allow(File).to receive(:read).and_return(source_contents)

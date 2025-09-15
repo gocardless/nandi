@@ -31,11 +31,12 @@ RSpec.describe Nandi do
     before do
       described_class.configure do |config|
         config.renderer = renderer
+        config.migration_directory = base_path
       end
     end
 
     context "with a valid migration" do
-      let(:files) { ["#{base_path}/20180104120000_my_migration.rb"] }
+      let(:files) { ["20180104120000_my_migration.rb"] }
 
       it "yields output" do
         allow(renderer).to receive(:generate).and_return("output")
@@ -48,7 +49,7 @@ RSpec.describe Nandi do
     end
 
     context "with a post-processing step" do
-      let(:files) { ["#{base_path}/20180104120000_my_migration.rb"] }
+      let(:files) { ["20180104120000_my_migration.rb"] }
 
       before do
         allow(renderer).to receive(:generate).and_return("output")
