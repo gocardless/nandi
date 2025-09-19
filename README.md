@@ -336,6 +336,8 @@ Some schema changes need to be split across two migration files. Whenever you wa
 
 For some of the most common cases, we provide a Rails generator that generates both files for you.
 
+All generators support multi-database mode with the `--database` option (see Multi-Database Support section below).
+
 ### Not-null checks
 
 To generate migration files for a not-null check, run this command:
@@ -394,12 +396,23 @@ rails generate nandi:foreign_key foos bar --name my_fk
 Nandi can be configured in various ways, typically in an initializer:
 
 ```rb
+# Single database configuration
 Nandi.configure do |config|
+  config.migration_directory = "db/safe_migrations"
   config.lock_timeout = 1_000
+end
+
+# Multi-database configuration (see Multi-Database Support section below)
+Nandi.configure do |config|
+  config.register_database(:primary)
+  config.register_database(:analytics,
+    migration_directory: "db/analytics_safe_migrations",
+    output_directory: "db/analytics_migrate"
+  )
 end
 ```
 
-The configuration parameters are as follows.
+The configuration parameters are as follows for setting Nandi up for a single database.
 
 ### `access_exclusive_lock_timeout_limit` (Integer)
 
@@ -419,11 +432,11 @@ The default lock timeout for migrations. Can be overridden by way of the `set_lo
 
 ### `migration_directory` (String)
 
-The directory for Nandi migrations. Default: `db/safe_migrations`
+The directory for Nandi migrations. Default: `db/safe_migrations`.
 
 ### `output_directory` (String)
 
-The directory for output files. Default: `db/migrate`
+The directory for output files. Default: `db/migrate`.
 
 ### `renderer` (Class)
 
@@ -469,6 +482,142 @@ Parameters:
 `name` (Symbol) - The name of the method to create. This will be monkey-patched into Nandi::Migration.
 
 `klass` (Class) — The class to initialise with the arguments to the method. It should define a `template` instance method which will return a subclass of Cell::ViewModel from the Cells templating library and a `procedure` method that returns the name of the method. It may optionally define a `mixins` method, which will return an array of `Module`s to be mixed into any migration that uses this method.
+
+## Multi-Database Support
+
+Nandi 2.0+ supports managing migrations for multiple databases within a single Rails application. 
+
+**Note:** Single database configurations continue to work without any changes. Multi-database support is fully backward compatible.
+
+### Configuring Multiple Databases
+
+Instead of setting configuration values directly, register each database with its own configuration. If no values are specified, the existing defaults will be used.
+
+**Database-specific options** (passed to `register_database`):
+These options can be set individually for each database. **All are optional** - if not specified, the standard Nandi defaults are used:
+
+- `migration_directory`: Where Nandi migrations are stored (default: `"db/safe_migrations"` for primary, `"db/<name>_safe_migrations"` for others)
+- `output_directory`: Where compiled ActiveRecord migrations go (default: `"db/migrate"` for primary, `"db/<name>_migrate"` for others)
+- `lockfile_name`: Name of the lockfile for this database (default: `".nandilock.yml"` for primary, `".<name>_nandilock.yml"` for others)
+- `default`: Mark this database as the default when not named `:primary` (default: `false`)
+- `access_exclusive_lock_timeout`: Timeout for ACCESS EXCLUSIVE locks (default: 5,000ms)
+- `access_exclusive_statement_timeout`: Statement timeout for ACCESS EXCLUSIVE operations (default: 1,500ms)
+- `access_exclusive_lock_timeout_limit`: Maximum allowed lock timeout (default: 5,000ms)
+- `access_exclusive_statement_timeout_limit`: Maximum allowed statement timeout (default: 1,500ms)
+- `concurrent_lock_timeout_limit`: Minimum timeout for concurrent operations (default: 3,600,000ms / 1 hour)
+- `concurrent_statement_timeout_limit`: Minimum statement timeout for concurrent operations (default: 3,600,000ms / 1 hour)
+
+**Global options** (set via config accessors):
+
+These options apply to all databases:
+
+- `config.lockfile_directory`: Directory where all lockfiles are stored (default: `"db"`)
+- `config.compile_files`: Filter for which files to compile (default: `"all"`)
+- `config.renderer`: Rendering backend (default: `Nandi::Renderers::ActiveRecord`)
+- `config.post_process { |migration| ... }`: Optional post-processing block for formatting
+
+```rb
+# Minimal configuration - primary uses all defaults
+Nandi.configure do |config|
+  config.register_database(:primary)  # Uses all default paths and settings
+
+  config.register_database(:analytics)
+
+  # Global options (apply to all databases)
+  config.lockfile_directory = "db"
+  config.compile_files = "all"
+end
+
+# Full example with both database-specific and global options
+Nandi.configure do |config|
+  # Primary database (automatically becomes default)
+  # If no values are specified, uses the standard defaults:
+  # - migration_directory: "db/safe_migrations"
+  # - output_directory: "db/migrate"
+  # - lockfile_name: ".nandilock.yml"
+  # - All timeout values use their defaults
+  config.register_database(:primary,
+    access_exclusive_lock_timeout: 5_000  # Only override what you need
+  )
+
+  # Analytics database with custom paths and relaxed timeouts
+  config.register_database(:analytics,
+    migration_directory: "db/analytics_safe_migrations",
+    output_directory: "db/analytics_migrate",
+    lockfile_name: ".analytics_nandilock.yml",
+    access_exclusive_lock_timeout: 30_000,
+    access_exclusive_statement_timeout: 10_000,
+    concurrent_statement_timeout_limit: 7_200_000
+  )
+
+  # Global configuration options (apply to all databases)
+  config.lockfile_directory = "db"       # Where all lockfiles are stored
+  config.compile_files = "all"           # Filter for compilation
+  config.renderer = Nandi::Renderers::ActiveRecord  # Optional, this is the default
+
+  # Optional post-processing for all compiled migrations
+  config.post_process do |migration|
+    # Format, lint, etc.
+    migration
+  end
+end
+```
+
+### Directory Structure
+
+Each database maintains its own directory structure. The primary database uses the default paths if not specified:
+
+```
+db/
+├── safe_migrations/              # Primary database (default path)
+│   └── 20250901_add_users.rb
+├── migrate/                     # Primary database (default path)
+│   └── 20250901_add_users.rb
+├── .nandilock.yml                # Primary database (default)
+│
+├── analytics_safe_migrations/    # Analytics database
+│   └── 20250902_add_events.rb
+├── analytics_migrate/
+│   └── 20250902_add_events.rb
+├── .analytics_nandilock.yml
+│
+├── reporting_safe_migrations/    # Reporting database
+│   └── 20250903_add_reports.rb
+├── reporting_migrate/
+│   └── 20250903_add_reports.rb
+└── .reporting_nandilock.yml
+```
+
+### Using Generators with Multiple Databases
+
+All Nandi generators accept a `--database` option to specify which database to target:
+
+```bash
+# Generate for primary database (default)
+rails generate nandi:migration create_users_table
+
+# Generate for analytics database
+rails generate nandi:migration create_events_table --database=analytics
+```
+
+### Compiling Migrations
+
+The compile generator can compile all databases or a specific one:
+
+```bash
+# Compile all databases
+rails generate nandi:compile
+
+# Compile specific database with filter
+rails generate nandi:compile --database=analytics --files=git-diff
+```
+
+### Default Database
+
+- If you register a database named `:primary`, it automatically becomes the default per rails conventions
+- Otherwise, mark a database as default with `default: true`
+- Generators without `--database` option use the default database
+- Single database configurations work without changes
 
 ## `.nandiignore`
 
