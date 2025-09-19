@@ -1,10 +1,15 @@
 Description:
-    Takes all files from the db/nandi directory and turns
-    them into ActiveRecordmigration files.
+    Takes all files from the safe migration directories and turns
+    them into ActiveRecord migration files. Supports both single
+    and multi-database configurations.
+
+    If no --database option is specified, compiles for all configured databases
+    (or the default database in single-database configurations).
 
 Examples:
     rails generate nandi:compile
         compiles all migrations that have changed since last git commit
+        (for all configured databases in multi-database setups)
 
     rails generate nandi:compile --files all
         compiles all migrations ever
@@ -17,3 +22,10 @@ Examples:
 
     rails generate nandi:compile --files >=20190101
         compiles all migrations from January 1st 2019 and after
+
+Multi-database examples:
+    rails generate nandi:compile --database primary
+        compiles migrations only for the primary database
+
+    rails generate nandi:compile --database analytics
+        compiles migrations only for the analytics database

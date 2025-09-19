@@ -9,6 +9,8 @@ Example:
         db/safe_migrations/20190424123727_add_check_constraint_baz_or_quux_not_null_on_foos.rb
         db/safe_migrations/20190424123728_validate_check_constraint_baz_or_quux_not_null_on_foos.rb
 
+    If no --database option is specified, uses the default database.
+
 Example:
     rails generate nandi:check_constraint foos baz_or_quux_not_null --validation-timeout 20000
 
@@ -17,3 +19,10 @@ Example:
         db/safe_migrations/20190424123728_validate_check_constraint_baz_or_quux_not_null_on_foos.rb
 
     The statement timeout in the second migration will be set to 20,000ms.
+
+Multi-database examples:
+    rails generate nandi:check_constraint users email_valid --database primary
+        creates check constraint migrations in primary database directory
+
+    rails generate nandi:check_constraint events status_valid --database analytics
+        creates check constraint migrations in analytics database directory
