@@ -13,7 +13,9 @@ module Nandi
       # always work with the same instance, maintaining consistency.
       def for(db_name)
         @instances ||= {}
-        @instances[db_name.to_sym] ||= new(db_name.to_sym)
+        # Handle nil by using :primary as default
+        key = db_name.nil? ? :primary : db_name.to_sym
+        @instances[key] ||= new(key)
       end
 
       def clear_instances!

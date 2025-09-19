@@ -121,4 +121,34 @@ RSpec.describe Nandi::CompiledMigration do
       expect(source_digest).to eq(expected_source_digest)
     end
   end
+
+  describe "nil db_name handling" do
+    context "when db_name is nil" do
+      let(:db_name) { nil }
+
+      it "defaults to primary database" do
+        migration = described_class.new(file_name: valid_migration, db_name: nil)
+        expect(migration.db_name).to eq(:primary)
+      end
+
+      it "uses primary database configuration" do
+        migration = described_class.new(file_name: valid_migration, db_name: nil)
+        expect(migration.output_path).to eq("db/migrate/#{valid_migration}")
+      end
+    end
+
+    context "when db_name is explicitly provided" do
+      before do
+        Nandi.config.register_database(:analytics,
+                                       migration_directory: base_path,
+                                       output_directory: "db/analytics_migrate")
+      end
+
+      it "uses the specified database" do
+        migration = described_class.new(file_name: valid_migration, db_name: :analytics)
+        expect(migration.db_name).to eq(:analytics)
+        expect(migration.output_path).to eq("db/analytics_migrate/#{valid_migration}")
+      end
+    end
+  end
 end

@@ -93,6 +93,8 @@ module Nandi
 
     delegate :validate!, :default, :config, to: :databases
 
+    alias_method :database, :config
+
     def databases
       # If we've never registered any databases, use a single database with
       # default values for backwards compatibility.

@@ -6,7 +6,11 @@ module Nandi
   class CompiledMigration
     class InvalidMigrationError < StandardError; end
 
-    attr_reader :file_name, :source_file_path, :class_name, :db_name
+    attr_reader :file_name, :source_file_path, :class_name, :db_config
+
+    def db_name
+      @db_config.name
+    end
 
     def self.build(file_name:, db_name:)
       new(file_name:, db_name:)
@@ -14,11 +18,11 @@ module Nandi
 
     def initialize(file_name:, db_name:)
       @file_name = file_name
-      @source_file_path = File.join(Nandi.config.migration_directory(db_name), file_name)
-      require source_file_path
+      @db_config = Nandi.config.config(db_name)
+      @source_file_path = File.join(@db_config.migration_directory, file_name)
+      require File.expand_path(source_file_path)
 
       @file_name, @class_name = /\d+_([a-z0-9_]+)\.rb\z/.match(source_file_path)[0..1]
-      @db_name = db_name
     end
 
     def validate!
@@ -42,7 +46,7 @@ module Nandi
     end
 
     def output_path
-      "#{Nandi.config.output_directory(db_name)}/#{file_name}"
+      "#{db_config.output_directory}/#{file_name}"
     end
 
     def migration
@@ -59,6 +63,8 @@ module Nandi
 
     def migration_unchanged?
       return false unless File.exist?(output_path)
+
+      lockfile = Nandi::Lockfile.for(db_config.name)
 
       source_migration_diff = Nandi::FileDiff.new(
         file_path: source_file_path,
