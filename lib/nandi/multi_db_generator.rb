@@ -3,8 +3,11 @@
 module Nandi
   module MultiDbGenerator
     def self.included(base)
-      base.class_option :database, type: :string, desc: "Database to migrate in multi-database mode. " \
-                                                        "If not specified, uses specified default or primary database"
+      base.class_option :database,
+                        default: nil,
+                        type: :string,
+                        desc: "Database to migrate in multi-database mode. " \
+                              "If not specified, uses specified default or primary database"
     end
 
     private
