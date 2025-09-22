@@ -18,7 +18,7 @@ module Nandi
 
     def initialize(file_name:, db_name:)
       @file_name = file_name
-      @db_config = Nandi.config.config(db_name)
+      @db_config = Nandi.config.database(db_name)
       @source_file_path = File.join(@db_config.migration_directory, file_name)
       require File.expand_path(source_file_path)
 
