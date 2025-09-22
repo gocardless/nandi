@@ -65,20 +65,37 @@ module Nandi
       safe_migrations = matching_migrations(database.migration_directory)
       ar_migrations = matching_migrations(database.output_directory)
 
-      check_ungenerated_migrations(safe_migrations, ar_migrations, database)
-      check_handwritten_migrations(safe_migrations, ar_migrations, database)
-      check_out_of_date_migrations(safe_migrations, database)
-      check_hand_edited_migrations(ar_migrations, database)
+      # Check ungenerated migrations and get remaining files
+      remaining_safe, remaining_ar = check_ungenerated_migrations(
+        safe_migrations, ar_migrations, database
+      )
+
+      # Check handwritten migrations and get remaining files
+      remaining_safe, remaining_ar = check_handwritten_migrations(
+        remaining_safe, remaining_ar, database
+      )
+
+      # Check out-of-date migrations
+      check_out_of_date_migrations(remaining_safe, database)
+
+      # Check hand-edited migrations
+      check_hand_edited_migrations(remaining_ar, database)
     end
 
     def check_ungenerated_migrations(safe_migrations, ar_migrations, database)
       missing_files = safe_migrations - ar_migrations
       violations.add_ungenerated(missing_files, database.migration_directory)
+
+      # Return remaining files after removing processed ones
+      [safe_migrations - missing_files, ar_migrations]
     end
 
     def check_handwritten_migrations(safe_migrations, ar_migrations, database)
       handwritten_files = ar_migrations - safe_migrations
       violations.add_handwritten(handwritten_files, database.output_directory)
+
+      # Return remaining files after removing processed ones
+      [safe_migrations, ar_migrations - handwritten_files]
     end
 
     def check_out_of_date_migrations(safe_migrations, database)
