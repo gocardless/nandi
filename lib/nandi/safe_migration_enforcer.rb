@@ -72,12 +72,12 @@ module Nandi
     end
 
     def check_ungenerated_migrations(safe_migrations, ar_migrations, database)
-      missing_files = (safe_migrations - ar_migrations)
+      missing_files = safe_migrations - ar_migrations
       violations.add_ungenerated(missing_files, database.migration_directory)
     end
 
     def check_handwritten_migrations(safe_migrations, ar_migrations, database)
-      handwritten_files = (ar_migrations - safe_migrations)
+      handwritten_files = ar_migrations - safe_migrations
       violations.add_handwritten(handwritten_files, database.output_directory)
     end
 
@@ -113,7 +113,7 @@ module Nandi
     end
 
     def matching_migrations(directory)
-      return [] unless Dir.exist?(directory)
+      return Set.new unless Dir.exist?(directory)
 
       filenames = Dir.glob(File.join(directory, "*.rb")).map { |path| File.basename(path) }
       FileMatcher.call(files: filenames, spec: @files)
