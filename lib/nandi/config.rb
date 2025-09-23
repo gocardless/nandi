@@ -2,67 +2,18 @@
 
 require "nandi/renderers"
 require "nandi/lockfile"
+require "nandi/multi_database"
 
 module Nandi
   class Config
-    # Most DDL changes take a very strict lock, but execute very quickly. For these
-    # the statement timeout should be very tight, so that if there's an unexpected
-    # delay the query queue does not back up.
-    DEFAULT_ACCESS_EXCLUSIVE_STATEMENT_TIMEOUT = 1_500
-    DEFAULT_ACCESS_EXCLUSIVE_LOCK_TIMEOUT = 5_000
-
-    DEFAULT_ACCESS_EXCLUSIVE_STATEMENT_TIMEOUT_LIMIT =
-      DEFAULT_ACCESS_EXCLUSIVE_STATEMENT_TIMEOUT
-    DEFAULT_ACCESS_EXCLUSIVE_LOCK_TIMEOUT_LIMIT =
-      DEFAULT_ACCESS_EXCLUSIVE_LOCK_TIMEOUT
-    DEFAULT_LOCKFILE_DIRECTORY = File.join(Dir.pwd, "db")
-    DEFAULT_CONCURRENT_TIMEOUT_LIMIT = 3_600_000
     DEFAULT_COMPILE_FILES = "all"
+    DEFAULT_LOCKFILE_DIRECTORY = File.join(Dir.pwd, "db")
+
     # The rendering backend used to produce output. The only supported option
     # at current is Nandi::Renderers::ActiveRecord, which produces ActiveRecord
     # migrations.
     # @return [Class]
     attr_accessor :renderer
-
-    # The default lock timeout for migrations that take ACCESS EXCLUSIVE
-    # locks. Can be overridden by way of the `set_lock_timeout` class
-    # method in a given migration. Default: 1500ms.
-    # @return [Integer]
-    attr_accessor :access_exclusive_lock_timeout
-
-    # The default statement timeout for migrations that take ACCESS EXCLUSIVE
-    # locks. Can be overridden by way of the `set_statement_timeout` class
-    # method in a given migration. Default: 1500ms.
-    # @return [Integer]
-    attr_accessor :access_exclusive_statement_timeout
-
-    # The maximum lock timeout for migrations that take an ACCESS EXCLUSIVE
-    # lock and therefore block all reads and writes. Default: 5,000ms.
-    # @return [Integer]
-    attr_accessor :access_exclusive_statement_timeout_limit
-
-    # The maximum statement timeout for migrations that take an ACCESS
-    # EXCLUSIVE lock and therefore block all reads and writes. Default: 1500ms.
-    # @return [Integer]
-    attr_accessor :access_exclusive_lock_timeout_limit
-
-    # The minimum statement timeout for migrations that take place concurrently.
-    # Default: 3,600,000ms (ie, 3 hours).
-    # @return [Integer]
-    attr_accessor :concurrent_statement_timeout_limit
-
-    # The minimum lock timeout for migrations that take place concurrently.
-    # Default: 3,600,000ms (ie, 3 hours).
-    # @return [Integer]
-    attr_accessor :concurrent_lock_timeout_limit
-
-    # The directory for Nandi migrations. Default: `db/safe_migrations`
-    # @return [String]
-    attr_accessor :migration_directory
-
-    # The directory for output files. Default: `db/migrate`
-    # @return [String]
-    attr_accessor :output_directory
 
     # The files to compile when the compile generator is run. Default: `all`
     # May be one of the following:
@@ -72,7 +23,7 @@ module Nandi
     # - a timestamp range , eg '>=20190101010101'
     # @return [String]
     attr_accessor :compile_files
-    #
+
     # Directory where .nandilock.yml will be stored
     # Defaults to project root
     # @return [String]
@@ -83,18 +34,7 @@ module Nandi
 
     def initialize(renderer: Renderers::ActiveRecord)
       @renderer = renderer
-      @access_exclusive_statement_timeout = DEFAULT_ACCESS_EXCLUSIVE_STATEMENT_TIMEOUT
-      @concurrent_lock_timeout_limit =
-        @concurrent_statement_timeout_limit =
-          DEFAULT_CONCURRENT_TIMEOUT_LIMIT
       @custom_methods = {}
-      @access_exclusive_lock_timeout =
-        DEFAULT_ACCESS_EXCLUSIVE_LOCK_TIMEOUT
-      @access_exclusive_statement_timeout =
-        DEFAULT_ACCESS_EXCLUSIVE_STATEMENT_TIMEOUT
-      @access_exclusive_statement_timeout_limit =
-        DEFAULT_ACCESS_EXCLUSIVE_STATEMENT_TIMEOUT_LIMIT
-      @access_exclusive_lock_timeout_limit = DEFAULT_ACCESS_EXCLUSIVE_LOCK_TIMEOUT_LIMIT
       @compile_files = DEFAULT_COMPILE_FILES
       @lockfile_directory = DEFAULT_LOCKFILE_DIRECTORY
     end
@@ -117,6 +57,71 @@ module Nandi
     #   mixed into any migration that uses this method.
     def register_method(name, klass)
       custom_methods[name] = klass
+    end
+
+    # Register a database to compile migrations for.
+    def register_database(name, config = {})
+      multi_db_config.register(name, config)
+    end
+
+    def lockfile_path(database_name = nil)
+      File.join(lockfile_directory, databases.config(database_name).lockfile_name)
+    end
+
+    # Explicitly define getters for backwards compatibility when the database isnt specified.
+    # rubocop:disable Layout/LineLength
+    def migration_directory(database_name = nil) = config(database_name).migration_directory
+    def output_directory(database_name = nil) = config(database_name).output_directory
+    def access_exclusive_lock_timeout(database_name = nil) = config(database_name).access_exclusive_lock_timeout
+    def access_exclusive_lock_timeout_limit(database_name = nil) = config(database_name).access_exclusive_lock_timeout_limit
+    def access_exclusive_statement_timeout(database_name = nil) = config(database_name).access_exclusive_statement_timeout
+    def access_exclusive_statement_timeout_limit(database_name = nil) = config(database_name).access_exclusive_statement_timeout_limit
+    def concurrent_lock_timeout_limit(database_name = nil) = config(database_name).concurrent_lock_timeout_limit
+    def concurrent_statement_timeout_limit(database_name = nil) = config(database_name).concurrent_statement_timeout_limit
+    # rubocop:enable Layout/LineLength
+
+    # Delegate setter methods to the default database for backwards compatibility
+    delegate :migration_directory=,
+             :output_directory=,
+             :access_exclusive_lock_timeout=,
+             :access_exclusive_lock_timeout_limit=,
+             :access_exclusive_statement_timeout=,
+             :access_exclusive_statement_timeout_limit=,
+             :concurrent_lock_timeout_limit=,
+             :concurrent_statement_timeout_limit=,
+             to: :default
+
+    delegate :validate!, :default, :config, to: :databases
+
+    alias_method :database, :config
+
+    def databases
+      # If we've never registered any databases, use a single database with
+      # default values for backwards compatibility.
+      @multi_db_config.nil? ? single_db_config : @multi_db_config
+    end
+
+    def validate!
+      if @single_db_config && @multi_db_config
+        raise ArgumentError, "Cannot use multi and single database config. Config setters are now deprecated, " \
+                             "use only `register_database(name, config)` to configure Nandi."
+      end
+      databases.validate!
+    end
+
+    private
+
+    def single_db_config
+      # Pre-register the default database to ensure behavior is backwards compatible.
+      @single_db_config ||= begin
+        single_db_config = MultiDatabase.new
+        single_db_config.register(:primary, {})
+        single_db_config
+      end
+    end
+
+    def multi_db_config
+      @multi_db_config ||= MultiDatabase.new
     end
 
     def lockfile_directory

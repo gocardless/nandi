@@ -6,15 +6,21 @@ module Nandi
   class CompiledMigration
     class InvalidMigrationError < StandardError; end
 
-    attr_reader :file_name, :source_file_path, :class_name
+    attr_reader :file_name, :source_file_path, :class_name, :db_config
 
-    def self.build(source_file_path)
-      new(source_file_path)
+    def db_name
+      @db_config.name
     end
 
-    def initialize(source_file_path)
-      @source_file_path = source_file_path
-      require source_file_path
+    def self.build(file_name:, db_name:)
+      new(file_name:, db_name:)
+    end
+
+    def initialize(file_name:, db_name:)
+      @file_name = file_name
+      @db_config = Nandi.config.database(db_name)
+      @source_file_path = File.join(@db_config.migration_directory, file_name)
+      require File.expand_path(source_file_path)
 
       @file_name, @class_name = /\d+_([a-z0-9_]+)\.rb\z/.match(source_file_path)[0..1]
     end
@@ -40,7 +46,7 @@ module Nandi
     end
 
     def output_path
-      "#{Nandi.compiled_output_directory}/#{file_name}"
+      "#{db_config.output_directory}/#{file_name}"
     end
 
     def migration
@@ -58,14 +64,16 @@ module Nandi
     def migration_unchanged?
       return false unless File.exist?(output_path)
 
+      lockfile = Nandi::Lockfile.for(db_config.name)
+
       source_migration_diff = Nandi::FileDiff.new(
         file_path: source_file_path,
-        known_digest: Nandi::Lockfile.get(file_name).fetch(:source_digest),
+        known_digest: lockfile.get(file_name).fetch(:source_digest),
       )
 
       compiled_migration_diff = Nandi::FileDiff.new(
         file_path: output_path,
-        known_digest: Nandi::Lockfile.get(file_name).fetch(:compiled_digest),
+        known_digest: lockfile.get(file_name).fetch(:compiled_digest),
       )
 
       source_migration_diff.unchanged? && compiled_migration_diff.unchanged?

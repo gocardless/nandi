@@ -1,6 +1,8 @@
 Description:
     Generates new database indices
 
+    If no --database option is specified, uses the default database.
+
 Example:
     rails generate nandi:index table_name index_col
 
@@ -29,3 +31,10 @@ Example:
     This will create:
         db/safe_migrations/20190424123727_add_index_on_index_col_to_table_name.rb
     with the specified bespoke index name
+
+Multi-database examples:
+    rails generate nandi:index users email --database primary
+        creates index migration in primary database directory
+
+    rails generate nandi:index events created_at --database analytics
+        creates index migration in analytics database directory

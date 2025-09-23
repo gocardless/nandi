@@ -10,6 +10,12 @@ module Nandi
   class CompileGenerator < Rails::Generators::Base
     source_root File.expand_path("templates", __dir__)
 
+    class_option :database,
+                 type: :string,
+                 default: nil,
+                 desc: "Database to compile. " \
+                       "If not specified, compiles for all databases"
+
     class_option :files,
                  type: :string,
                  default: Nandi.config.compile_files,
@@ -22,41 +28,38 @@ module Nandi
                  DESC
 
     def compile_migration_files
-      Nandi.compile(files: files) do |results|
-        results.each do |result|
-          Nandi::Lockfile.add(
-            file_name: result.file_name,
-            source_digest: result.source_digest,
-            compiled_digest: result.compiled_digest,
-          )
-
-          unless result.migration_unchanged?
-            create_file result.output_path, result.body, force: true
+      databases.each do |db_name|
+        Nandi.compile(files: files(db_name), db_name: db_name) do |results|
+          results.each do |result|
+            Nandi::Lockfile.for(db_name).add(
+              file_name: result.file_name,
+              source_digest: result.source_digest,
+              compiled_digest: result.compiled_digest,
+            )
+            unless result.migration_unchanged?
+              create_file result.output_path, result.body, force: true
+            end
           end
         end
+        Nandi::Lockfile.for(db_name).persist!
       end
-
-      Nandi::Lockfile.persist!
     end
 
     private
 
-    def safe_migrations_dir
-      if Nandi.config.migration_directory.nil?
-        Rails.root.join("db", "safe_migrations").to_s
-      else
-        File.expand_path(Nandi.config.migration_directory)
-      end
+    def databases
+      return [options[:database].to_sym] if options[:database]
+
+      Nandi.config.databases.names
     end
 
-    def output_path
-      Nandi.config.output_directory || "db/migrate"
+    def safe_migrations_dir(db_name)
+      File.expand_path(Nandi.config.migration_directory(db_name))
     end
 
-    def files
-      safe_migration_files = Dir.chdir(safe_migrations_dir) { Dir["*.rb"] }
-      FileMatcher.call(files: safe_migration_files, spec: options["files"]).
-        map { |file| File.join(safe_migrations_dir, file) }
+    def files(db_name)
+      safe_migration_files = Dir.chdir(safe_migrations_dir(db_name)) { Dir["*.rb"] }
+      FileMatcher.call(files: safe_migration_files, spec: options["files"])
     end
   end
 end

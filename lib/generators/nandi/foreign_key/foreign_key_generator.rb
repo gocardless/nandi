@@ -2,10 +2,12 @@
 
 require "rails/generators"
 require "nandi/formatting"
+require "nandi/multi_db_generator"
 
 module Nandi
   class ForeignKeyGenerator < Rails::Generators::Base
     include Nandi::Formatting
+    include Nandi::MultiDbGenerator
 
     argument :table, type: :string
     argument :target, type: :string
@@ -66,10 +68,6 @@ module Nandi
 
     def reference_name
       :"#{target.singularize}_id"
-    end
-
-    def base_path
-      Nandi.config.migration_directory || "db/safe_migrations"
     end
 
     def timestamp(offset = 0)
