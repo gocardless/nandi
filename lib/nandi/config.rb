@@ -7,7 +7,6 @@ require "nandi/multi_database"
 module Nandi
   class Config
     DEFAULT_COMPILE_FILES = "all"
-    DEFAULT_LOCKFILE_DIRECTORY = File.join(Dir.pwd, "db")
 
     # The rendering backend used to produce output. The only supported option
     # at current is Nandi::Renderers::ActiveRecord, which produces ActiveRecord
@@ -24,10 +23,6 @@ module Nandi
     # @return [String]
     attr_accessor :compile_files
 
-    # Directory where .nandilock.yml will be stored
-    # Defaults to project root
-    # @return [String]
-    attr_writer :lockfile_directory
 
     # @api private
     attr_reader :post_processor, :custom_methods
@@ -36,7 +31,6 @@ module Nandi
       @renderer = renderer
       @custom_methods = {}
       @compile_files = DEFAULT_COMPILE_FILES
-      @lockfile_directory = DEFAULT_LOCKFILE_DIRECTORY
     end
 
     # Register a block to be called on output, for example a code formatter. Whatever is
@@ -64,14 +58,25 @@ module Nandi
       multi_db_config.register(name, config)
     end
 
-    def lockfile_path(database_name = nil)
-      File.join(lockfile_directory, databases.config(database_name).lockfile_name)
+
+    # Setter for backward compatibility with v1.x single-database configurations
+    # Only works when using the legacy configuration style (not register_database)
+    def lockfile_path=(path)
+      # This setter only works with single-database config for backward compatibility
+      # For multi-database, use register_database with lockfile_path option
+      if databases.default
+        databases.default.lockfile_path = path
+      else
+        raise ArgumentError, "lockfile_path= is only for backward compatibility. " \
+                           "Use register_database with lockfile_path option instead."
+      end
     end
 
     # Explicitly define getters for backwards compatibility when the database isnt specified.
     # rubocop:disable Layout/LineLength
     def migration_directory(database_name = nil) = config(database_name).migration_directory
     def output_directory(database_name = nil) = config(database_name).output_directory
+    def lockfile_path(database_name = nil) = config(database_name).lockfile_path
     def access_exclusive_lock_timeout(database_name = nil) = config(database_name).access_exclusive_lock_timeout
     def access_exclusive_lock_timeout_limit(database_name = nil) = config(database_name).access_exclusive_lock_timeout_limit
     def access_exclusive_statement_timeout(database_name = nil) = config(database_name).access_exclusive_statement_timeout
@@ -122,10 +127,6 @@ module Nandi
 
     def multi_db_config
       @multi_db_config ||= MultiDatabase.new
-    end
-
-    def lockfile_directory
-      @lockfile_directory ||= Pathname.new(@lockfile_directory)
     end
   end
 end

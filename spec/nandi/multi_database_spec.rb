@@ -170,14 +170,14 @@ RSpec.describe Nandi::MultiDatabase do
       multi_db.register(:test, {})
       config = multi_db.config(:test)
 
-      expect(config.lockfile_name).to eq(".test_nandilock.yml")
+      expect(config.lockfile_path).to eq("db/.test_nandilock.yml")
     end
 
-    it "allows custom lockfile names" do
-      multi_db.register(:custom, lockfile_name: ".custom_lock.yml")
+    it "allows custom lockfile paths" do
+      multi_db.register(:custom, lockfile_path: "db/custom/.custom_lock.yml")
       config = multi_db.config(:custom)
 
-      expect(config.lockfile_name).to eq(".custom_lock.yml")
+      expect(config.lockfile_path).to eq("db/custom/.custom_lock.yml")
     end
   end
 

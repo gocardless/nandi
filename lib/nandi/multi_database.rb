@@ -57,16 +57,16 @@ module Nandi
       attr_reader :name, :default
 
       attr_accessor :migration_directory,
-                    :lockfile_name
+                    :lockfile_path
 
       def initialize(name:, config:)
         @name = name
         @default = @name == :primary || config[:default] == true
 
-        # Paths and files
+        # Paths and files - all follow the same pattern
         @migration_directory = config[:migration_directory] || "db/#{path_prefix(name, default)}safe_migrations"
         @output_directory = config[:output_directory] || "db/#{path_prefix(name, default)}migrate"
-        @lockfile_name = config[:lockfile_name] || ".#{path_prefix(name, default)}nandilock.yml"
+        @lockfile_path = config[:lockfile_path] || "db/.#{path_prefix(name, default)}nandilock.yml"
 
         timeout_limits(config)
       end
