@@ -54,13 +54,14 @@ module Nandi
       # @return [String]
       attr_accessor :output_directory
 
-      attr_reader :name, :default
+      attr_reader :name, :default, :raw_config
 
       attr_accessor :migration_directory,
                     :lockfile_name
 
       def initialize(name:, config:)
         @name = name
+        @raw_config = config
         @default = @name == :primary || config[:default] == true
 
         # Paths and files
@@ -115,6 +116,10 @@ module Nandi
 
     def register(name, config)
       name = name.to_sym
+
+      # Allow re-registration with identical config (for Rails reloading)
+      return @databases[name] if @databases.key?(name) && @databases[name].raw_config == config
+
       raise ArgumentError, "Database #{name} already registered" if @databases.key?(name)
 
       @databases[name] = Database.new(name: name, config: config)
