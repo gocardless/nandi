@@ -54,10 +54,23 @@ RSpec.describe Nandi::MultiDatabase do
       expect(multi_db.default.name).to eq(:primary)
     end
 
-    it "raises error for duplicate database registration" do
+    it "raises error for duplicate database registration with different config" do
       expect do
         multi_db.register(:primary, migration_directory: "db/new")
       end.to raise_error(ArgumentError, "Database primary already registered")
+    end
+
+    it "allows re-registration with identical config (for Rails reloading)" do
+      original_config = { migration_directory: "db/safe_migrations", output_directory: "db/migrate" }
+
+      # First registration
+      db1 = multi_db.register(:reloadable, original_config)
+
+      # Re-registration with same config should return the same database object
+      db2 = multi_db.register(:reloadable, original_config)
+
+      expect(db2).to eq(db1)
+      expect(multi_db.names.count(:reloadable)).to eq(1)
     end
 
     it "converts string names to symbols" do
