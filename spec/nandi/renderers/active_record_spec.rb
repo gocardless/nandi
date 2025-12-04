@@ -18,9 +18,17 @@ RSpec.describe Nandi::Renderers::ActiveRecord do
       )
     end
 
+    let(:current_rails_version) do
+      ActiveRecord::Migration.current_version
+    end
+
+    def normalize_fixture(content)
+      content.gsub(/ActiveRecord::Migration\[\d+\.\d+\]/, "ActiveRecord::Migration[#{current_rails_version}]")
+    end
+
     describe "adding and dropping an index" do
       let(:fixture) do
-        File.read(File.join(fixture_root, "create_and_drop_index.rb"))
+        normalize_fixture(File.read(File.join(fixture_root, "create_and_drop_index.rb")))
       end
 
       let(:safe_migration) do
@@ -43,7 +51,7 @@ RSpec.describe Nandi::Renderers::ActiveRecord do
 
       context "with custom timeouts" do
         let(:fixture) do
-          File.read(File.join(fixture_root, "create_and_drop_index_timeouts.rb"))
+          normalize_fixture(File.read(File.join(fixture_root, "create_and_drop_index_timeouts.rb")))
         end
 
         let(:safe_migration) do
@@ -71,7 +79,7 @@ RSpec.describe Nandi::Renderers::ActiveRecord do
 
     describe "creating and dropping a table" do
       let(:fixture) do
-        File.read(File.join(fixture_root, "create_and_drop_table.rb"))
+        normalize_fixture(File.read(File.join(fixture_root, "create_and_drop_table.rb")))
       end
 
       let(:safe_migration) do
@@ -98,7 +106,7 @@ RSpec.describe Nandi::Renderers::ActiveRecord do
 
       context "with timestamps with args" do
         let(:fixture) do
-          File.read(File.join(fixture_root, "create_and_drop_table_with_timestamps.rb"))
+          normalize_fixture(File.read(File.join(fixture_root, "create_and_drop_table_with_timestamps.rb")))
         end
 
         let(:safe_migration) do
@@ -127,7 +135,7 @@ RSpec.describe Nandi::Renderers::ActiveRecord do
 
       context "with extra args" do
         let(:fixture) do
-          File.read(File.join(fixture_root, "create_and_drop_table_with_extra_args.rb"))
+          normalize_fixture(File.read(File.join(fixture_root, "create_and_drop_table_with_extra_args.rb")))
         end
 
         let(:safe_migration) do
@@ -155,10 +163,12 @@ RSpec.describe Nandi::Renderers::ActiveRecord do
 
       context "with timestamps without args" do
         let(:fixture) do
-          File.read(
-            File.join(
-              fixture_root,
-              "create_and_drop_table_with_timestamps_and_not_args.rb",
+          normalize_fixture(
+            File.read(
+              File.join(
+                fixture_root,
+                "create_and_drop_table_with_timestamps_and_not_args.rb",
+              ),
             ),
           )
         end
@@ -190,7 +200,7 @@ RSpec.describe Nandi::Renderers::ActiveRecord do
 
     describe "adding and dropping an column" do
       let(:fixture) do
-        File.read(File.join(fixture_root, "create_and_drop_column.rb"))
+        normalize_fixture(File.read(File.join(fixture_root, "create_and_drop_column.rb")))
       end
 
       let(:safe_migration) do
@@ -214,7 +224,7 @@ RSpec.describe Nandi::Renderers::ActiveRecord do
 
     describe "adding and dropping an reference" do
       let(:fixture) do
-        File.read(File.join(fixture_root, "create_and_drop_reference.rb"))
+        normalize_fixture(File.read(File.join(fixture_root, "create_and_drop_reference.rb")))
       end
 
       let(:safe_migration) do
@@ -238,7 +248,7 @@ RSpec.describe Nandi::Renderers::ActiveRecord do
 
     describe "#add_foreign_key" do
       let(:fixture) do
-        File.read(File.join(fixture_root, "add_foreign_key.rb"))
+        normalize_fixture(File.read(File.join(fixture_root, "add_foreign_key.rb")))
       end
 
       let(:safe_migration) do
@@ -260,7 +270,7 @@ RSpec.describe Nandi::Renderers::ActiveRecord do
 
     describe "#add_check_constraint" do
       let(:fixture) do
-        File.read(File.join(fixture_root, "add_check_constraint.rb"))
+        normalize_fixture(File.read(File.join(fixture_root, "add_check_constraint.rb")))
       end
 
       let(:safe_migration) do
@@ -282,7 +292,7 @@ RSpec.describe Nandi::Renderers::ActiveRecord do
 
     describe "#change_column_default" do
       let(:fixture) do
-        File.read(File.join(fixture_root, "change_column_default.rb"))
+        normalize_fixture(File.read(File.join(fixture_root, "change_column_default.rb")))
       end
 
       let(:safe_migration) do
@@ -304,7 +314,7 @@ RSpec.describe Nandi::Renderers::ActiveRecord do
 
     describe "#validate_constraint" do
       let(:fixture) do
-        File.read(File.join(fixture_root, "validate_constraint.rb"))
+        normalize_fixture(File.read(File.join(fixture_root, "validate_constraint.rb")))
       end
 
       let(:safe_migration) do
@@ -326,7 +336,7 @@ RSpec.describe Nandi::Renderers::ActiveRecord do
 
     describe "#drop_constraint" do
       let(:fixture) do
-        File.read(File.join(fixture_root, "drop_constraint.rb"))
+        normalize_fixture(File.read(File.join(fixture_root, "drop_constraint.rb")))
       end
 
       let(:safe_migration) do
@@ -348,7 +358,7 @@ RSpec.describe Nandi::Renderers::ActiveRecord do
 
     describe "#remove_not_null_constraint" do
       let(:fixture) do
-        File.read(File.join(fixture_root, "remove_not_null_constraint.rb"))
+        normalize_fixture(File.read(File.join(fixture_root, "remove_not_null_constraint.rb")))
       end
 
       let(:safe_migration) do
@@ -370,7 +380,7 @@ RSpec.describe Nandi::Renderers::ActiveRecord do
 
     describe "#irreversible_migration" do
       let(:fixture) do
-        File.read(File.join(fixture_root, "irreversible_migration.rb"))
+        normalize_fixture(File.read(File.join(fixture_root, "irreversible_migration.rb")))
       end
 
       let(:safe_migration) do
@@ -394,7 +404,7 @@ RSpec.describe Nandi::Renderers::ActiveRecord do
 
     describe "custom instructions" do
       let(:fixture) do
-        File.read(File.join(fixture_root, "custom_instruction.rb"))
+        normalize_fixture(File.read(File.join(fixture_root, "custom_instruction.rb")))
       end
 
       let(:extension) do
@@ -452,7 +462,7 @@ RSpec.describe Nandi::Renderers::ActiveRecord do
 
       context "with a mixin" do
         let(:fixture) do
-          File.read(File.join(fixture_root, "custom_instruction_with_mixins.rb"))
+          normalize_fixture(File.read(File.join(fixture_root, "custom_instruction_with_mixins.rb")))
         end
 
         let(:extension) do
@@ -526,7 +536,7 @@ RSpec.describe Nandi::Renderers::ActiveRecord do
 
       context "with a block argument" do
         let(:fixture) do
-          File.read(File.join(fixture_root, "custom_instruction_with_block.rb"))
+          normalize_fixture(File.read(File.join(fixture_root, "custom_instruction_with_block.rb")))
         end
 
         let(:extension) do
