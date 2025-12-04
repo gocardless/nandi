@@ -1,0 +1,4 @@
+execute <<-SQL
+  ALTER TABLE <%= table %> RENAME CONSTRAINT <%= old_name %> TO <%= new_name %>
+SQL
+

@@ -279,6 +279,19 @@ module Nandi
       )
     end
 
+    # Renames an existing constraint. This is an atomic operation that changes
+    # only metadata and does not require revalidation of the constraint.
+    # @param table [Symbol, String] The name of the table with the constraint
+    # @param old_name [Symbol, String] The current name of the constraint
+    # @param new_name [Symbol, String] The new name for the constraint
+    def rename_constraint(table, old_name, new_name)
+      current_instructions << Instructions::RenameConstraint.new(
+        table: table,
+        old_name: old_name,
+        new_name: new_name,
+      )
+    end
+
     # Drops an existing NOT NULL constraint. Please note that this migration is
     # not safely reversible; to enforce NOT NULL like behaviour, use a CHECK
     # constraint and validate it in a separate migration.

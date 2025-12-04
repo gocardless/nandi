@@ -138,6 +138,14 @@ module Nandi
           property :name
         end
 
+        class RenameConstraintCell < Base
+          # Because all this stuff goes into a SQL string, we don't need to format
+          # the values.
+          property :table
+          property :old_name
+          property :new_name
+        end
+
         class IrreversibleMigrationCell < Base; end
       end
     end
