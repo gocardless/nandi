@@ -78,6 +78,8 @@ module Nandi
     def access_exclusive_statement_timeout_limit(database_name = nil) = config(database_name).access_exclusive_statement_timeout_limit
     def concurrent_lock_timeout_limit(database_name = nil) = config(database_name).concurrent_lock_timeout_limit
     def concurrent_statement_timeout_limit(database_name = nil) = config(database_name).concurrent_statement_timeout_limit
+    def concurrent_lock_timeout(database_name = nil) = config(database_name).concurrent_lock_timeout
+    def concurrent_statement_timeout(database_name = nil) = config(database_name).concurrent_statement_timeout
     # rubocop:enable Layout/LineLength
 
     # Delegate setter methods to the default database for backwards compatibility
@@ -89,6 +91,8 @@ module Nandi
              :access_exclusive_statement_timeout_limit=,
              :concurrent_lock_timeout_limit=,
              :concurrent_statement_timeout_limit=,
+             :concurrent_lock_timeout=,
+             :concurrent_statement_timeout=,
              to: :default
 
     delegate :validate!, :default, :config, to: :databases

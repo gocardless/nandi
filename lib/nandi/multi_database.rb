@@ -50,6 +50,18 @@ module Nandi
       # @return [Integer]
       attr_accessor :concurrent_lock_timeout_limit
 
+      # The default lock timeout for migrations that take place concurrently
+      # (eg. add_index, remove_index). When set, concurrent migrations will use
+      # set_lock_timeout instead of disable_lock_timeout!. Default: nil (disabled).
+      # @return [Integer, nil]
+      attr_accessor :concurrent_lock_timeout
+
+      # The default statement timeout for migrations that take place concurrently
+      # (eg. add_index, remove_index). When set, concurrent migrations will use
+      # set_statement_timeout instead of disable_statement_timeout!. Default: nil (disabled).
+      # @return [Integer, nil]
+      attr_accessor :concurrent_statement_timeout
+
       # The directory for output files. Default: `db/migrate`
       # @return [String]
       attr_accessor :output_directory
@@ -87,6 +99,8 @@ module Nandi
           config[:concurrent_lock_timeout_limit] || DEFAULT_CONCURRENT_TIMEOUT_LIMIT
         @concurrent_statement_timeout_limit =
           config[:concurrent_statement_timeout_limit] || DEFAULT_CONCURRENT_TIMEOUT_LIMIT
+        @concurrent_lock_timeout = config[:concurrent_lock_timeout]
+        @concurrent_statement_timeout = config[:concurrent_statement_timeout]
       end
 
       def path_prefix(name, default)
