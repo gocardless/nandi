@@ -55,7 +55,6 @@ RSpec.describe Nandi do
         allow(renderer).to receive(:generate).and_return("output")
       end
 
-      # rubocop:disable RSpec/ExampleLength
       it "yields processed output" do
         described_class.configure do |config|
           config.post_process do |arg|
@@ -70,7 +69,6 @@ RSpec.describe Nandi do
           expect(output.first.body).to eq("processed output")
         end
       end
-      # rubocop:enable RSpec/ExampleLength
     end
   end
 end
