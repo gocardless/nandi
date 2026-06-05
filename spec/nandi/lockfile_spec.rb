@@ -71,7 +71,6 @@ RSpec.describe Nandi::Lockfile do
 
     before { write_lockfile! }
 
-    # rubocop:disable RSpec/ExampleLength
     it "adds the digests to the instance" do
       lockfile.add(
         file_name: "file_name",
@@ -83,7 +82,6 @@ RSpec.describe Nandi::Lockfile do
       expect(result[:source_digest]).to eq("source_digest")
       expect(result[:compiled_digest]).to eq("compiled_digest")
     end
-    # rubocop:enable RSpec/ExampleLength
   end
 
   describe "#get" do
@@ -232,7 +230,6 @@ RSpec.describe Nandi::Lockfile do
         analytics_lockfile.persist!
       end
 
-      # rubocop: disable RSpec/ExampleLength
       it "adds migrations to correct database lockfile" do
         add_migrations_to_databases
 
@@ -246,7 +243,6 @@ RSpec.describe Nandi::Lockfile do
         expect(primary_lockfile.get("analytics_migration")[:source_digest]).to be_nil
         expect(analytics_lockfile.get("primary_migration")[:source_digest]).to be_nil
       end
-      # rubocop: enable RSpec/ExampleLength
     end
 
     describe "#get with multiple databases" do

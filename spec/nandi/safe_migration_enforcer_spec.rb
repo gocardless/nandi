@@ -60,7 +60,6 @@ RSpec.shared_examples "linting" do
         and_return(lockfile)
     end
 
-    # rubocop:disable RSpec/ExampleLength
     it "raises an error with an appropriate message" do
       expect { subject.run }.to raise_error do |err|
         expect(err.class).to eq(Nandi::SafeMigrationEnforcer::MigrationLintingFailed)
@@ -71,7 +70,6 @@ RSpec.shared_examples "linting" do
         expect(err.message).to_not match(/20190513163423_add_beachballs.rb/)
       end
     end
-    # rubocop:enable RSpec/ExampleLength
   end
 
   context "when a generated migration has had its content altered" do
@@ -274,7 +272,6 @@ RSpec.describe Nandi::SafeMigrationEnforcer do
           with("#{temp_dir}/db/analytics_migrate").and_return([])
       end
 
-      # rubocop:disable RSpec/ExampleLength
       it "reports violations from all databases with full paths" do
         expect { enforcer.run }.to raise_error(
           Nandi::SafeMigrationEnforcer::MigrationLintingFailed,
@@ -286,7 +283,6 @@ RSpec.describe Nandi::SafeMigrationEnforcer do
           expect(error.message).to include("pending generation")
         end
       end
-      # rubocop:enable RSpec/ExampleLength
     end
 
     context "when there are handwritten migrations in multiple databases" do
@@ -298,7 +294,6 @@ RSpec.describe Nandi::SafeMigrationEnforcer do
           with("#{temp_dir}/db/analytics_safe_migrations").and_return([])
       end
 
-      # rubocop:disable RSpec/ExampleLength
       it "reports violations from all databases with full paths" do
         expect { enforcer.run }.to raise_error(
           Nandi::SafeMigrationEnforcer::MigrationLintingFailed,
@@ -308,7 +303,6 @@ RSpec.describe Nandi::SafeMigrationEnforcer do
           expect(error.message).to include("written by hand")
         end
       end
-      # rubocop:enable RSpec/ExampleLength
     end
 
     context "when there are out of date migrations" do
@@ -320,7 +314,6 @@ RSpec.describe Nandi::SafeMigrationEnforcer do
         end
       end
 
-      # rubocop:disable RSpec/ExampleLength
       it "reports out of date migrations with full paths" do
         expect { enforcer.run }.to raise_error(
           Nandi::SafeMigrationEnforcer::MigrationLintingFailed,
@@ -330,7 +323,6 @@ RSpec.describe Nandi::SafeMigrationEnforcer do
           expect(error.message).to_not include("analytics_migration")
         end
       end
-      # rubocop:enable RSpec/ExampleLength
     end
 
     context "when there are hand edited migrations" do
@@ -341,7 +333,6 @@ RSpec.describe Nandi::SafeMigrationEnforcer do
         end
       end
 
-      # rubocop:disable RSpec/ExampleLength
       it "reports hand edited migrations with full paths" do
         expect { enforcer.run }.to raise_error(
           Nandi::SafeMigrationEnforcer::MigrationLintingFailed,
@@ -351,7 +342,6 @@ RSpec.describe Nandi::SafeMigrationEnforcer do
           expect(error.message).to_not include("primary_migration")
         end
       end
-      # rubocop:enable RSpec/ExampleLength
     end
 
     context "when there are violations in only one database" do

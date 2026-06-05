@@ -9,7 +9,7 @@ plugins:
 AllCops:
   DisplayCopNames: true
   NewCops: enable
-  TargetRubyVersion: 3.2
+  TargetRubyVersion: 3.3
   Exclude:
     - .*/**/*
     - bin/**/*
@@ -26,3 +26,12 @@ Metrics/AbcSize:
 
 Gemspec/RequiredRubyVersion:
   Enabled: false
+
+RSpec/MultipleExpectations:
+  Max: 5
+
+RSpec/ExampleLength:
+  Max: 20
+
+RSpec/NestedGroups:
+  Max: 5

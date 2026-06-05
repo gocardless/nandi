@@ -6,7 +6,7 @@ source "https://rubygems.org"
 gemspec
 
 group :test, :development do
-  gem "bundler", "~> 2.0"
+  gem "bundler", ">= 2.0"
   gem "gc_ruboconfig", "~> 5.0"
   gem "pry"
   gem "rails", ENV.fetch("RAILS_VERSION", "~> 8.0")
