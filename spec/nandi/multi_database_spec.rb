@@ -248,6 +248,58 @@ RSpec.describe Nandi::MultiDatabase do
       end
     end
 
+    context "with concurrent timeout defaults" do
+      let(:name) { :primary }
+
+      context "when not configured" do
+        let(:config) { {} }
+
+        it "defaults concurrent_lock_timeout to nil" do
+          expect(database.concurrent_lock_timeout).to be_nil
+        end
+
+        it "defaults concurrent_statement_timeout to nil" do
+          expect(database.concurrent_statement_timeout).to be_nil
+        end
+      end
+
+      context "when concurrent_lock_timeout is configured" do
+        let(:config) { { concurrent_lock_timeout: 120_000 } }
+
+        it "sets concurrent_lock_timeout" do
+          expect(database.concurrent_lock_timeout).to eq(120_000)
+        end
+
+        it "leaves concurrent_statement_timeout as nil" do
+          expect(database.concurrent_statement_timeout).to be_nil
+        end
+      end
+
+      context "when concurrent_statement_timeout is configured" do
+        let(:config) { { concurrent_statement_timeout: 600_000 } }
+
+        it "sets concurrent_statement_timeout" do
+          expect(database.concurrent_statement_timeout).to eq(600_000)
+        end
+
+        it "leaves concurrent_lock_timeout as nil" do
+          expect(database.concurrent_lock_timeout).to be_nil
+        end
+      end
+
+      context "when both concurrent timeouts are configured" do
+        let(:config) { { concurrent_lock_timeout: 120_000, concurrent_statement_timeout: 600_000 } }
+
+        it "sets concurrent_lock_timeout" do
+          expect(database.concurrent_lock_timeout).to eq(120_000)
+        end
+
+        it "sets concurrent_statement_timeout" do
+          expect(database.concurrent_statement_timeout).to eq(600_000)
+        end
+      end
+    end
+
     context "with explicit default flag" do
       let(:name) { :custom }
       let(:config) { { default: true } }

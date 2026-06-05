@@ -940,9 +940,84 @@ RSpec.describe Nandi::Migration do
           end
         end
 
-        it "disables only the lock timeout" do
+        it "disables only the statement timeout" do
           expect(migration.disable_lock_timeout?).to be(false)
           expect(migration.disable_statement_timeout?).to be(true)
+        end
+      end
+
+      context "and concurrent_lock_timeout is configured globally" do
+        before { allow(Nandi.config).to receive(:concurrent_lock_timeout).and_return(120_000) }
+        after { allow(Nandi.config).to receive(:concurrent_lock_timeout).and_call_original }
+
+        it "does not disable the lock timeout" do
+          expect(migration.disable_lock_timeout?).to be(false)
+        end
+
+        it "uses the configured concurrent lock timeout" do
+          expect(migration.lock_timeout).to eq(120_000)
+        end
+
+        it "still disables the statement timeout" do
+          expect(migration.disable_statement_timeout?).to be(true)
+        end
+      end
+
+      context "and concurrent_statement_timeout is configured globally" do
+        before { allow(Nandi.config).to receive(:concurrent_statement_timeout).and_return(600_000) }
+        after { allow(Nandi.config).to receive(:concurrent_statement_timeout).and_call_original }
+
+        it "does not disable the statement timeout" do
+          expect(migration.disable_statement_timeout?).to be(false)
+        end
+
+        it "uses the configured concurrent statement timeout" do
+          expect(migration.statement_timeout).to eq(600_000)
+        end
+
+        it "still disables the lock timeout" do
+          expect(migration.disable_lock_timeout?).to be(true)
+        end
+      end
+
+      context "and both concurrent timeouts are configured globally" do
+        before do
+          allow(Nandi.config).to receive_messages(
+            concurrent_lock_timeout: 120_000,
+            concurrent_statement_timeout: 600_000,
+          )
+        end
+
+        it "disables neither timeout" do
+          expect(migration.disable_lock_timeout?).to be(false)
+          expect(migration.disable_statement_timeout?).to be(false)
+        end
+
+        it "uses the configured concurrent timeouts" do
+          expect(migration.lock_timeout).to eq(120_000)
+          expect(migration.statement_timeout).to eq(600_000)
+        end
+      end
+
+      context "and per-migration set_lock_timeout overrides the global concurrent config" do
+        before { allow(Nandi.config).to receive(:concurrent_lock_timeout).and_return(120_000) }
+        after { allow(Nandi.config).to receive(:concurrent_lock_timeout).and_call_original }
+
+        let(:subject_class) do
+          Class.new(described_class) do
+            set_lock_timeout(60_000)
+
+            def up
+              validate_constraint :payments, :payments_mandates_fk
+            end
+
+            def down; end
+          end
+        end
+
+        it "uses the per-migration timeout" do
+          expect(migration.lock_timeout).to eq(60_000)
+          expect(migration.disable_lock_timeout?).to be(false)
         end
       end
     end

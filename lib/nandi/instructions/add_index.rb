@@ -41,7 +41,7 @@ module Nandi
       end
 
       def field_names
-        field_names = fields.respond_to?(:map) ? fields.map(&:to_s).join("_") : fields
+        field_names = fields.respond_to?(:map) ? fields.join("_") : fields
         field_names.to_s.scan(/\w+/).join("_")
       end
 

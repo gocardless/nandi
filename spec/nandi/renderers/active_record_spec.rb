@@ -486,9 +486,7 @@ RSpec.describe Nandi::Renderers::ActiveRecord do
                   end
                 end,
                 Class.new do
-                  def self.name
-                    "My::Other::Mixin"
-                  end
+                  define_singleton_method(:name) { "My::Other::Mixin" }
                 end,
               ]
             end
