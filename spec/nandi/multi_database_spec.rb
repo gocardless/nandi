@@ -300,6 +300,50 @@ RSpec.describe Nandi::MultiDatabase do
       end
     end
 
+    context "with deprecated _limit config keys" do
+      let(:name) { :primary }
+
+      context "when old concurrent_lock_timeout_limit is passed" do
+        let(:config) { { concurrent_lock_timeout_limit: 15_000 } }
+
+        it "maps it to concurrent_lock_timeout_min" do
+          expect(database.concurrent_lock_timeout_min).to eq(15_000)
+        end
+      end
+
+      context "when old concurrent_statement_timeout_limit is passed" do
+        let(:config) { { concurrent_statement_timeout_limit: 45_000 } }
+
+        it "maps it to concurrent_statement_timeout_min" do
+          expect(database.concurrent_statement_timeout_min).to eq(45_000)
+        end
+      end
+
+      context "when old access_exclusive_lock_timeout_limit is passed" do
+        let(:config) { { access_exclusive_lock_timeout_limit: 3_000 } }
+
+        it "maps it to access_exclusive_lock_timeout_max" do
+          expect(database.access_exclusive_lock_timeout_max).to eq(3_000)
+        end
+      end
+
+      context "when old access_exclusive_statement_timeout_limit is passed" do
+        let(:config) { { access_exclusive_statement_timeout_limit: 2_000 } }
+
+        it "maps it to access_exclusive_statement_timeout_max" do
+          expect(database.access_exclusive_statement_timeout_max).to eq(2_000)
+        end
+      end
+
+      context "when both old and new keys are passed" do
+        let(:config) { { concurrent_lock_timeout_min: 20_000, concurrent_lock_timeout_limit: 5_000 } }
+
+        it "new key takes precedence" do
+          expect(database.concurrent_lock_timeout_min).to eq(20_000)
+        end
+      end
+    end
+
     context "with explicit default flag" do
       let(:name) { :custom }
       let(:config) { { default: true } }

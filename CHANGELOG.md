@@ -1,5 +1,19 @@
 # Changelog
 
+## v2.2.0 (2026-06-08)
+
+### Changes
+
+- Rename `concurrent_lock_timeout_limit` → `concurrent_lock_timeout_min` and
+  `concurrent_statement_timeout_limit` → `concurrent_statement_timeout_min` to
+  better reflect that these are lower bounds.
+- Rename `access_exclusive_lock_timeout_limit` → `access_exclusive_lock_timeout_max` and
+  `access_exclusive_statement_timeout_limit` → `access_exclusive_statement_timeout_max` to
+  better reflect that these are upper bounds.
+- Old names (`_limit`) are still accepted everywhere for backward compatibility.
+- Default for `concurrent_lock_timeout_min` changed from 3,600,000ms to 10,000ms (10s).
+- Default for `concurrent_statement_timeout_min` changed from 3,600,000ms to 30,000ms (30s).
+
 ## v2.1.1 (2026-06-06)
 
 ### Bug fixes

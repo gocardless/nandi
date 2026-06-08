@@ -21,11 +21,11 @@ RSpec.describe Nandi::Validation::TimeoutValidator do
 
   before do
     allow(migration).to receive_messages(disable_statement_timeout?: false, disable_lock_timeout?: false)
-    allow(Nandi.config).to receive(:access_exclusive_lock_timeout_limit).
+    allow(Nandi.config).to receive(:access_exclusive_lock_timeout_max).
       and_return(750)
-    allow(Nandi.config).to receive(:access_exclusive_statement_timeout_limit).
+    allow(Nandi.config).to receive(:access_exclusive_statement_timeout_max).
       and_return(1500)
-    allow(Nandi.config).to receive(:access_exclusive_lock_timeout_limit).
+    allow(Nandi.config).to receive(:access_exclusive_lock_timeout_max).
       and_return(750)
   end
 
@@ -84,7 +84,7 @@ RSpec.describe Nandi::Validation::TimeoutValidator do
 
     context "with too-low statement timeout" do
       let(:lock_timeout) { Float::INFINITY }
-      let(:statement_timeout) { 3_599_999 }
+      let(:statement_timeout) { 9_999 }
 
       it { is_expected.to be_failure }
     end
@@ -117,14 +117,14 @@ RSpec.describe Nandi::Validation::TimeoutValidator do
 
     context "with too-low statement timeout" do
       let(:lock_timeout) { Float::INFINITY }
-      let(:statement_timeout) { 3_599_999 }
+      let(:statement_timeout) { 9_999 }
 
       it { is_expected.to be_failure }
     end
 
     context "with too-low lock timeout" do
       let(:statement_timeout) { Float::INFINITY }
-      let(:lock_timeout) { 3_599_999 }
+      let(:lock_timeout) { 9_999 }
 
       it { is_expected.to be_failure }
     end

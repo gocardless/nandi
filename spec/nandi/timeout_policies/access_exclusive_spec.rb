@@ -17,8 +17,8 @@ RSpec.describe Nandi::TimeoutPolicies::AccessExclusive do
 
     before do
       allow(migration).to receive_messages(disable_statement_timeout?: false, disable_lock_timeout?: false)
-      allow(Nandi.config).to receive_messages(access_exclusive_statement_timeout_limit: 1500,
-                                              access_exclusive_lock_timeout_limit: 750)
+      allow(Nandi.config).to receive_messages(access_exclusive_statement_timeout_max: 1500,
+                                              access_exclusive_lock_timeout_max: 750)
     end
 
     context "with valid timeouts" do

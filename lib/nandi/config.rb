@@ -73,11 +73,11 @@ module Nandi
     def migration_directory(database_name = nil) = config(database_name).migration_directory
     def output_directory(database_name = nil) = config(database_name).output_directory
     def access_exclusive_lock_timeout(database_name = nil) = config(database_name).access_exclusive_lock_timeout
-    def access_exclusive_lock_timeout_limit(database_name = nil) = config(database_name).access_exclusive_lock_timeout_limit
+    def access_exclusive_lock_timeout_max(database_name = nil) = config(database_name).access_exclusive_lock_timeout_max
     def access_exclusive_statement_timeout(database_name = nil) = config(database_name).access_exclusive_statement_timeout
-    def access_exclusive_statement_timeout_limit(database_name = nil) = config(database_name).access_exclusive_statement_timeout_limit
-    def concurrent_lock_timeout_limit(database_name = nil) = config(database_name).concurrent_lock_timeout_limit
-    def concurrent_statement_timeout_limit(database_name = nil) = config(database_name).concurrent_statement_timeout_limit
+    def access_exclusive_statement_timeout_max(database_name = nil) = config(database_name).access_exclusive_statement_timeout_max
+    def concurrent_lock_timeout_min(database_name = nil) = config(database_name).concurrent_lock_timeout_min
+    def concurrent_statement_timeout_min(database_name = nil) = config(database_name).concurrent_statement_timeout_min
     def concurrent_lock_timeout(database_name = nil) = config(database_name).concurrent_lock_timeout
     def concurrent_statement_timeout(database_name = nil) = config(database_name).concurrent_statement_timeout
     # rubocop:enable Layout/LineLength
@@ -86,11 +86,11 @@ module Nandi
     delegate :migration_directory=,
              :output_directory=,
              :access_exclusive_lock_timeout=,
-             :access_exclusive_lock_timeout_limit=,
+             :access_exclusive_lock_timeout_max=,
              :access_exclusive_statement_timeout=,
-             :access_exclusive_statement_timeout_limit=,
-             :concurrent_lock_timeout_limit=,
-             :concurrent_statement_timeout_limit=,
+             :access_exclusive_statement_timeout_max=,
+             :concurrent_lock_timeout_min=,
+             :concurrent_statement_timeout_min=,
              :concurrent_lock_timeout=,
              :concurrent_statement_timeout=,
              to: :default
