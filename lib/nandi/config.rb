@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require "nandi/migration_modifiers"
 require "nandi/renderers"
 require "nandi/lockfile"
 require "nandi/multi_database"
@@ -30,13 +31,18 @@ module Nandi
     attr_writer :lockfile_directory
 
     # @api private
-    attr_reader :post_processor, :custom_methods
+    attr_reader :post_processor, :custom_methods, :migration_modifiers
 
     def initialize(renderer: Renderers::ActiveRecord)
       @renderer = renderer
       @custom_methods = {}
       @compile_files = DEFAULT_COMPILE_FILES
       @lockfile_directory = DEFAULT_LOCKFILE_DIRECTORY
+      @migration_modifiers = [MigrationModifiers::CreateTableValidatesFks]
+    end
+
+    def register_migration_modifier(klass)
+      @migration_modifiers << klass
     end
 
     # Register a block to be called on output, for example a code formatter. Whatever is

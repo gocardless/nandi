@@ -5,24 +5,29 @@ require "active_support/inflector"
 module Nandi
   module Instructions
     class AddForeignKey
-      attr_reader :table, :target
+      attr_reader :table, :target, :validate
 
       def initialize(table:, target:, name: nil, **extra_args)
         @table = table
         @target = target
         @extra_args = extra_args
         @name = name
+        @validate = false
       end
 
       def procedure
         :add_foreign_key
       end
 
+      def validate!
+        @validate = true
+      end
+
       def extra_args
         {
           **@extra_args,
           name: name,
-          validate: false,
+          validate: validate,
         }.compact
       end
 

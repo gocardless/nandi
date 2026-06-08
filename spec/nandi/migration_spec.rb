@@ -665,6 +665,63 @@ RSpec.describe Nandi::Migration do
         )
       end
     end
+
+    context "when the same migration creates the FK table" do
+      subject(:fk_instruction) do
+        subject_class.new(validator).up_instructions.find { |i| i.procedure == :add_foreign_key }
+      end
+
+      context "with create_table before add_foreign_key" do
+        let(:subject_class) do
+          Class.new(described_class) do
+            def up
+              create_table(:payments) { |t| t.text :foo }
+              add_foreign_key :payments, :mandates
+            end
+
+            def down; end
+          end
+        end
+
+        it "sets validate to true" do
+          expect(fk_instruction.extra_args).to include(validate: true)
+        end
+      end
+
+      context "with add_foreign_key before create_table" do
+        let(:subject_class) do
+          Class.new(described_class) do
+            def up
+              add_foreign_key :payments, :mandates
+              create_table(:payments) { |t| t.text :foo }
+            end
+
+            def down; end
+          end
+        end
+
+        it "sets validate to true" do
+          expect(fk_instruction.extra_args).to include(validate: true)
+        end
+      end
+
+      context "when a different table is created" do
+        let(:subject_class) do
+          Class.new(described_class) do
+            def up
+              create_table(:widgets) { |t| t.text :foo }
+              add_foreign_key :payments, :mandates
+            end
+
+            def down; end
+          end
+        end
+
+        it "leaves validate as false" do
+          expect(fk_instruction.extra_args).to include(validate: false)
+        end
+      end
+    end
   end
 
   describe "#add_check_constraint" do
