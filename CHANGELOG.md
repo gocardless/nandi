@@ -1,5 +1,13 @@
 # Changelog
 
+## v2.1.1 (2026-06-06)
+
+### Bug fixes
+
+- Fix `concurrent_lock_timeout` and `concurrent_statement_timeout` incorrectly
+  applying to ACCESS EXCLUSIVE migrations. They now only affect concurrent
+  (SHARE lock) migrations as intended.
+
 ## v2.1.0 (2026-06-05)
 
 ### New features
