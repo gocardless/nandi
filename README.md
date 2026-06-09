@@ -473,6 +473,16 @@ Register a block to be called on output, for example a code formatter. Whatever 
 config.post_process { |migration| MyFormatter.format(migration) }
 ```
 
+#register_migration_modifier(klass)
+
+Register a custom migration modifier. Migration modifiers inherit from `Nandi::MigrationModifiers::Base` and implement `.up(instructions)`, `.down(instructions)`, or both. Nandi calls the appropriate method based on migration direction.
+
+Nandi ships with one built-in modifier, `Nandi::MigrationModifiers::CreateTableValidatesFks`, which is enabled by default. See the [Migration Modifiers](#migration-modifiers) section for details.
+
+```rb
+config.register_migration_modifier(MyCustomModifier)
+```
+
 #register_method(name, klass)
 
 Register a custom DDL method.
@@ -482,6 +492,56 @@ Parameters:
 `name` (Symbol) - The name of the method to create. This will be monkey-patched into Nandi::Migration.
 
 `klass` (Class) — The class to initialise with the arguments to the method. It should define a `template` instance method which will return a subclass of Cell::ViewModel from the Cells templating library and a `procedure` method that returns the name of the method. It may optionally define a `mixins` method, which will return an array of `Module`s to be mixed into any migration that uses this method.
+
+## Migration Modifiers
+
+Migration modifiers allow instructions to change their behaviour based on other instructions in the same migration. After the direction block runs, Nandi iterates over all configured modifiers and passes the full instruction list to each one.
+
+### Built-in: `CreateTableValidatesFks`
+
+When you create a table and add a foreign key on that same table in a single migration, the FK does not need the usual `NOT VALID` deferral — the table is brand new, so there are no existing rows to validate. Nandi detects this automatically and sets `validate: true` on the relevant FK instructions:
+
+```rb
+class CreatePaymentsWithFk < Nandi::Migration
+  def up
+    create_table :payments do |t|
+      t.bigint :mandate_id, null: false
+    end
+
+    add_foreign_key :payments, :mandates
+  end
+end
+```
+
+The compiled output will include `validate: true` on the `add_foreign_key` call, skipping the separate validate step that would otherwise be required.
+
+This modifier is enabled by default. To disable it, you would need to replace `config.migration_modifiers` entirely — there is no built-in opt-out.
+
+### Writing a custom modifier
+
+Inherit from `Nandi::MigrationModifiers::Base` and override `.up`, `.down`, or both. The base class provides no-op defaults so you only implement what you need:
+
+```rb
+class MyModifier < Nandi::MigrationModifiers::Base
+  def self.up(instructions)
+    # inspect and mutate instructions for the up direction
+  end
+
+  def self.down(instructions)
+    # inspect and mutate instructions for the down direction
+  end
+end
+```
+
+Register it in your Nandi initializer:
+
+```rb
+Nandi.configure do |config|
+  config.register_migration_modifier(MyModifier)
+end
+```
+
+Modifiers are applied in registration order, after all built-in modifiers.
 
 ## Multi-Database Support
 

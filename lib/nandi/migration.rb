@@ -317,6 +317,8 @@ module Nandi
 
       public_send(direction) unless current_instructions.any?
 
+      Nandi.config.migration_modifiers.each { |mod| mod.public_send(direction, current_instructions) }
+
       current_instructions
     end
 

@@ -2,6 +2,7 @@
 
 require "spec_helper"
 require "nandi/config"
+require "nandi/migration_modifiers"
 
 RSpec.describe Nandi::Config do
   subject(:config) { described_class.new }
@@ -126,6 +127,30 @@ RSpec.describe Nandi::Config do
 
       # Should raise error from MultiDatabase validation
       expect { config.validate! }.to raise_error(ArgumentError, /Missing default database/)
+    end
+  end
+
+  describe "#migration_modifiers" do
+    it "defaults to [CreateTableValidatesFks]" do
+      expect(config.migration_modifiers).to eq(
+        [Nandi::MigrationModifiers::CreateTableValidatesFks],
+      )
+    end
+  end
+
+  describe "#register_migration_modifier" do
+    it "appends the modifier to the list" do
+      modifier = Class.new
+      config.register_migration_modifier(modifier)
+      expect(config.migration_modifiers).to include(modifier)
+    end
+
+    it "preserves existing modifiers" do
+      modifier = Class.new
+      config.register_migration_modifier(modifier)
+      expect(config.migration_modifiers).to include(
+        Nandi::MigrationModifiers::CreateTableValidatesFks,
+      )
     end
   end
 
