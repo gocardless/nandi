@@ -74,13 +74,13 @@ module Nandi
     def statement_timeout_is_within_acceptable_bounds
       migration.strictest_lock != Nandi::Migration::LockWeights::ACCESS_EXCLUSIVE ||
         migration.statement_timeout <=
-          Nandi.config.access_exclusive_statement_timeout_limit
+          Nandi.config.access_exclusive_statement_timeout_max
     end
 
     def lock_timeout_is_within_acceptable_bounds
       migration.strictest_lock != Nandi::Migration::LockWeights::ACCESS_EXCLUSIVE ||
         migration.lock_timeout <=
-          Nandi.config.access_exclusive_lock_timeout_limit
+          Nandi.config.access_exclusive_lock_timeout_max
     end
 
     def each_instruction_validation

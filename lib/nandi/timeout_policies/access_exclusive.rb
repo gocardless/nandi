@@ -43,11 +43,11 @@ module Nandi
       end
 
       def statement_timeout_maximum
-        Nandi.config.access_exclusive_statement_timeout_limit
+        Nandi.config.access_exclusive_statement_timeout_max
       end
 
       def lock_timeout_maximum
-        Nandi.config.access_exclusive_lock_timeout_limit
+        Nandi.config.access_exclusive_lock_timeout_max
       end
     end
   end

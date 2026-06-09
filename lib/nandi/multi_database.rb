@@ -9,11 +9,12 @@ module Nandi
       DEFAULT_ACCESS_EXCLUSIVE_STATEMENT_TIMEOUT = 1_500
       DEFAULT_ACCESS_EXCLUSIVE_LOCK_TIMEOUT = 5_000
 
-      DEFAULT_ACCESS_EXCLUSIVE_STATEMENT_TIMEOUT_LIMIT =
+      DEFAULT_ACCESS_EXCLUSIVE_STATEMENT_TIMEOUT_MAX =
         DEFAULT_ACCESS_EXCLUSIVE_STATEMENT_TIMEOUT
-      DEFAULT_ACCESS_EXCLUSIVE_LOCK_TIMEOUT_LIMIT =
+      DEFAULT_ACCESS_EXCLUSIVE_LOCK_TIMEOUT_MAX =
         DEFAULT_ACCESS_EXCLUSIVE_LOCK_TIMEOUT
-      DEFAULT_CONCURRENT_TIMEOUT_LIMIT = 3_600_000
+      DEFAULT_CONCURRENT_LOCK_TIMEOUT_MIN = 10_000
+      DEFAULT_CONCURRENT_STATEMENT_TIMEOUT_MIN = 30_000
 
       DEFAULT_MIGRATION_DIRECTORY = "db/safe_migrations"
       DEFAULT_OUTPUT_DIRECTORY = "db/migrate"
@@ -33,22 +34,22 @@ module Nandi
       # The maximum lock timeout for migrations that take an ACCESS EXCLUSIVE
       # lock and therefore block all reads and writes. Default: 5,000ms.
       # @return [Integer]
-      attr_accessor :access_exclusive_statement_timeout_limit
+      attr_accessor :access_exclusive_statement_timeout_max
 
       # The maximum statement timeout for migrations that take an ACCESS
       # EXCLUSIVE lock and therefore block all reads and writes. Default: 1500ms.
       # @return [Integer]
-      attr_accessor :access_exclusive_lock_timeout_limit
+      attr_accessor :access_exclusive_lock_timeout_max
 
       # The minimum statement timeout for migrations that take place concurrently.
       # Default: 3,600,000ms (ie, 3 hours).
       # @return [Integer]
-      attr_accessor :concurrent_statement_timeout_limit
+      attr_accessor :concurrent_statement_timeout_min
 
       # The minimum lock timeout for migrations that take place concurrently.
       # Default: 3,600,000ms (ie, 3 hours).
       # @return [Integer]
-      attr_accessor :concurrent_lock_timeout_limit
+      attr_accessor :concurrent_lock_timeout_min
 
       # The default lock timeout for migrations that take place concurrently
       # (eg. add_index, remove_index). When set, concurrent migrations will use
@@ -71,6 +72,13 @@ module Nandi
       attr_accessor :migration_directory,
                     :lockfile_name
 
+      RENAMED_KEYS = {
+        access_exclusive_lock_timeout_limit: :access_exclusive_lock_timeout_max,
+        access_exclusive_statement_timeout_limit: :access_exclusive_statement_timeout_max,
+        concurrent_lock_timeout_limit: :concurrent_lock_timeout_min,
+        concurrent_statement_timeout_limit: :concurrent_statement_timeout_min,
+      }.freeze
+
       def initialize(name:, config:)
         @name = name
         @raw_config = config
@@ -81,24 +89,31 @@ module Nandi
         @output_directory = config[:output_directory] || "db/#{path_prefix(name, default)}migrate"
         @lockfile_name = config[:lockfile_name] || ".#{path_prefix(name, default)}nandilock.yml"
 
-        timeout_limits(config)
+        timeout_limits(normalize_config(config))
       end
 
       private
+
+      # Maps deprecated _limit key names to their canonical _min/_max equivalents.
+      def normalize_config(config)
+        RENAMED_KEYS.each_with_object(config.dup) do |(old_key, new_key), normalized|
+          normalized[new_key] ||= normalized.delete(old_key)
+        end
+      end
 
       def timeout_limits(config)
         @access_exclusive_lock_timeout =
           config[:access_exclusive_lock_timeout] || DEFAULT_ACCESS_EXCLUSIVE_LOCK_TIMEOUT
         @access_exclusive_statement_timeout =
           config[:access_exclusive_statement_timeout] || DEFAULT_ACCESS_EXCLUSIVE_STATEMENT_TIMEOUT
-        @access_exclusive_lock_timeout_limit =
-          config[:access_exclusive_lock_timeout_limit] || DEFAULT_ACCESS_EXCLUSIVE_LOCK_TIMEOUT_LIMIT
-        @access_exclusive_statement_timeout_limit =
-          config[:access_exclusive_statement_timeout_limit] || DEFAULT_ACCESS_EXCLUSIVE_STATEMENT_TIMEOUT_LIMIT
-        @concurrent_lock_timeout_limit =
-          config[:concurrent_lock_timeout_limit] || DEFAULT_CONCURRENT_TIMEOUT_LIMIT
-        @concurrent_statement_timeout_limit =
-          config[:concurrent_statement_timeout_limit] || DEFAULT_CONCURRENT_TIMEOUT_LIMIT
+        @access_exclusive_lock_timeout_max =
+          config[:access_exclusive_lock_timeout_max] || DEFAULT_ACCESS_EXCLUSIVE_LOCK_TIMEOUT_MAX
+        @access_exclusive_statement_timeout_max =
+          config[:access_exclusive_statement_timeout_max] || DEFAULT_ACCESS_EXCLUSIVE_STATEMENT_TIMEOUT_MAX
+        @concurrent_lock_timeout_min =
+          config[:concurrent_lock_timeout_min] || DEFAULT_CONCURRENT_LOCK_TIMEOUT_MIN
+        @concurrent_statement_timeout_min =
+          config[:concurrent_statement_timeout_min] || DEFAULT_CONCURRENT_STATEMENT_TIMEOUT_MIN
         @concurrent_lock_timeout = config[:concurrent_lock_timeout]
         @concurrent_statement_timeout = config[:concurrent_statement_timeout]
       end
