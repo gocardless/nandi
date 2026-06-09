@@ -1078,5 +1078,35 @@ RSpec.describe Nandi::Migration do
         end
       end
     end
+
+    context "when the strictest lock is ACCESS EXCLUSIVE" do
+      let(:subject_class) do
+        Class.new(described_class) do
+          def up
+            add_column :payments, :foo, :text
+          end
+
+          def down; end
+        end
+      end
+
+      context "and concurrent_lock_timeout is configured globally" do
+        before { allow(Nandi.config).to receive(:concurrent_lock_timeout).and_return(120_000) }
+        after { allow(Nandi.config).to receive(:concurrent_lock_timeout).and_call_original }
+
+        it "does not use the concurrent lock timeout" do
+          expect(migration.lock_timeout).to eq(Nandi.config.access_exclusive_lock_timeout)
+        end
+      end
+
+      context "and concurrent_statement_timeout is configured globally" do
+        before { allow(Nandi.config).to receive(:concurrent_statement_timeout).and_return(600_000) }
+        after { allow(Nandi.config).to receive(:concurrent_statement_timeout).and_call_original }
+
+        it "does not use the concurrent statement timeout" do
+          expect(migration.statement_timeout).to eq(Nandi.config.access_exclusive_statement_timeout)
+        end
+      end
+    end
   end
 end

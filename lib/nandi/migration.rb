@@ -376,11 +376,19 @@ module Nandi
     end
 
     def default_statement_timeout
-      Nandi.config.concurrent_statement_timeout || Nandi.config.access_exclusive_statement_timeout
+      if strictest_lock == LockWeights::SHARE
+        Nandi.config.concurrent_statement_timeout || Nandi.config.access_exclusive_statement_timeout
+      else
+        Nandi.config.access_exclusive_statement_timeout
+      end
     end
 
     def default_lock_timeout
-      Nandi.config.concurrent_lock_timeout || Nandi.config.access_exclusive_lock_timeout
+      if strictest_lock == LockWeights::SHARE
+        Nandi.config.concurrent_lock_timeout || Nandi.config.access_exclusive_lock_timeout
+      else
+        Nandi.config.access_exclusive_lock_timeout
+      end
     end
 
     def invoke_custom_method(name, ...)
