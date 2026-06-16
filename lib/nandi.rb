@@ -4,8 +4,11 @@ require "nandi/config"
 require "nandi/renderers"
 require "nandi/compiled_migration"
 require "active_support/core_ext/string/inflections"
+require "active_support/deprecation"
 
 module Nandi
+  DEPRECATOR = ActiveSupport::Deprecation.new("4.0", "Nandi")
+
   class Error < StandardError; end
 
   class << self
