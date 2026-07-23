@@ -7,7 +7,7 @@ gemspec
 
 group :test, :development do
   gem "bundler", ">= 2.0"
-  gem "gc_ruboconfig", "~> 5.0"
+  gem "gc_ruboconfig", "~> 6.0"
   gem "pry"
   gem "rails", ENV.fetch("RAILS_VERSION", "~> 8.0")
   gem "rake", ">= 12.3.3", "~> 13.0"
