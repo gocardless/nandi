@@ -63,6 +63,12 @@ module Nandi
       # @return [Integer, nil]
       attr_accessor :concurrent_statement_timeout
 
+      # Whether `remove_index` should use the `CONCURRENTLY` option by default. When
+      # `false`, `remove_index` takes a brief ACCESS EXCLUSIVE lock instead of a SHARE
+      # lock, and can therefore run inside a DDL transaction. Default: true.
+      # @return [Boolean]
+      attr_accessor :remove_index_concurrently
+
       # The directory for output files. Default: `db/migrate`
       # @return [String]
       attr_accessor :output_directory
@@ -121,6 +127,7 @@ module Nandi
           config[:concurrent_statement_timeout_min] || DEFAULT_CONCURRENT_STATEMENT_TIMEOUT_MIN
         @concurrent_lock_timeout = config[:concurrent_lock_timeout]
         @concurrent_statement_timeout = config[:concurrent_statement_timeout]
+        @remove_index_concurrently = config.fetch(:remove_index_concurrently, true)
       end
 
       def path_prefix(name, default)

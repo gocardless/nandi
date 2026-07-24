@@ -300,6 +300,34 @@ RSpec.describe Nandi::MultiDatabase do
       end
     end
 
+    context "with remove_index_concurrently" do
+      let(:name) { :primary }
+
+      context "when not configured" do
+        let(:config) { {} }
+
+        it "defaults to true" do
+          expect(database.remove_index_concurrently).to be true
+        end
+      end
+
+      context "when explicitly set to false" do
+        let(:config) { { remove_index_concurrently: false } }
+
+        it "returns false" do
+          expect(database.remove_index_concurrently).to be false
+        end
+      end
+
+      context "when explicitly set to true" do
+        let(:config) { { remove_index_concurrently: true } }
+
+        it "returns true" do
+          expect(database.remove_index_concurrently).to be true
+        end
+      end
+    end
+
     context "with deprecated _limit config keys" do
       let(:name) { :primary }
 

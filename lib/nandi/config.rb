@@ -86,6 +86,7 @@ module Nandi
     def concurrent_statement_timeout_min(database_name = nil) = config(database_name).concurrent_statement_timeout_min
     def concurrent_lock_timeout(database_name = nil) = config(database_name).concurrent_lock_timeout
     def concurrent_statement_timeout(database_name = nil) = config(database_name).concurrent_statement_timeout
+    def remove_index_concurrently(database_name = nil) = config(database_name).remove_index_concurrently
     # rubocop:enable Layout/LineLength
 
     # Delegate setter methods to the default database for backwards compatibility
@@ -99,6 +100,7 @@ module Nandi
              :concurrent_statement_timeout_min=,
              :concurrent_lock_timeout=,
              :concurrent_statement_timeout=,
+             :remove_index_concurrently=,
              to: :default
 
     delegate :validate!, :default, :config, to: :databases
