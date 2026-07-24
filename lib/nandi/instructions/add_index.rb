@@ -32,6 +32,10 @@ module Nandi
         Nandi::Migration::LockWeights::SHARE
       end
 
+      def concurrent?
+        true
+      end
+
       attr_reader :table, :fields
 
       private

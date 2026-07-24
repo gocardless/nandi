@@ -77,6 +77,34 @@ RSpec.describe Nandi::Renderers::ActiveRecord do
       end
     end
 
+    describe "dropping an index without CONCURRENTLY" do
+      let(:fixture) do
+        normalize_fixture(File.read(File.join(fixture_root, "create_and_drop_index_non_concurrent.rb")))
+      end
+
+      let(:safe_migration) do
+        Class.new(Nandi::Migration) do
+          def self.name
+            "MyAwesomeMigration"
+          end
+
+          def up
+            add_column :payments, :foo, :text
+          end
+
+          def down
+            remove_index :payments, :foo, concurrently: false
+          end
+        end
+      end
+
+      it { is_expected.to eq(fixture) }
+
+      it "does not disable the DDL transaction" do
+        expect(migration).to_not include("disable_ddl_transaction!")
+      end
+    end
+
     describe "creating and dropping a table" do
       let(:fixture) do
         normalize_fixture(File.read(File.join(fixture_root, "create_and_drop_table.rb")))

@@ -40,6 +40,12 @@ RSpec.describe Nandi::Instructions::AddIndex do
     end
   end
 
+  describe "#concurrent?" do
+    subject(:result) { instance.concurrent? }
+
+    it { is_expected.to eq(true) }
+  end
+
   describe "#table" do
     let(:table) { :thingumyjiggers }
 
