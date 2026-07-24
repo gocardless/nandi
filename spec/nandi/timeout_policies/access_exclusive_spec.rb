@@ -12,7 +12,8 @@ RSpec.describe Nandi::TimeoutPolicies::AccessExclusive do
     let(:migration) do
       instance_double(Nandi::Migration,
                       statement_timeout: statement_timeout,
-                      lock_timeout: lock_timeout)
+                      lock_timeout: lock_timeout,
+                      database_name: nil)
     end
 
     before do
