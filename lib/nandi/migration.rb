@@ -69,11 +69,17 @@ module Nandi
     end
 
     # @param validator [Nandi::Validator]
-    def initialize(validator)
+    # @param database_name [Symbol, nil] The database this migration is being compiled
+    #   for. Used to resolve per-database config. Defaults to the default database.
+    def initialize(validator, database_name: nil)
       @validator = validator
+      @database_name = database_name
       @instructions = Hash.new { |h, k| h[k] = InstructionSet.new([]) }
       validate
     end
+
+    # @api private
+    attr_reader :database_name
 
     # @api private
     def up_instructions

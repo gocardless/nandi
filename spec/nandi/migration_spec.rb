@@ -17,6 +17,30 @@ RSpec.describe Nandi::Migration do
     it { is_expected.to eq("MyAmazingClass") }
   end
 
+  describe "#database_name" do
+    let(:subject_class) do
+      Class.new(described_class) do
+        def up; end
+      end
+    end
+
+    context "when not provided" do
+      subject(:migration) { subject_class.new(validator) }
+
+      it "defaults to nil" do
+        expect(migration.database_name).to be_nil
+      end
+    end
+
+    context "when provided" do
+      subject(:migration) { subject_class.new(validator, database_name: :analytics) }
+
+      it "exposes the given database name" do
+        expect(migration.database_name).to eq(:analytics)
+      end
+    end
+  end
+
   describe "#up and #down" do
     subject(:migration) { subject_class.new(validator) }
 
