@@ -149,6 +149,16 @@ end
 
 Nandi has added in the `algorithm: :concurrently` option, ensuring that the index is not built immediately with the table locked in the meantime (a common source of pain). You can't use that option within a transaction, however, so Nandi uses the `disable_ddl_transaction!` macro. And we're ready to go.
 
+`remove_index` accepts an optional `concurrently:` keyword argument to opt out of `CONCURRENTLY` for a single call, regardless of the configured default:
+
+```rb
+def down
+  remove_index :widgets, :name, concurrently: false
+end
+```
+
+When `concurrently` is `false`, Nandi models the operation as taking a brief `ACCESS EXCLUSIVE` lock (like any other DDL statement) rather than a `SHARE` lock, so it's validated against the same tight `access_exclusive_*` timeouts as `add_column`, `remove_column`, etc., and can run inside a DDL transaction alongside other statements. The default for calls that don't specify `concurrently:` is controlled by the per-database `remove_index_concurrently` config option (default: `true`).
+
 But wait a minute - what about the foreign key one we started out with? The grizzled veterans among you know the workaround: add the constraint with the `NOT VALID` flag set, and then - in a separate follow-up transaction - validate the constraint. Nandi makes this easy:
 
 ```sh
@@ -566,6 +576,7 @@ These options can be set individually for each database. **All are optional** - 
 - `access_exclusive_statement_timeout_limit`: Maximum allowed statement timeout (default: 1,500ms)
 - `concurrent_lock_timeout_limit`: Minimum timeout for concurrent operations (default: 3,600,000ms / 1 hour)
 - `concurrent_statement_timeout_limit`: Minimum statement timeout for concurrent operations (default: 3,600,000ms / 1 hour)
+- `remove_index_concurrently`: Whether `remove_index` uses `CONCURRENTLY` by default for this database; can still be overridden per-call via `remove_index(table, target, concurrently: ...)` (default: `true`)
 
 **Global options** (set via config accessors):
 
