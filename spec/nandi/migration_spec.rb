@@ -973,6 +973,33 @@ RSpec.describe Nandi::Migration do
   describe "timeouts" do
     subject(:migration) { subject_class.new(validator) }
 
+    context "when instantiated for a non-default database" do
+      subject(:migration) { subject_class.new(validator, database_name: :analytics) }
+
+      let(:subject_class) do
+        Class.new(described_class) do
+          def up
+            validate_constraint :payments, :payments_mandates_fk
+          end
+
+          def down; end
+        end
+      end
+
+      before do
+        Nandi.config.register_database(:analytics, concurrent_lock_timeout: 999_000)
+      end
+
+      after do
+        Nandi.instance_variable_set(:@config, nil)
+      end
+
+      it "resolves concurrent_lock_timeout from the analytics database, not the default" do
+        expect(migration.lock_timeout).to eq(999_000)
+        expect(migration.disable_lock_timeout?).to be(false)
+      end
+    end
+
     context "when the strictest lock is SHARE" do
       let(:subject_class) do
         Class.new(described_class) do
