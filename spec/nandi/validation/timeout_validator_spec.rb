@@ -132,7 +132,7 @@ RSpec.describe Nandi::Validation::TimeoutValidator do
         end
 
         it "is still a failure, unlike a concurrent remove_index" do
-          is_expected.to be_failure
+          expect(validator).to be_failure
         end
       end
     end
