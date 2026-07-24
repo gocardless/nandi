@@ -173,6 +173,68 @@ RSpec.describe Nandi::Migration do
         end
       end
     end
+
+    context "with concurrently: false" do
+      let(:subject_class) do
+        Class.new(described_class) do
+          def up; end
+
+          def down
+            remove_index :payments, :foo, concurrently: false
+          end
+        end
+      end
+
+      it "does not add the algorithm: :concurrently option" do
+        expect(instructions.first.extra_args).to eq(column: :foo)
+      end
+
+      it "is not concurrent" do
+        expect(instructions.first.concurrent?).to be(false)
+      end
+    end
+
+    context "with concurrently: true" do
+      let(:subject_class) do
+        Class.new(described_class) do
+          def up; end
+
+          def down
+            remove_index :payments, :foo, concurrently: true
+          end
+        end
+      end
+
+      it "is concurrent" do
+        expect(instructions.first.concurrent?).to be(true)
+      end
+    end
+
+    context "when concurrently is not specified" do
+      subject(:instructions) { subject_class.new(validator, database_name: :analytics).down_instructions }
+
+      let(:subject_class) do
+        Class.new(described_class) do
+          def up; end
+
+          def down
+            remove_index :payments, :foo
+          end
+        end
+      end
+
+      before do
+        Nandi.config.register_database(:analytics, remove_index_concurrently: false)
+      end
+
+      after do
+        Nandi.instance_variable_set(:@config, nil)
+      end
+
+      it "resolves the config default for the migration's database" do
+        expect(instructions.first.concurrent?).to be(false)
+      end
+    end
   end
 
   describe "#create_table" do

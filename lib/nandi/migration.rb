@@ -153,8 +153,15 @@ module Nandi
     #   array of fields) in the index to be dropped, or a hash of options, which
     #   must include either a `column` key (which is the same: a field or list
     #   of fields) or a `name` key, which is the name of the index to be dropped.
-    def remove_index(table, target)
-      current_instructions << Instructions::RemoveIndex.new(table: table, field: target)
+    def remove_index(table, target = nil, concurrently: nil, **kwargs)
+      target = kwargs if target.nil?
+      concurrently = Nandi.config.remove_index_concurrently(database_name) if concurrently.nil?
+
+      current_instructions << Instructions::RemoveIndex.new(
+        table: table,
+        field: target,
+        concurrently: concurrently,
+      )
     end
 
     # Creates a new table. Yields a ColumnsReader object as a block, to allow adding

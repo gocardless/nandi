@@ -3,9 +3,10 @@
 module Nandi
   module Instructions
     class RemoveIndex
-      def initialize(table:, field:)
+      def initialize(table:, field:, concurrently: true)
         @table = table
         @field = field
+        @concurrently = concurrently
       end
 
       def procedure
@@ -13,22 +14,23 @@ module Nandi
       end
 
       def extra_args
-        if field.is_a?(Hash)
-          field.merge(algorithm: :concurrently)
-        else
-          { column: columns, algorithm: :concurrently }
-        end
+        base = field.is_a?(Hash) ? field.dup : { column: columns }
+        concurrently ? base.merge(algorithm: :concurrently) : base
       end
 
       def lock
-        Nandi::Migration::LockWeights::SHARE
+        concurrently ? Nandi::Migration::LockWeights::SHARE : Nandi::Migration::LockWeights::ACCESS_EXCLUSIVE
+      end
+
+      def concurrent?
+        concurrently
       end
 
       attr_reader :table
 
       private
 
-      attr_reader :field
+      attr_reader :field, :concurrently
 
       def columns
         columns = Array(field)

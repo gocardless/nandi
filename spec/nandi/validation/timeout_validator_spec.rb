@@ -101,6 +101,42 @@ RSpec.describe Nandi::Validation::TimeoutValidator do
       ]
     end
 
+    context "when concurrently: false" do
+      let(:instructions) do
+        [
+          Nandi::Instructions::RemoveIndex.new(
+            table: :payments,
+            field: :foo,
+            concurrently: false,
+          ),
+        ]
+      end
+
+      context "with a statement timeout within access_exclusive bounds" do
+        let(:statement_timeout) { 1500 }
+        let(:lock_timeout) { 750 }
+
+        it { is_expected.to be_success }
+      end
+
+      context "with a statement timeout that exceeds access_exclusive bounds" do
+        let(:statement_timeout) { 1501 }
+        let(:lock_timeout) { 5000 }
+
+        it { is_expected.to be_failure }
+      end
+
+      context "with timeouts disabled" do
+        before do
+          allow(migration).to receive_messages(disable_statement_timeout?: true, disable_lock_timeout?: true)
+        end
+
+        it "is still a failure, unlike a concurrent remove_index" do
+          is_expected.to be_failure
+        end
+      end
+    end
+
     context "with timeouts disabled" do
       before do
         allow(migration).to receive_messages(disable_statement_timeout?: true, disable_lock_timeout?: true)
