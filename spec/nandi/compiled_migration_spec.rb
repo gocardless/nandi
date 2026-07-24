@@ -135,6 +135,11 @@ RSpec.describe Nandi::CompiledMigration do
         migration = described_class.new(file_name: valid_migration, db_name: nil)
         expect(migration.output_path).to eq("db/migrate/#{valid_migration}")
       end
+
+      it "instantiates the migration with the resolved database name" do
+        compiled = described_class.new(file_name: valid_migration, db_name: nil)
+        expect(compiled.migration.database_name).to eq(:primary)
+      end
     end
 
     context "when db_name is explicitly provided" do
@@ -148,6 +153,11 @@ RSpec.describe Nandi::CompiledMigration do
         migration = described_class.new(file_name: valid_migration, db_name: :analytics)
         expect(migration.db_name).to eq(:analytics)
         expect(migration.output_path).to eq("db/analytics_migrate/#{valid_migration}")
+      end
+
+      it "instantiates the migration with the specified database name" do
+        compiled = described_class.new(file_name: valid_migration, db_name: :analytics)
+        expect(compiled.migration.database_name).to eq(:analytics)
       end
     end
   end
