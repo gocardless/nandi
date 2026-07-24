@@ -96,5 +96,33 @@ RSpec.describe Nandi::TimeoutPolicies::AccessExclusive do
           ])
       end
     end
+
+    context "when the migration belongs to a non-default database" do
+      let(:migration) do
+        instance_double(Nandi::Migration,
+                        statement_timeout: statement_timeout,
+                        lock_timeout: lock_timeout,
+                        database_name: :analytics)
+      end
+      let(:lock_timeout) { 100 }
+
+      before do
+        allow(Nandi.config).to receive(:access_exclusive_statement_timeout_max).with(:analytics).and_return(200)
+        allow(Nandi.config).to receive(:access_exclusive_lock_timeout_max).with(:analytics).and_return(100)
+      end
+
+      context "with too great a statement timeout for the analytics database" do
+        let(:statement_timeout) { 201 }
+
+        it { is_expected.to be_failure }
+      end
+
+      context "within the analytics database's bounds" do
+        let(:statement_timeout) { 200 }
+        let(:lock_timeout) { 100 }
+
+        it { is_expected.to be_success }
+      end
+    end
   end
 end
