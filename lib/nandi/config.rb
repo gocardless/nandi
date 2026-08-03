@@ -86,6 +86,7 @@ module Nandi
     def concurrent_statement_timeout_min(database_name = nil) = config(database_name).concurrent_statement_timeout_min
     def concurrent_lock_timeout(database_name = nil, table_name = nil) = config(database_name).concurrent_lock_timeout(table_name)
     def concurrent_statement_timeout(database_name = nil, table_name = nil) = config(database_name).concurrent_statement_timeout(table_name)
+    def yugabyte_database?(database_name = nil) = config(database_name).yugabyte_database
     # rubocop:enable Layout/LineLength
 
     # Delegate setter methods to the default database for backwards compatibility

@@ -1,0 +1,3 @@
+execute <<-SQL
+  CREATE <%= 'UNIQUE ' if unique? %>INDEX <%= name %> ON <%= table %> (<%= fields %>)
+SQL

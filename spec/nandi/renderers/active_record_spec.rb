@@ -26,6 +26,30 @@ RSpec.describe Nandi::Renderers::ActiveRecord do
       content.gsub(/ActiveRecord::Migration\[\d+\.\d+\]/, "ActiveRecord::Migration[#{current_rails_version}]")
     end
 
+    describe "testing my new feature" do
+      let(:fixture) do
+        normalize_fixture(File.read(File.join(fixture_root, "create_and_drop_index_new.rb")))
+      end
+
+      let(:safe_migration) do
+        Class.new(Nandi::Migration) do
+          def self.name
+            "MyAwesomeMigration"
+          end
+
+          def up
+            add_index_yb :payments, %i[foo bar], bucket_on: :id, bucket_count: 16
+          end
+
+          def down
+            remove_index :payments, %i[foo bar]
+          end
+        end
+      end
+
+      it { is_expected.to eq(fixture) }
+    end
+
     describe "adding and dropping an index" do
       let(:fixture) do
         normalize_fixture(File.read(File.join(fixture_root, "create_and_drop_index.rb")))

@@ -138,6 +138,14 @@ module Nandi
       )
     end
 
+    def add_index_yb(table, fields, **kwargs)
+      current_instructions << Instructions::Yugabyte::AddIndexYb.new(
+        **kwargs,
+        table: table,
+        fields: fields,
+      )
+    end
+
     # Drop an index from the database.
     #
     # Nandi will add the `CONCURRENTLY` option, which means the change
