@@ -8,5 +8,7 @@ require "nandi/validation/each_validator"
 require "nandi/validation/result"
 require "nandi/validation/failure_helpers"
 require "nandi/validation/timeout_validator"
+require "nandi/validation/requires_yugabyte_database"
+require "nandi/validation/add_index_yb_validator"
 
 module Validation; end
