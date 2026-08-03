@@ -77,7 +77,7 @@ module Nandi
       # @return [String]
       attr_accessor :output_directory
 
-      attr_reader :name, :default, :raw_config
+      attr_reader :name, :default, :raw_config, :yugabyte_database
 
       attr_accessor :migration_directory,
                     :lockfile_name
@@ -93,6 +93,7 @@ module Nandi
         @name = name
         @raw_config = config
         @default = @name == :primary || config[:default] == true
+        @yugabyte_database = config[:yugabyte_database] == true
 
         # Paths and files
         @migration_directory = config[:migration_directory] || "db/#{path_prefix(name, default)}safe_migrations"

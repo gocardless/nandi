@@ -59,6 +59,13 @@ RSpec.describe Nandi::Config do
       expect(config.output_directory).to eq(primary_output_directory)
     end
 
+    it "returns yugabyte_database? per database" do
+      config.register_database(:yugabyte_db, yugabyte_database: true)
+
+      expect(config.yugabyte_database?(:yugabyte_db)).to eq(true)
+      expect(config.yugabyte_database?(:primary)).to eq(false)
+    end
+
     it "returns database-specific lockfile paths in multi-database mode" do
       expect(config.lockfile_path(:primary)).to eq("db/.nandilock.yml")
       expect(config.lockfile_path(:analytics)).to eq("db/.analytics_nandilock.yml")
