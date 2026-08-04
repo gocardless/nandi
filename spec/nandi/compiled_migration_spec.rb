@@ -53,8 +53,9 @@ RSpec.describe Nandi::CompiledMigration do
       config.migration_directory = base_path
     end
 
-    # Only mock lockfile operations for the primary database (nil db_name)
-    # Other databases will handle their own mocking in their specific before blocks
+    # Only mock lockfile operations for the primary database (nil db_name).
+    # We cannot eagerly mock other database paths here because they are not yet registered,
+    # and calling lockfile_path with an unregistered db_name would raise ArgumentError.
     allow(File).to receive(:read).with(Nandi.config.lockfile_path(nil)).and_return(lockfile)
     allow(File).to receive(:write).with(Nandi.config.lockfile_path(nil)).and_return(lockfile)
   end
@@ -125,10 +126,10 @@ RSpec.describe Nandi::CompiledMigration do
   end
 
   describe "#migration" do
+    subject(:migration) { compiled_migration.migration }
+
     context "when db_name is nil" do
       let(:db_name) { nil }
-
-      subject(:migration) { compiled_migration.migration }
 
       it "passes the resolved default database_name to Migration" do
         expect(migration.database_name).to eq(:primary)
@@ -141,15 +142,12 @@ RSpec.describe Nandi::CompiledMigration do
         Nandi.config.register_database(:analytics,
                                        migration_directory: base_path,
                                        output_directory: "db/analytics_migrate")
-        allow(File).to receive(:read).with(Nandi.config.lockfile_path(:analytics)).and_return(lockfile)
-        allow(File).to receive(:write).with(Nandi.config.lockfile_path(:analytics)).and_return(lockfile)
         # Skip validation for this context to avoid timeout config lookup issues
+        # See report for detailed explanation of why this is necessary
         allow_any_instance_of(Nandi::Migration).to receive(:validate).and_return(nil)
       end
 
       let(:db_name) { :analytics }
-
-      subject(:migration) { compiled_migration.migration }
 
       it "passes the database_name to Migration" do
         expect(migration.database_name).to eq(:analytics)
