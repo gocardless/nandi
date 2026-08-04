@@ -53,11 +53,11 @@ module Nandi
       end
 
       def minimum_lock_timeout
-        Nandi.config.concurrent_lock_timeout_min
+        Nandi.config.concurrent_lock_timeout_min(migration.database_name)
       end
 
       def minimum_statement_timeout
-        Nandi.config.concurrent_statement_timeout_min
+        Nandi.config.concurrent_statement_timeout_min(migration.database_name)
       end
     end
   end

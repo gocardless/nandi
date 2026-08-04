@@ -16,7 +16,8 @@ RSpec.describe Nandi::Validation::TimeoutValidator do
                     up_instructions: instructions,
                     down_instructions: [],
                     statement_timeout: statement_timeout,
-                    lock_timeout: lock_timeout)
+                    lock_timeout: lock_timeout,
+                    database_name: nil)
   end
 
   before do

@@ -43,11 +43,11 @@ module Nandi
       end
 
       def statement_timeout_maximum
-        Nandi.config.access_exclusive_statement_timeout_max
+        Nandi.config.access_exclusive_statement_timeout_max(migration.database_name)
       end
 
       def lock_timeout_maximum
-        Nandi.config.access_exclusive_lock_timeout_max
+        Nandi.config.access_exclusive_lock_timeout_max(migration.database_name)
       end
     end
   end
