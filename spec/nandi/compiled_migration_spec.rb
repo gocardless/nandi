@@ -48,13 +48,15 @@ RSpec.describe Nandi::CompiledMigration do
 
   before do
     Nandi.instance_variable_set(:@config, nil) # Reset config
-    allow(File).to receive(:read).with(Nandi.config.lockfile_path(db_name)).and_return(lockfile)
-    allow(File).to receive(:write).with(Nandi.config.lockfile_path(db_name)).and_return(lockfile)
-
     Nandi.configure do |config|
       config.renderer = renderer
       config.migration_directory = base_path
     end
+
+    # Only mock lockfile operations for the primary database (nil db_name)
+    # Other databases will handle their own mocking in their specific before blocks
+    allow(File).to receive(:read).with(Nandi.config.lockfile_path(nil)).and_return(lockfile)
+    allow(File).to receive(:write).with(Nandi.config.lockfile_path(nil)).and_return(lockfile)
   end
 
   describe "#body" do
@@ -119,6 +121,39 @@ RSpec.describe Nandi::CompiledMigration do
     it "returns the digest of the source migration" do
       allow(File).to receive(:read).and_return(source_contents)
       expect(source_digest).to eq(expected_source_digest)
+    end
+  end
+
+  describe "#migration" do
+    context "when db_name is nil" do
+      let(:db_name) { nil }
+
+      subject(:migration) { compiled_migration.migration }
+
+      it "passes the resolved default database_name to Migration" do
+        expect(migration.database_name).to eq(:primary)
+      end
+    end
+
+    context "when db_name is explicitly provided" do
+      before do
+        # Register the analytics database (this triggers creation of multi_db_config)
+        Nandi.config.register_database(:analytics,
+                                       migration_directory: base_path,
+                                       output_directory: "db/analytics_migrate")
+        allow(File).to receive(:read).with(Nandi.config.lockfile_path(:analytics)).and_return(lockfile)
+        allow(File).to receive(:write).with(Nandi.config.lockfile_path(:analytics)).and_return(lockfile)
+        # Skip validation for this context to avoid timeout config lookup issues
+        allow_any_instance_of(Nandi::Migration).to receive(:validate).and_return(nil)
+      end
+
+      let(:db_name) { :analytics }
+
+      subject(:migration) { compiled_migration.migration }
+
+      it "passes the database_name to Migration" do
+        expect(migration.database_name).to eq(:analytics)
+      end
     end
   end
 
