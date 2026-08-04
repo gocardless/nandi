@@ -69,11 +69,17 @@ module Nandi
     end
 
     # @param validator [Nandi::Validator]
-    def initialize(validator)
+    # @param database_name [Symbol, nil] The database this migration is being compiled
+    #   for. Used to resolve per-database config. Defaults to the default database.
+    def initialize(validator, database_name: nil)
       @validator = validator
+      @database_name = database_name
       @instructions = Hash.new { |h, k| h[k] = InstructionSet.new([]) }
       validate
     end
+
+    # @api private
+    attr_reader :database_name
 
     # @api private
     def up_instructions
@@ -331,7 +337,7 @@ module Nandi
 
     def disable_lock_timeout?
       if self.class.lock_timeout.nil?
-        strictest_lock == LockWeights::SHARE && Nandi.config.concurrent_lock_timeout.nil?
+        strictest_lock == LockWeights::SHARE && Nandi.config.concurrent_lock_timeout(database_name).nil?
       else
         false
       end
@@ -339,7 +345,7 @@ module Nandi
 
     def disable_statement_timeout?
       if self.class.statement_timeout.nil?
-        strictest_lock == LockWeights::SHARE && Nandi.config.concurrent_statement_timeout.nil?
+        strictest_lock == LockWeights::SHARE && Nandi.config.concurrent_statement_timeout(database_name).nil?
       else
         false
       end
@@ -377,17 +383,18 @@ module Nandi
 
     def default_statement_timeout
       if strictest_lock == LockWeights::SHARE
-        Nandi.config.concurrent_statement_timeout || Nandi.config.access_exclusive_statement_timeout
+        Nandi.config.concurrent_statement_timeout(database_name) ||
+          Nandi.config.access_exclusive_statement_timeout(database_name)
       else
-        Nandi.config.access_exclusive_statement_timeout
+        Nandi.config.access_exclusive_statement_timeout(database_name)
       end
     end
 
     def default_lock_timeout
       if strictest_lock == LockWeights::SHARE
-        Nandi.config.concurrent_lock_timeout || Nandi.config.access_exclusive_lock_timeout
+        Nandi.config.concurrent_lock_timeout(database_name) || Nandi.config.access_exclusive_lock_timeout(database_name)
       else
-        Nandi.config.access_exclusive_lock_timeout
+        Nandi.config.access_exclusive_lock_timeout(database_name)
       end
     end
 
