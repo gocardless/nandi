@@ -24,6 +24,10 @@ module Nandi
         Nandi::Migration::LockWeights::SHARE
       end
 
+      def validator
+        Validation::RemoveIndexValidator
+      end
+
       attr_reader :table
 
       private
