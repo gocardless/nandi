@@ -142,9 +142,6 @@ RSpec.describe Nandi::CompiledMigration do
         Nandi.config.register_database(:analytics,
                                        migration_directory: base_path,
                                        output_directory: "db/analytics_migrate")
-        # Skip validation for this context to avoid timeout config lookup issues
-        # See report for detailed explanation of why this is necessary
-        allow_any_instance_of(Nandi::Migration).to receive(:validate).and_return(nil)
       end
 
       let(:db_name) { :analytics }
