@@ -5,7 +5,7 @@ require "nandi/renderers/active_record/instructions"
 module Nandi
   module Renderers
     module ActiveRecordYugabyte
-      module Instructions 
+      module Instructions
         include Nandi::Renderers::ActiveRecord::Instructions
 
         class AddIndexYbCell < Nandi::Renderers::ActiveRecord::Instructions::Base
@@ -34,4 +34,3 @@ module Nandi
     end
   end
 end
-

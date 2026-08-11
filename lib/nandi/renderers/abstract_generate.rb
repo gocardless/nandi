@@ -5,7 +5,7 @@ require "tilt"
 
 module Nandi
   module Renderers
-    class Base < ::Cell::ViewModel
+    class AbstractGenerate < ::Cell::ViewModel
       def self.call(*args)
         super.call
       end

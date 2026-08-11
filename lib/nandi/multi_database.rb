@@ -19,6 +19,8 @@ module Nandi
       DEFAULT_MIGRATION_DIRECTORY = "db/safe_migrations"
       DEFAULT_OUTPUT_DIRECTORY = "db/migrate"
 
+      attr_accessor :renderer
+
       # The default lock timeout for migrations that take ACCESS EXCLUSIVE
       # locks. Can be overridden by way of the `set_lock_timeout` class
       # method in a given migration. Default: 1500ms.
@@ -94,6 +96,7 @@ module Nandi
         @raw_config = config
         @default = @name == :primary || config[:default] == true
         @yugabyte_database = config[:yugabyte_database] == true
+        @renderer = Renderers::Renderer.for_database(config[:database_type] || :postgres)
 
         # Paths and files
         @migration_directory = config[:migration_directory] || "db/#{path_prefix(name, default)}safe_migrations"

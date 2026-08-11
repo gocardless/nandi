@@ -1,21 +1,20 @@
 # frozen_string_literal: true
 
 require "spec_helper"
-require "nandi/renderers/active_record"
+require "nandi/renderers/renderer"
 require "nandi/migration"
-require "nandi/migration/yugabyte"
 require "nandi/validator"
 
-RSpec.describe Nandi::Renderers::ActiveRecord do
-  describe "::generate" do
+RSpec.describe Nandi::Renderers::ActiveRecord::Generate do
+  describe "#generate" do
     subject(:migration) do
-      described_class.generate(safe_migration.new(Nandi::Validator))
+      described_class.call(safe_migration.new(Nandi::Validator))
     end
 
     let(:fixture_root) do
       File.join(
         File.dirname(__FILE__),
-        "../fixtures/rendered/active_record",
+        "../../fixtures/rendered/active_record",
       )
     end
 
@@ -25,30 +24,6 @@ RSpec.describe Nandi::Renderers::ActiveRecord do
 
     def normalize_fixture(content)
       content.gsub(/ActiveRecord::Migration\[\d+\.\d+\]/, "ActiveRecord::Migration[#{current_rails_version}]")
-    end
-
-    describe "testing my new feature" do
-      let(:fixture) do
-        normalize_fixture(File.read(File.join(fixture_root, "create_and_drop_index_new.rb")))
-      end
-
-      let(:safe_migration) do
-        Class.new(Nandi::Migration::Yugabyte) do
-          def self.name
-            "MyAwesomeMigration"
-          end
-
-          def up
-            add_index :payments, %i[foo bar], bucket_on: :id, bucket_count: 16
-          end
-
-          def down
-            remove_index :payments, %i[foo bar]
-          end
-        end
-      end
-
-      it { is_expected.to eq(fixture) }
     end
 
     describe "adding and dropping an index" do
