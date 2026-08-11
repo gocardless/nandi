@@ -3,6 +3,7 @@
 require "spec_helper"
 require "nandi/renderers/active_record"
 require "nandi/migration"
+require "nandi/migration/yugabyte"
 require "nandi/validator"
 
 RSpec.describe Nandi::Renderers::ActiveRecord do
@@ -32,13 +33,13 @@ RSpec.describe Nandi::Renderers::ActiveRecord do
       end
 
       let(:safe_migration) do
-        Class.new(Nandi::Migration) do
+        Class.new(Nandi::Migration::Yugabyte) do
           def self.name
             "MyAwesomeMigration"
           end
 
           def up
-            add_index_yb :payments, %i[foo bar], bucket_on: :id, bucket_count: 16
+            add_index :payments, %i[foo bar], bucket_on: :id, bucket_count: 16
           end
 
           def down
