@@ -1,20 +1,10 @@
 # frozen_string_literal: true
 
-require "nandi/validation/failure_helpers"
+require "nandi/validation/instruction_validator"
 
 module Nandi
   module Validation
-    class AddIndexValidator
-      include Nandi::Validation::FailureHelpers
-
-      def self.call(instruction)
-        new(instruction).call
-      end
-
-      def initialize(instruction)
-        @instruction = instruction
-      end
-
+    class AddIndexValidator < InstructionValidator
       def call
         assert(
           not_using_hash_index?,
@@ -23,8 +13,6 @@ module Nandi
           "with the creation of this index without using Nandi.",
         )
       end
-
-      attr_reader :instruction
 
       private
 

@@ -19,7 +19,7 @@ RSpec.describe Nandi::Validation::EachValidator do
 
       it "calls RemoveIndexValidator" do
         expect(Nandi::Validation::RemoveIndexValidator).to receive(:call).
-          with(instruction)
+          with(instruction, :primary)
 
         call
       end
@@ -33,7 +33,7 @@ RSpec.describe Nandi::Validation::EachValidator do
       end
 
       it "calls AddColumnValidator" do
-        expect(Nandi::Validation::AddColumnValidator).to receive(:call).with(instruction)
+        expect(Nandi::Validation::AddColumnValidator).to receive(:call).with(instruction, :primary)
 
         call
       end
@@ -48,7 +48,7 @@ RSpec.describe Nandi::Validation::EachValidator do
 
       it "calls AddReferenceValidator" do
         expect(Nandi::Validation::AddReferenceValidator).to receive(:call).
-          with(instruction)
+          with(instruction, :primary)
 
         call
       end
@@ -63,7 +63,7 @@ RSpec.describe Nandi::Validation::EachValidator do
 
       it "calls AddIndexValidator" do
         expect(Nandi::Validation::AddIndexValidator).to receive(:call).
-          with(instruction)
+          with(instruction, :primary)
 
         call
       end
@@ -78,7 +78,7 @@ RSpec.describe Nandi::Validation::EachValidator do
 
       it "calls AddIndexYbValidator" do
         expect(Nandi::Validation::AddIndexYbValidator).to receive(:call).
-          with(instruction)
+          with(instruction, :primary)
 
         call
       end

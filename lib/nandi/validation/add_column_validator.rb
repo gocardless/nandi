@@ -1,20 +1,10 @@
 # frozen_string_literal: true
 
-require "nandi/validation/failure_helpers"
+require "nandi/validation/instruction_validator"
 
 module Nandi
   module Validation
-    class AddColumnValidator
-      include Nandi::Validation::FailureHelpers
-
-      def self.call(instruction)
-        new(instruction).call
-      end
-
-      def initialize(instruction)
-        @instruction = instruction
-      end
-
+    class AddColumnValidator < InstructionValidator
       def call
         collect_errors(
           assert(nullable? || default_value?,
@@ -22,8 +12,6 @@ module Nandi
           assert(!unique?, "add_column: column is unique"),
         )
       end
-
-      attr_reader :instruction
 
       private
 

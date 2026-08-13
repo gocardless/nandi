@@ -6,7 +6,7 @@ require "nandi/migration"
 require "nandi/instructions"
 
 RSpec.describe Nandi::Validation::AddIndexYbValidator do
-  subject(:validator) { described_class.call(instruction) }
+  subject(:validator) { described_class.call(instruction, db_name) }
 
   let(:instruction) do
     Nandi::Instructions::Yugabyte::AddIndexYb.new(
@@ -14,6 +14,7 @@ RSpec.describe Nandi::Validation::AddIndexYbValidator do
       fields: [:foo],
     )
   end
+  let(:db_name) { :primary }
 
   before do
     Nandi.instance_variable_set(:@config, nil) # Reset config

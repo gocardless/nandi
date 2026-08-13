@@ -8,28 +8,13 @@ module Nandi
   class Validator
     include Nandi::Validation::FailureHelpers
 
-    class InstructionValidator
-      def self.call(instruction)
-        new(instruction).call
-      end
-
-      def initialize(instruction)
-        @instruction = instruction
-      end
-
-      def call
-        raise NotImplementedError
-      end
-
-      attr_reader :instruction
+    def self.call(migration, db_name = nil)
+      new(migration, db_name).call
     end
 
-    def self.call(migration)
-      new(migration).call
-    end
-
-    def initialize(migration)
+    def initialize(migration, db_name = nil)
       @migration = migration
+      @db_name = db_name
     end
 
     def call
@@ -85,7 +70,7 @@ module Nandi
 
     def each_instruction_validation
       instructions.inject(success) do |result, instruction|
-        collect_errors(Validation::EachValidator.call(instruction), result)
+        collect_errors(Validation::EachValidator.call(instruction, db_name), result)
       end
     end
 
@@ -97,6 +82,6 @@ module Nandi
       [*migration.up_instructions, *migration.down_instructions]
     end
 
-    attr_reader :migration
+    attr_reader :migration, :db_name
   end
 end

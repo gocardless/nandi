@@ -1,19 +1,10 @@
 # frozen_string_literal: true
 
-require "nandi/validation/failure_helpers"
+require "nandi/validation/instruction_validator"
 
 module Nandi
   module Validation
-    class AddReferenceValidator
-      include Nandi::Validation::FailureHelpers
-
-      def self.call(instruction)
-        new(instruction).call
-      end
-
-      def initialize(instruction)
-        @instruction = instruction
-      end
+    class AddReferenceValidator < InstructionValidator
 
       def call
         foreign_key = instruction.extra_args.fetch(:foreign_key, false)
@@ -44,7 +35,6 @@ module Nandi
           "nandi:foreign_key generator, to do this."
       end
 
-      attr_reader :instruction
     end
   end
 end
