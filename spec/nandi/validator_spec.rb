@@ -18,7 +18,8 @@ RSpec.describe Nandi::Validator do
                     down_instructions: [],
                     statement_timeout: statement_timeout,
                     lock_timeout: lock_timeout,
-                    strictest_lock: strictest_lock)
+                    strictest_lock: strictest_lock,
+                    database_name: nil)
   end
 
   before do

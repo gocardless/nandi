@@ -50,7 +50,7 @@ module Nandi
     end
 
     def migration
-      @migration ||= class_name.camelize.constantize.new(Nandi.validator)
+      @migration ||= class_name.camelize.constantize.new(Nandi.validator, database_name: db_name)
     end
 
     def compiled_digest

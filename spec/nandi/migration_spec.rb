@@ -17,6 +17,36 @@ RSpec.describe Nandi::Migration do
     it { is_expected.to eq("MyAmazingClass") }
   end
 
+  describe "#database_name" do
+    context "when not specified" do
+      subject(:migration) { subject_class.new(validator) }
+
+      let(:subject_class) do
+        Class.new(described_class) do
+          def up; end
+        end
+      end
+
+      it "defaults to nil" do
+        expect(migration.database_name).to be_nil
+      end
+    end
+
+    context "when specified" do
+      subject(:migration) { subject_class.new(validator, database_name: :analytics) }
+
+      let(:subject_class) do
+        Class.new(described_class) do
+          def up; end
+        end
+      end
+
+      it "returns the given database name" do
+        expect(migration.database_name).to eq(:analytics)
+      end
+    end
+  end
+
   describe "#up and #down" do
     subject(:migration) { subject_class.new(validator) }
 
@@ -1106,6 +1136,35 @@ RSpec.describe Nandi::Migration do
         it "does not use the concurrent statement timeout" do
           expect(migration.statement_timeout).to eq(Nandi.config.access_exclusive_statement_timeout)
         end
+      end
+    end
+
+    context "with an explicit database_name" do
+      subject(:migration) { subject_class.new(validator, database_name: :analytics) }
+
+      let(:subject_class) do
+        Class.new(described_class) do
+          def up
+            validate_constraint :payments, :payments_mandates_fk
+          end
+
+          def down; end
+        end
+      end
+
+      before do
+        allow(Nandi.config).to receive(:concurrent_lock_timeout).with(:analytics).and_return(120_000)
+        allow(Nandi.config).to receive(:concurrent_statement_timeout).with(:analytics).and_return(600_000)
+      end
+
+      it "resolves disable_lock_timeout? and disable_statement_timeout? for that database" do
+        expect(migration.disable_lock_timeout?).to be(false)
+        expect(migration.disable_statement_timeout?).to be(false)
+      end
+
+      it "resolves lock_timeout and statement_timeout for that database" do
+        expect(migration.lock_timeout).to eq(120_000)
+        expect(migration.statement_timeout).to eq(600_000)
       end
     end
   end

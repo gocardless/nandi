@@ -12,8 +12,11 @@ RSpec.describe Nandi::TimeoutPolicies::AccessExclusive do
     let(:migration) do
       instance_double(Nandi::Migration,
                       statement_timeout: statement_timeout,
-                      lock_timeout: lock_timeout)
+                      lock_timeout: lock_timeout,
+                      database_name: database_name)
     end
+
+    let(:database_name) { nil }
 
     before do
       allow(migration).to receive_messages(disable_statement_timeout?: false, disable_lock_timeout?: false)
@@ -93,6 +96,23 @@ RSpec.describe Nandi::TimeoutPolicies::AccessExclusive do
           to eq([
             "lock timeout must be at most 750ms as it takes an ACCESS EXCLUSIVE lock",
           ])
+      end
+    end
+
+    context "with a migration for a specific database" do
+      let(:database_name) { :analytics }
+      let(:statement_timeout) { 1499 }
+      let(:lock_timeout) { 749 }
+
+      it { is_expected.to be_success }
+
+      it "resolves timeouts using the migration's database_name" do
+        expect(Nandi.config).to receive(:access_exclusive_statement_timeout_max).
+          with(:analytics).at_least(:once).and_return(1500)
+        expect(Nandi.config).to receive(:access_exclusive_lock_timeout_max).
+          with(:analytics).at_least(:once).and_return(750)
+
+        validate
       end
     end
   end

@@ -1,5 +1,16 @@
 # Changelog
 
+## v3.1.0 (2026-08-13)
+
+### Changes
+
+- Add `MigrationModifiers` framework.
+- Add `CreateTableValidatesFks` modifier to assert foreign keys are validated when creating new tables.
+
+### Bug fixes
+
+- Fix `lock_timeout` and `statement_timeout` config always reading from primary database config in multi-database setups.
+
 ## v3.0.0 (2026-06-16)
 
 ### Changes
