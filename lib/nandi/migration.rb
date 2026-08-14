@@ -57,7 +57,6 @@ module Nandi
       )
     end
 
-    #
     # Drop an index from the database.
     #
     # Nandi will add the `CONCURRENTLY` option, which means the change

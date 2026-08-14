@@ -21,12 +21,10 @@ module Nandi
         }
       end
 
-      # TODO: Is this relative to the current file?
       self.view_paths = [
         File.expand_path("../../templates", __dir__),
       ]
 
-      # TODO: Is this postgres specific?
       def should_disable_ddl_transaction?
         [*up_instructions, *down_instructions].
           any? { |i| i.procedure.to_s.include?("index") }

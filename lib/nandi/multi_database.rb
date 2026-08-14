@@ -18,6 +18,7 @@ module Nandi
 
       DEFAULT_MIGRATION_DIRECTORY = "db/safe_migrations"
       DEFAULT_OUTPUT_DIRECTORY = "db/migrate"
+      DEFAULT_DATABASE_TYPE = :postgres
 
       attr_accessor :renderer
 
@@ -95,7 +96,7 @@ module Nandi
         @name = name
         @raw_config = config
         @default = @name == :primary || config[:default] == true
-        @renderer = Renderers::Renderer.for_database(config[:database_type] || :postgres)
+        @renderer = Renderers::Renderer.for_database(config[:database_type] || DEFAULT_DATABASE_TYPE)
 
         # Paths and files
         @migration_directory = config[:migration_directory] || "db/#{path_prefix(name, default)}safe_migrations"

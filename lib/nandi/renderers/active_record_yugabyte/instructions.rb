@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require "nandi/renderers/active_record/instructions"
-
 module Nandi
   module Renderers
     module ActiveRecordYugabyte

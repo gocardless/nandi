@@ -5,7 +5,6 @@ require "nandi/validation/instruction_validator"
 module Nandi
   module Validation
     class AddReferenceValidator < InstructionValidator
-
       def call
         foreign_key = instruction.extra_args.fetch(:foreign_key, false)
         index = instruction.extra_args.fetch(:index, false)
@@ -34,7 +33,6 @@ module Nandi
           "Use the `add_foreign_key` and `validate_foreign_key` methods, or the " \
           "nandi:foreign_key generator, to do this."
       end
-
     end
   end
 end

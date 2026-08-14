@@ -5,7 +5,6 @@ require "nandi/validation/instruction_validator"
 module Nandi
   module Validation
     class RemoveIndexValidator < InstructionValidator
-
       def call
         opts = instruction.extra_args
 
