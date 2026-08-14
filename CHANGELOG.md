@@ -5,8 +5,8 @@
 ### New features
 
 - Add `table_overrides` as an optional per-database config option. Lets you override
-  `concurrent_lock_timeout`/`concurrent_statement_timeout` for specific tables (eg. a
-  large `payments` table that needs a longer statement timeout than the rest of the
+  `concurrent_lock_timeout`/`concurrent_statement_timeout` for specific tables (e.g. a
+  large table that needs a longer statement timeout than the rest of the
   database), keyed by table name. Falls back to the database-level value for any
   table (or key) not listed. Per-migration `set_lock_timeout`/`set_statement_timeout`
   calls continue to take precedence over both.
