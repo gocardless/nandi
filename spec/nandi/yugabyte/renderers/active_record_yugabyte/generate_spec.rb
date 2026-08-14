@@ -3,7 +3,7 @@
 require "spec_helper"
 require "nandi/renderers/renderer"
 require "nandi/migration"
-require "nandi/migration/yugabyte"
+require "nandi/yugabyte/migration/yugabyte"
 require "nandi/validator"
 
 RSpec.describe Nandi::Renderers::ActiveRecordYugabyte::Generate do

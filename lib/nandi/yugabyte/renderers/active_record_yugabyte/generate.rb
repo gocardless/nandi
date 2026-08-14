@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require "nandi/renderers/active_record/generate"
-require "nandi/renderers/active_record_yugabyte/instructions"
+require "nandi/yugabyte/renderers/active_record_yugabyte/instructions"
 
 module Nandi
   module Renderers

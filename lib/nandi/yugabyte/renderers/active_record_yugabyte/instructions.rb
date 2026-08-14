@@ -7,6 +7,14 @@ module Nandi
         include Nandi::Renderers::ActiveRecord::Instructions
 
         class AddIndexYbCell < Nandi::Renderers::ActiveRecord::Instructions::Base
+          self.view_paths = [
+            File.expand_path("../../templates", __dir__),
+          ]
+
+          def self.controller_path
+            "instructions/add_index_yb"
+          end
+
           # Because all this stuff goes into a SQL string, we don't need to format
           # the values.
           property :table

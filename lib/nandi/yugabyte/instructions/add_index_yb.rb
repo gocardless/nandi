@@ -9,7 +9,7 @@ module Nandi
         end
 
         def template
-          "nandi/renderers/active_record_yugabyte/instructions/add_index_yb"
+          Nandi::Renderers::ActiveRecordYugabyte::Instructions::AddIndexYbCell
         end
       end
     end
