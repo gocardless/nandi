@@ -298,6 +298,60 @@ RSpec.describe Nandi::MultiDatabase do
           expect(database.concurrent_statement_timeout).to eq(600_000)
         end
       end
+
+      context "when a table_overrides entry exists for the requested table" do
+        let(:config) do
+          {
+            concurrent_lock_timeout: 120_000,
+            concurrent_statement_timeout: 600_000,
+            table_overrides: {
+              payments: { concurrent_lock_timeout: 300_000, concurrent_statement_timeout: 1_800_000 },
+            },
+          }
+        end
+
+        it "uses the table override for concurrent_lock_timeout" do
+          expect(database.concurrent_lock_timeout(:payments)).to eq(300_000)
+        end
+
+        it "uses the table override for concurrent_statement_timeout" do
+          expect(database.concurrent_statement_timeout(:payments)).to eq(1_800_000)
+        end
+
+        it "falls back to the database default for a table with no override" do
+          expect(database.concurrent_lock_timeout(:mandates)).to eq(120_000)
+          expect(database.concurrent_statement_timeout(:mandates)).to eq(600_000)
+        end
+
+        it "falls back to the database default when no table is given" do
+          expect(database.concurrent_lock_timeout).to eq(120_000)
+          expect(database.concurrent_statement_timeout).to eq(600_000)
+        end
+
+        it "matches the override regardless of string/symbol table name" do
+          expect(database.concurrent_statement_timeout("payments")).to eq(1_800_000)
+        end
+      end
+
+      context "when a table_overrides entry only sets one of the two timeouts" do
+        let(:config) do
+          {
+            concurrent_lock_timeout: 120_000,
+            concurrent_statement_timeout: 600_000,
+            table_overrides: {
+              payments: { concurrent_statement_timeout: 1_800_000 },
+            },
+          }
+        end
+
+        it "uses the override for the configured key" do
+          expect(database.concurrent_statement_timeout(:payments)).to eq(1_800_000)
+        end
+
+        it "falls back to the database default for the unconfigured key" do
+          expect(database.concurrent_lock_timeout(:payments)).to eq(120_000)
+        end
+      end
     end
 
     context "with deprecated _limit config keys" do

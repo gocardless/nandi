@@ -130,6 +130,37 @@ RSpec.describe Nandi::Config do
     end
   end
 
+  context "table-specific timeout overrides" do
+    before do
+      config.register_database(
+        :primary,
+        concurrent_lock_timeout: 120_000,
+        concurrent_statement_timeout: 600_000,
+        table_overrides: {
+          payments: { concurrent_lock_timeout: 300_000, concurrent_statement_timeout: 1_800_000 },
+        },
+      )
+    end
+
+    it "resolves the table override for concurrent_lock_timeout" do
+      expect(config.concurrent_lock_timeout(:primary, :payments)).to eq(300_000)
+    end
+
+    it "resolves the table override for concurrent_statement_timeout" do
+      expect(config.concurrent_statement_timeout(:primary, :payments)).to eq(1_800_000)
+    end
+
+    it "falls back to the database default for a table with no override" do
+      expect(config.concurrent_lock_timeout(:primary, :mandates)).to eq(120_000)
+      expect(config.concurrent_statement_timeout(:primary, :mandates)).to eq(600_000)
+    end
+
+    it "falls back to the database default when no table is given" do
+      expect(config.concurrent_lock_timeout(:primary)).to eq(120_000)
+      expect(config.concurrent_statement_timeout(:primary)).to eq(600_000)
+    end
+  end
+
   describe "#migration_modifiers" do
     it "defaults to [CreateTableValidatesFks]" do
       expect(config.migration_modifiers).to eq(
