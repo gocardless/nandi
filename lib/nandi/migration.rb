@@ -360,7 +360,7 @@ module Nandi
     end
 
     def mixins
-      (up_instructions + down_instructions).inject([]) do |mixins, i|
+      all_instructions.inject([]) do |mixins, i|
         i.respond_to?(:mixins) ? [*mixins, *i.mixins] : mixins
       end.uniq
     end
@@ -402,7 +402,12 @@ module Nandi
     # The table this migration modifies, if any. Validator guarantees a migration
     # modifies at most one table, so this is unambiguous.
     def table
-      (up_instructions + down_instructions).find { |i| i.respond_to?(:table) }&.table&.to_sym
+      instruction_with_table = all_instructions.find { |i| i.respond_to?(:table) }
+      instruction_with_table&.table&.to_sym
+    end
+
+    def all_instructions
+      up_instructions + down_instructions
     end
 
     def invoke_custom_method(name, ...)
