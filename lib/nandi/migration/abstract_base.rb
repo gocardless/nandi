@@ -130,7 +130,7 @@ module Nandi
 
     # @api private
     def validate
-      validator.call(self)
+      validator.call(self, database_name)
     rescue NotImplementedError => e
       Validation::Result.new << failure(e.message)
     end

@@ -13,14 +13,18 @@ module Nandi
 
       def initialize(instruction, db_name)
         @instruction = instruction
-        @db_config = Nandi.config.database(db_name)
+        @db_name = db_name
       end
 
       def call
         raise NotImplementedError
       end
 
-      attr_reader :instruction, :db_config
+      def db_config
+        @db_config ||= Nandi.config.database(@db_name)
+      end
+
+      attr_reader :instruction
     end
   end
 end
