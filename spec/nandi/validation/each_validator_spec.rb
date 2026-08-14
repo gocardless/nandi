@@ -69,21 +69,6 @@ RSpec.describe Nandi::Validation::EachValidator do
       end
     end
 
-    context "when the given instruction is to add a yugabyte index" do
-      let(:instruction) { instance_double(Nandi::Instructions::Yugabyte::AddIndexYb) }
-
-      before do
-        allow(instruction).to receive(:procedure).and_return(:add_index_yb)
-      end
-
-      it "calls AddIndexYbValidator" do
-        expect(Nandi::Validation::AddIndexYbValidator).to receive(:call).
-          with(instruction, :primary)
-
-        call
-      end
-    end
-
     context "when the given instruction isn't explicitly validated" do
       let(:instruction) { instance_double(Nandi::Instructions::AddForeignKey) }
 

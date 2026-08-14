@@ -248,34 +248,6 @@ RSpec.describe Nandi::MultiDatabase do
       end
     end
 
-    context "with yugabyte_database configuration" do
-      let(:name) { :primary }
-
-      context "when not configured" do
-        let(:config) { {} }
-
-        it "defaults yugabyte_database to false" do
-          expect(database.yugabyte_database).to eq(false)
-        end
-      end
-
-      context "when yugabyte_database is set to true" do
-        let(:config) { { yugabyte_database: true } }
-
-        it "sets yugabyte_database to true" do
-          expect(database.yugabyte_database).to eq(true)
-        end
-      end
-
-      context "when yugabyte_database is set to false" do
-        let(:config) { { yugabyte_database: false } }
-
-        it "sets yugabyte_database to false" do
-          expect(database.yugabyte_database).to eq(false)
-        end
-      end
-    end
-
     context "with concurrent timeout defaults" do
       let(:name) { :primary }
 

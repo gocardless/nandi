@@ -79,7 +79,7 @@ module Nandi
       # @return [String]
       attr_accessor :output_directory
 
-      attr_reader :name, :default, :raw_config, :yugabyte_database
+      attr_reader :name, :default, :raw_config
 
       attr_accessor :migration_directory,
                     :lockfile_name
@@ -95,7 +95,6 @@ module Nandi
         @name = name
         @raw_config = config
         @default = @name == :primary || config[:default] == true
-        @yugabyte_database = config[:yugabyte_database] == true
         @renderer = Renderers::Renderer.for_database(config[:database_type] || :postgres)
 
         # Paths and files
