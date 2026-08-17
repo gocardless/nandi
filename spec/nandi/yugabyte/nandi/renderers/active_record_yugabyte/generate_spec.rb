@@ -3,7 +3,7 @@
 require "spec_helper"
 require "nandi/renderers/renderer"
 require "nandi/migration"
-require "nandi/yugabyte/migration/yugabyte"
+require "nandi/yugabyte/nandi/migration/yugabyte"
 require "nandi/validator"
 
 RSpec.describe Nandi::Renderers::ActiveRecordYugabyte::Generate do
@@ -15,7 +15,7 @@ RSpec.describe Nandi::Renderers::ActiveRecordYugabyte::Generate do
     let(:fixture_root) do
       File.join(
         File.dirname(__FILE__),
-        "../../fixtures/rendered/active_record",
+        "../../../../fixtures/rendered/active_record",
       )
     end
 
