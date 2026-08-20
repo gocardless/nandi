@@ -54,14 +54,24 @@ module Nandi
       # The default lock timeout for migrations that take place concurrently
       # (eg. add_index, remove_index). When set, concurrent migrations will use
       # set_lock_timeout instead of disable_lock_timeout!. Default: nil (disabled).
+      # Can be overridden for a specific table via `table_overrides`.
+      # @param table_name [Symbol, String, nil]
       # @return [Integer, nil]
-      attr_accessor :concurrent_lock_timeout
+      def concurrent_lock_timeout(table_name = nil)
+        table_override(table_name, :concurrent_lock_timeout) || @concurrent_lock_timeout
+      end
+      attr_writer :concurrent_lock_timeout
 
       # The default statement timeout for migrations that take place concurrently
       # (eg. add_index, remove_index). When set, concurrent migrations will use
       # set_statement_timeout instead of disable_statement_timeout!. Default: nil (disabled).
+      # Can be overridden for a specific table via `table_overrides`.
+      # @param table_name [Symbol, String, nil]
       # @return [Integer, nil]
-      attr_accessor :concurrent_statement_timeout
+      def concurrent_statement_timeout(table_name = nil)
+        table_override(table_name, :concurrent_statement_timeout) || @concurrent_statement_timeout
+      end
+      attr_writer :concurrent_statement_timeout
 
       # The directory for output files. Default: `db/migrate`
       # @return [String]
@@ -121,6 +131,17 @@ module Nandi
           config[:concurrent_statement_timeout_min] || DEFAULT_CONCURRENT_STATEMENT_TIMEOUT_MIN
         @concurrent_lock_timeout = config[:concurrent_lock_timeout]
         @concurrent_statement_timeout = config[:concurrent_statement_timeout]
+        @table_overrides = normalize_table_overrides(config[:table_overrides])
+      end
+
+      def normalize_table_overrides(table_overrides)
+        (table_overrides || {}).transform_keys(&:to_sym)
+      end
+
+      def table_override(table_name, key)
+        return nil if table_name.nil?
+
+        @table_overrides.dig(table_name.to_sym, key)
       end
 
       def path_prefix(name, default)

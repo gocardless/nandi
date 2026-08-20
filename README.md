@@ -566,6 +566,9 @@ These options can be set individually for each database. **All are optional** - 
 - `access_exclusive_statement_timeout_limit`: Maximum allowed statement timeout (default: 1,500ms)
 - `concurrent_lock_timeout_limit`: Minimum timeout for concurrent operations (default: 3,600,000ms / 1 hour)
 - `concurrent_statement_timeout_limit`: Minimum statement timeout for concurrent operations (default: 3,600,000ms / 1 hour)
+- `concurrent_lock_timeout`: Lock timeout for concurrent operations (`add_index`/`remove_index`). When set, concurrent migrations use `set_lock_timeout` instead of `disable_lock_timeout!`. Default: `nil` (timeout disabled)
+- `concurrent_statement_timeout`: Statement timeout for concurrent operations. When set, concurrent migrations use `set_statement_timeout` instead of `disable_statement_timeout!`. Default: `nil` (timeout disabled)
+- `table_overrides`: Per-table overrides of `concurrent_lock_timeout`/`concurrent_statement_timeout`, keyed by table name. Falls back to the database-level value for any table (or key) not listed
 
 **Global options** (set via config accessors):
 
@@ -620,6 +623,20 @@ Nandi.configure do |config|
     # Format, lint, etc.
     migration
   end
+end
+
+# Give a specific, huge table a longer concurrent statement/lock timeout than
+# the database-wide default, without loosening it for every other table.
+Nandi.configure do |config|
+  config.register_database(:primary,
+    concurrent_lock_timeout: 120_000,        # 2 minutes, database-wide default
+    concurrent_statement_timeout: 600_000,   # 10 minutes, database-wide default
+    table_overrides: {
+      payments: {
+        concurrent_lock_timeout: 300_000,      # 5 minutes
+        concurrent_statement_timeout: 1_800_000, # 30 minutes
+      },
+    })
 end
 ```
 

@@ -1107,6 +1107,57 @@ RSpec.describe Nandi::Migration do
           expect(migration.disable_lock_timeout?).to be(false)
         end
       end
+
+      context "and a table-specific override is configured for the migration's table" do
+        before do
+          allow(Nandi.config).to receive(:concurrent_lock_timeout).with(nil, :payments).and_return(300_000)
+          allow(Nandi.config).to receive(:concurrent_statement_timeout).with(nil, :payments).and_return(1_800_000)
+        end
+
+        after do
+          allow(Nandi.config).to receive(:concurrent_lock_timeout).and_call_original
+          allow(Nandi.config).to receive(:concurrent_statement_timeout).and_call_original
+        end
+
+        it "does not disable either timeout" do
+          expect(migration.disable_lock_timeout?).to be(false)
+          expect(migration.disable_statement_timeout?).to be(false)
+        end
+
+        it "uses the table-specific timeouts" do
+          expect(migration.lock_timeout).to eq(300_000)
+          expect(migration.statement_timeout).to eq(1_800_000)
+        end
+      end
+
+      context "and a table-specific override exists for a different table" do
+        let(:subject_class) do
+          Class.new(described_class) do
+            def up
+              validate_constraint :mandates, :mandates_customers_fk
+            end
+
+            def down; end
+          end
+        end
+
+        before do
+          allow(Nandi.config).to receive(:concurrent_lock_timeout).with(nil, :payments).and_return(300_000)
+          allow(Nandi.config).to receive(:concurrent_statement_timeout).with(nil, :payments).and_return(1_800_000)
+          allow(Nandi.config).to receive(:concurrent_lock_timeout).with(nil, :mandates).and_call_original
+          allow(Nandi.config).to receive(:concurrent_statement_timeout).with(nil, :mandates).and_call_original
+        end
+
+        after do
+          allow(Nandi.config).to receive(:concurrent_lock_timeout).and_call_original
+          allow(Nandi.config).to receive(:concurrent_statement_timeout).and_call_original
+        end
+
+        it "does not apply the other table's override, and disables both timeouts" do
+          expect(migration.disable_lock_timeout?).to be(true)
+          expect(migration.disable_statement_timeout?).to be(true)
+        end
+      end
     end
 
     context "when the strictest lock is ACCESS EXCLUSIVE" do
@@ -1153,8 +1204,8 @@ RSpec.describe Nandi::Migration do
       end
 
       before do
-        allow(Nandi.config).to receive(:concurrent_lock_timeout).with(:analytics).and_return(120_000)
-        allow(Nandi.config).to receive(:concurrent_statement_timeout).with(:analytics).and_return(600_000)
+        allow(Nandi.config).to receive(:concurrent_lock_timeout).with(:analytics, :payments).and_return(120_000)
+        allow(Nandi.config).to receive(:concurrent_statement_timeout).with(:analytics, :payments).and_return(600_000)
       end
 
       it "resolves disable_lock_timeout? and disable_statement_timeout? for that database" do

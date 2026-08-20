@@ -337,7 +337,7 @@ module Nandi
 
     def disable_lock_timeout?
       if self.class.lock_timeout.nil?
-        strictest_lock == LockWeights::SHARE && Nandi.config.concurrent_lock_timeout(database_name).nil?
+        strictest_lock == LockWeights::SHARE && Nandi.config.concurrent_lock_timeout(database_name, table).nil?
       else
         false
       end
@@ -345,7 +345,7 @@ module Nandi
 
     def disable_statement_timeout?
       if self.class.statement_timeout.nil?
-        strictest_lock == LockWeights::SHARE && Nandi.config.concurrent_statement_timeout(database_name).nil?
+        strictest_lock == LockWeights::SHARE && Nandi.config.concurrent_statement_timeout(database_name, table).nil?
       else
         false
       end
@@ -360,7 +360,7 @@ module Nandi
     end
 
     def mixins
-      (up_instructions + down_instructions).inject([]) do |mixins, i|
+      all_instructions.inject([]) do |mixins, i|
         i.respond_to?(:mixins) ? [*mixins, *i.mixins] : mixins
       end.uniq
     end
@@ -383,7 +383,7 @@ module Nandi
 
     def default_statement_timeout
       if strictest_lock == LockWeights::SHARE
-        Nandi.config.concurrent_statement_timeout(database_name) ||
+        Nandi.config.concurrent_statement_timeout(database_name, table) ||
           Nandi.config.access_exclusive_statement_timeout(database_name)
       else
         Nandi.config.access_exclusive_statement_timeout(database_name)
@@ -392,10 +392,22 @@ module Nandi
 
     def default_lock_timeout
       if strictest_lock == LockWeights::SHARE
-        Nandi.config.concurrent_lock_timeout(database_name) || Nandi.config.access_exclusive_lock_timeout(database_name)
+        Nandi.config.concurrent_lock_timeout(database_name, table) ||
+          Nandi.config.access_exclusive_lock_timeout(database_name)
       else
         Nandi.config.access_exclusive_lock_timeout(database_name)
       end
+    end
+
+    # The table this migration modifies, if any. Validator guarantees a migration
+    # modifies at most one table, so this is unambiguous.
+    def table
+      instruction_with_table = all_instructions.find { |i| i.respond_to?(:table) }
+      instruction_with_table&.table&.to_sym
+    end
+
+    def all_instructions
+      up_instructions + down_instructions
     end
 
     def invoke_custom_method(name, ...)

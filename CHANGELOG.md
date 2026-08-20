@@ -1,5 +1,26 @@
 # Changelog
 
+## v3.2.0 (2026-08-14)
+
+### New features
+
+- Add `table_overrides` as an optional per-database config option. Lets you override
+  `concurrent_lock_timeout`/`concurrent_statement_timeout` for specific tables (e.g. a
+  large table that needs a longer statement timeout than the rest of the
+  database), keyed by table name. Falls back to the database-level value for any
+  table (or key) not listed. Per-migration `set_lock_timeout`/`set_statement_timeout`
+  calls continue to take precedence over both.
+
+  ```ruby
+  Nandi.configure do |config|
+    config.register_database(:primary,
+      concurrent_statement_timeout: 600_000,   # 10 minutes, database-wide default
+      table_overrides: {
+        payments: { concurrent_statement_timeout: 1_800_000 }, # 30 minutes
+      })
+  end
+  ```
+
 ## v3.1.0 (2026-08-13)
 
 ### Changes
