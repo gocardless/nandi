@@ -80,6 +80,8 @@ module Nandi
       # @return [String]
       attr_accessor :output_directory
 
+      attr_accessor :database_type
+
       attr_reader :name, :default, :raw_config
 
       attr_accessor :migration_directory,
@@ -96,7 +98,8 @@ module Nandi
         @name = name
         @raw_config = config
         @default = @name == :primary || config[:default] == true
-        @renderer = Renderers::Renderer.for_database(config[:database_type] || DEFAULT_DATABASE_TYPE)
+        @database_type = config[:database_type] || DEFAULT_DATABASE_TYPE
+        @renderer = Renderers::Renderer.for_database(database_type)
 
         # Paths and files
         @migration_directory = config[:migration_directory] || "db/#{path_prefix(name, default)}safe_migrations"

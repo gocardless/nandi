@@ -9,6 +9,7 @@ module Nandi
   class Config
     DEFAULT_COMPILE_FILES = "all"
     DEFAULT_LOCKFILE_DIRECTORY = File.join(Dir.pwd, "db")
+    DEFAULT_SUPPRESS_POSTGRES_CLASSNAME = true
 
     # The files to compile when the compile generator is run. Default: `all`
     # May be one of the following:
@@ -24,6 +25,10 @@ module Nandi
     # @return [String]
     attr_writer :lockfile_directory
 
+    # Whether to append `::Postgres` to migration classnames when database type is postgres. Default: `true`
+    # @return [boolean]
+    attr_accessor :suppress_postgres_classname
+
     # @api private
     attr_reader :post_processor, :custom_methods, :migration_modifiers
 
@@ -31,6 +36,7 @@ module Nandi
       @custom_methods = {}
       @compile_files = DEFAULT_COMPILE_FILES
       @lockfile_directory = DEFAULT_LOCKFILE_DIRECTORY
+      @suppress_postgres_classname = DEFAULT_SUPPRESS_POSTGRES_CLASSNAME
       @migration_modifiers = [MigrationModifiers::CreateTableValidatesFks]
     end
 
@@ -80,6 +86,7 @@ module Nandi
     def concurrent_statement_timeout_min(database_name = nil) = config(database_name).concurrent_statement_timeout_min
     def concurrent_lock_timeout(database_name = nil, table_name = nil) = config(database_name).concurrent_lock_timeout(table_name)
     def concurrent_statement_timeout(database_name = nil, table_name = nil) = config(database_name).concurrent_statement_timeout(table_name)
+    def database_type(database_name = nil) = config(database_name).database_type
     # rubocop:enable Layout/LineLength
 
     # Delegate setter methods to the default database for backwards compatibility
