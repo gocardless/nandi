@@ -12,14 +12,10 @@ module Nandi
 
     def superclass_name
       database_type = Nandi.config.database_type(db_name)
-      case database_type
-      when :postgres
-        postgres_classname
-      when :yugabyte
-        "Nandi::Migration::Yugabyte"
-      else
+      database = Nandi::DATABASES.fetch(database_type) do
         raise "Unsupported database type #{database_type}"
       end
+      database.superclass_name
     end
 
     private
@@ -30,14 +26,6 @@ module Nandi
 
     def base_path
       Nandi.config.migration_directory(db_name)
-    end
-
-    def postgres_classname
-      if Nandi.config.suppress_postgres_classname
-        "Nandi::Migration"
-      else
-        "Nandi::Migration::Postgres"
-      end
     end
   end
 end

@@ -1,20 +1,13 @@
 # frozen_string_literal: true
 
-require "nandi/renderers/active_record/generate"
-require "nandi/yugabyte/nandi/renderers/active_record_yugabyte/generate"
-
 module Nandi
   module Renderers
     class Renderer
       def self.for_database(database_type)
-        case database_type
-        when :postgres
-          POSTGRES
-        when :yugabyte
-          YUGABYTE
-        else
+        database = Nandi::DATABASES.fetch(database_type) do
           raise "Unsupported database type #{database_type}"
         end
+        database::RENDERER
       end
 
       def initialize(generator:)
@@ -24,9 +17,6 @@ module Nandi
       def generate(migration)
         @generator.call(migration)
       end
-
-      POSTGRES = new(generator: Nandi::Renderers::ActiveRecord::Generate)
-      YUGABYTE = new(generator: Nandi::Renderers::ActiveRecordYugabyte::Generate)
     end
   end
 end

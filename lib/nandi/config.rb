@@ -2,6 +2,7 @@
 
 require "nandi/migration_modifiers"
 require "nandi/renderers/renderer"
+require "nandi/databases"
 require "nandi/lockfile"
 require "nandi/multi_database"
 
