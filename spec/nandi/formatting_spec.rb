@@ -19,13 +19,12 @@ RSpec.describe Nandi::Formatting do
     shared_examples "outputs valid ruby" do |input|
       let(:value) { input }
 
-      # rubocop:disable Security/Eval
+      # rubocop:disable-next Security/Eval
       it "evaluates to the same value" do
         expect(eval(result)).to eq(input)
       rescue SyntaxError
         raise StandardError, "not valid ruby: #{result}"
       end
-      # rubocop:enable Security/Eval
     end
 
     context "with nil" do
