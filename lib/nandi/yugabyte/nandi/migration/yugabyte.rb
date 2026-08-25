@@ -2,7 +2,7 @@
 
 module Nandi
   class Migration::Yugabyte < Nandi::Migration
-    INDEX_YB_TERMS = %i[bucket_on bucket_count]
+    INDEX_YB_TERMS = %i[bucket_on bucket_count].freeze
 
     def add_index(table, fields, **kwargs)
       return super unless INDEX_YB_TERMS.any? { |k| kwargs.key?(k) }
