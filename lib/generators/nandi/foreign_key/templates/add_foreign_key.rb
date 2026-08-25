@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class <%= add_foreign_key_name.camelize %> < Nandi::Migration
+class <%= add_foreign_key_name.camelize %> < <%= superclass_name %>
   def up
     add_foreign_key <%= format_value(table) %>, <%= format_value(target) %><% if any_options? %>,
         <% if column %>column: <%= format_value(column) %><% end %><% if column && name %>,<% end %>

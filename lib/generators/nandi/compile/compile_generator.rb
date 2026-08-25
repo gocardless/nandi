@@ -3,6 +3,7 @@
 require "rails/generators"
 require "nandi"
 require "nandi/migration"
+require "nandi/yugabyte/nandi/migration/yugabyte"
 require "nandi/file_matcher"
 require "nandi/lockfile"
 

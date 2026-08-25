@@ -1,36 +1,15 @@
 # frozen_string_literal: true
 
-require "nandi/validation/failure_helpers"
+require "nandi/validation/instruction_validator"
 
 module Nandi
   module Validation
-    class EachValidator
-      include Nandi::Validation::FailureHelpers
-
-      def self.call(instruction)
-        new(instruction).call
-      end
-
-      def initialize(instruction)
-        @instruction = instruction
-      end
-
+    class EachValidator < InstructionValidator
       def call
-        case instruction.procedure
-        when :add_index
-          AddIndexValidator.call(instruction)
-        when :remove_index
-          RemoveIndexValidator.call(instruction)
-        when :add_column
-          AddColumnValidator.call(instruction)
-        when :add_reference
-          AddReferenceValidator.call(instruction)
-        else
-          success
-        end
-      end
+        return success unless instruction.respond_to?(:validator)
 
-      attr_reader :instruction
+        instruction.validator.call(instruction, db_config.name)
+      end
     end
   end
 end

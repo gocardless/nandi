@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class <%= add_index_name.camelize %> < Nandi::Migration
+class <%= add_index_name.camelize %> < <%= superclass_name %>
   def up
     add_index <%= format_value(table) %>,
               %i<%= format_value(columns).tr('"', '') %>,

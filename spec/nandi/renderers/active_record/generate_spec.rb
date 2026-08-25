@@ -1,20 +1,20 @@
 # frozen_string_literal: true
 
 require "spec_helper"
-require "nandi/renderers/active_record"
+require "nandi/renderers/renderer"
 require "nandi/migration"
 require "nandi/validator"
 
-RSpec.describe Nandi::Renderers::ActiveRecord do
-  describe "::generate" do
+RSpec.describe Nandi::Renderers::ActiveRecord::Generate do
+  describe "#generate" do
     subject(:migration) do
-      described_class.generate(safe_migration.new(Nandi::Validator))
+      described_class.call(safe_migration.new(Nandi::Validator))
     end
 
     let(:fixture_root) do
       File.join(
         File.dirname(__FILE__),
-        "../fixtures/rendered/active_record",
+        "../../fixtures/rendered/active_record",
       )
     end
 

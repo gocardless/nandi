@@ -15,6 +15,7 @@ require "nandi/instructions/change_column_default"
 require "nandi/instructions/validate_constraint"
 require "nandi/instructions/add_check_constraint"
 require "nandi/instructions/irreversible_migration"
+require "nandi/yugabyte/nandi/instructions/add_index_yb"
 
 module Nandi
   module Instructions; end
