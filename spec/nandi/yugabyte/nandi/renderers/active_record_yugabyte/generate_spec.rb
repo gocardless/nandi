@@ -50,5 +50,31 @@ RSpec.describe Nandi::Renderers::ActiveRecordYugabyte::Generate do
 
       it { is_expected.to eq(fixture) }
     end
+
+    describe "adding a standard index with no yugabyte-specific options" do
+      let(:fixture) do
+        normalize_fixture(File.read(File.join(fixture_root, "create_and_drop_index.rb")))
+      end
+
+      let(:safe_migration) do
+        Class.new(Nandi::Migration::Yugabyte) do
+          def self.name
+            "MyAwesomeMigration"
+          end
+
+          def up
+            add_index :payments, %i[foo bar]
+          end
+
+          def down
+            remove_index :payments, %i[foo bar]
+          end
+        end
+      end
+
+      it "renders the same as the default ActiveRecord add_index" do
+        expect(migration).to eq(fixture)
+      end
+    end
   end
 end
