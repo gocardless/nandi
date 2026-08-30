@@ -16,18 +16,9 @@ module Nandi
       end
 
       def call
-        case instruction.procedure
-        when :add_index
-          AddIndexValidator.call(instruction)
-        when :remove_index
-          RemoveIndexValidator.call(instruction)
-        when :add_column
-          AddColumnValidator.call(instruction)
-        when :add_reference
-          AddReferenceValidator.call(instruction)
-        else
-          success
-        end
+        return success unless instruction.respond_to?(:validator)
+
+        instruction.validator.call(instruction)
       end
 
       attr_reader :instruction
