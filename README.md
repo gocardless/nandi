@@ -315,6 +315,10 @@ Drops an existing NOT NULL constraint. Please not that this migration is not saf
 
 Changes the default value for this column when new rows are inserted into the table.
 
+### `#extend_varchar_column_limit(table, column, from:, to:)`
+
+Widens (or removes, with `to: nil`) the character limit on an existing varchar column. Since Postgres 9.2 this is metadata-only; _narrowing_ a limit requires a full-table scan and isn't supported. The generated migration re-checks the column's actual type and limit in the database against `from:` before changing it, so this is safe to recompile even after it has already run. Not safely reversible: `down` should be `irreversible_migration`.
+
 ### `#remove_index(table, target)`
 
 Drop an index from the database.

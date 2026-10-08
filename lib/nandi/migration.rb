@@ -311,6 +311,19 @@ module Nandi
       )
     end
 
+    # Widens (or removes) the character limit on an existing varchar column.
+    # Since Postgres 9.2 this is metadata-only (a brief ACCESS EXCLUSIVE lock).
+    # Narrowing remains a different, unsafe operation and is not supported.
+    #
+    # Not safely reversible: `down` should be `irreversible_migration`.
+    # @param table [Symbol, String] The name of the table with the column
+    # @param column [Symbol, String] The name of the column to change
+    # @param from [Integer] The column's current character limit
+    # @param to [Integer, nil] The new character limit, or nil to remove it entirely
+    def extend_varchar_column_limit(table, column, from:, to:)
+      current_instructions << Instructions::ExtendVarcharColumnLimit.new(table:, column:, from:, to:)
+    end
+
     # Raises an `ActiveRecord::IrreversibleMigration` error for use in
     # irreversible migrations
     def irreversible_migration
