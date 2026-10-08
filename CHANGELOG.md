@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### New features
+
+- Add `#extend_varchar_column_limit(table, column, from:, to:)`.
+
 ## v3.2.0 (2026-08-14)
 
 ### New features

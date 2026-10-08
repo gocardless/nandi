@@ -1,0 +1,16 @@
+execute <<-SQL
+  DO $$
+  DECLARE
+    actual_type text;
+  BEGIN
+    SELECT format_type(atttypid, atttypmod) INTO actual_type
+    FROM pg_attribute
+    WHERE attrelid = '<%= table %>'::regclass AND attname = '<%= column %>' AND NOT attisdropped;
+
+    IF actual_type IS DISTINCT FROM 'character varying(<%= from %>)' THEN
+      RAISE EXCEPTION 'expected <%= table %>.<%= column %> to be character varying(<%= from %>), found %', actual_type;
+    END IF;
+  END $$;
+
+  ALTER TABLE <%= table %> ALTER COLUMN "<%= column %>" TYPE <%= to_type_sql %>;
+SQL

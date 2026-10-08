@@ -105,6 +105,16 @@ module Nandi
           formatted_property :value
         end
 
+        class ExtendVarcharColumnLimitCell < Base
+          property :table
+          property :column
+          property :from
+
+          def to_type_sql
+            model.to.nil? ? "character varying" : "character varying(#{model.to})"
+          end
+        end
+
         class RemoveNotNullConstraintCell < Base
           formatted_property :table
           formatted_property :column
