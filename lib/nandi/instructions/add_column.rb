@@ -19,6 +19,10 @@ module Nandi
       def lock
         Nandi::Migration::LockWeights::ACCESS_EXCLUSIVE
       end
+
+      def validator
+        Validation::AddColumnValidator
+      end
     end
   end
 end

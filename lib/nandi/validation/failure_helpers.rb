@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "dry/monads/result"
+require "dry/monads"
 
 module Nandi
   module Validation
