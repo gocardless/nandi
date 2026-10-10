@@ -2,6 +2,7 @@
 
 require "spec_helper"
 require "generators/nandi/index/index_generator"
+require "tmpdir"
 
 RSpec.describe Nandi::IndexGenerator do
   let(:generator) { described_class.new(["users", "email,status"]) }
@@ -64,6 +65,30 @@ RSpec.describe Nandi::IndexGenerator do
         )
 
         generator.add_index
+      end
+    end
+  end
+
+  describe "generated migration content" do
+    it "renders a valid symbol array literal for multiple columns" do
+      Nandi.configure do |config|
+        config.migration_directory = "db/safe_migrations"
+      end
+
+      Dir.mktmpdir do |dir|
+        real_generator = described_class.new(["users", "email,status"], {}, destination_root: dir)
+        allow(real_generator).to receive(:options).and_return({})
+
+        real_generator.add_index
+
+        path = File.join(dir, "db/safe_migrations/20240115123045_add_index_on_email_status_to_users.rb")
+        content = File.read(path)
+
+        # A leftover comma inside the %i[] literal (e.g. %i[email, status])
+        # silently produces a broken symbol like :"email," instead of two
+        # separate symbols, so assert on the exact rendered array literal.
+        expect(content).to include("%i[email status]")
+        expect(content.scan(/%i\[[^\]]*\]/)).to all(satisfy { |literal| !literal.include?(",") })
       end
     end
   end

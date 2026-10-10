@@ -3,12 +3,12 @@
 class <%= add_index_name.camelize %> < Nandi::Migration
   def up
     add_index <%= format_value(table) %>,
-              %i<%= format_value(columns).tr('"', '') %>,
+              %i<%= format_value(columns).delete('",') %>,
               name: <%= format_value(index_name) %>
   end
 
   def down
     remove_index <%= format_value(table) %>,
-                 %i<%= format_value(columns).tr('"', '') %>
+                 %i<%= format_value(columns).delete('",') %>
   end
 end
